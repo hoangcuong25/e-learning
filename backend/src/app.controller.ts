@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Public } from './decorator/customize';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { Public } from './core/decorator/customize';
 
 @ApiBearerAuth()
 @Controller()

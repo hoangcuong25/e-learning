@@ -8,13 +8,13 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { MailerModule } from "@nestjs-modules/mailer";
 import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
 import { RedisModule, RedisModuleOptions } from "@nestjs-modules/ioredis";
-import { PrismaModule } from "./prisma/prisma.module";
 import { InstructorModule } from "./modules/instructor/instructor.module";
 import { SpecializationModule } from "./modules/specialization/specialization.module";
 import { MailModule } from "./core/mailSender/mail.module";
 import { CourseModule } from "./modules/course/course.module";
 import { LessonModule } from "./modules/lesson/lesson.module";
-import { CloudinaryModule } from "./cloudinary/cloudinary.module";
+import { CloudinaryModule } from "./core/cloudinary/cloudinary.module";
+import { PrismaModule } from "./core/prisma/prisma.module";
 
 @Module({
   imports: [

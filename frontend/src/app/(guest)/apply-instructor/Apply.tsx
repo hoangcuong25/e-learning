@@ -69,7 +69,7 @@ const InstructorApplyPage = () => {
 
       toast.success("Đơn đăng ký đã được gửi thành công!");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Có lỗi đã xảy ra");
+      toast.error("Có lỗi đã xảy ra");
     }
   };
 

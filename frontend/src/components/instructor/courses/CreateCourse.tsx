@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { createCourse } from "@/store/coursesSlice";
+import { createCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
 import { CourseFormData, courseSchema } from "@/hook/zod-schema/CourseSchema";
 import LoadingScreen from "@/components/LoadingScreen";
 
@@ -73,6 +73,8 @@ export default function CourseCreate() {
       formData.append("instructorId", user.id.toString());
 
       await dispatch(createCourse(formData)).unwrap();
+      await dispatch(fetchCoursesByInstructor()).unwrap();
+
       toast.success("Tạo khóa học thành công!");
 
       reset();

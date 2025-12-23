@@ -12,10 +12,11 @@ import {
 } from "@nestjs/common";
 import { CourseService } from "./course.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
-import { ApiConsumes, ApiOperation } from "@nestjs/swagger";
-import { ResponseMessage, Roles } from "src/decorator/customize";
+import { ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { ResponseMessage, Roles } from "src/core/decorator/customize";
 
+@ApiTags("course")
 @Controller("course")
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
@@ -27,9 +28,10 @@ export class CourseController {
   @UseInterceptors(FileInterceptor("thumbnail"))
   create(
     @Body() dto: CreateCourseDto,
+    @Req() req,
     @UploadedFile() thumbnail?: Express.Multer.File
   ) {
-    return this.courseService.create(dto, thumbnail);
+    return this.courseService.create(dto, req.user.id, thumbnail);
   }
 
   @Get()
@@ -41,11 +43,11 @@ export class CourseController {
   }
 
   @Get(":id")
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Get course detail by ID" })
   @ResponseMessage("Get course detail")
-  findOne(@Param("id") id: string) {
-    return this.courseService.findOne(+id);
+  findOne(@Param("id") id: string, @Req() req) {
+    return this.courseService.findOne(+id, req.user.id);
   }
 
   @Get("instructors/me/courses")
@@ -57,8 +59,8 @@ export class CourseController {
     return this.courseService.getCoursesByInstructor(+instructorId);
   }
 
-  @Patch(":id")
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Patch("instructor/course/:id")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Update a course by ID" })
   @ApiConsumes("multipart/form-data")
   @ResponseMessage("Update course")
@@ -66,16 +68,22 @@ export class CourseController {
   update(
     @Param("id") id: string,
     @Body() updateCourseDto,
+    @Req() req: any,
     @UploadedFile() thumbnail?: Express.Multer.File
   ) {
-    return this.courseService.update(+id, updateCourseDto, thumbnail);
+    return this.courseService.update(
+      +id,
+      updateCourseDto,
+      thumbnail,
+      req.user.id
+    );
   }
 
-  @Delete(":id")
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Delete("instructor/course/:id")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Delete a course by ID" })
   @ResponseMessage("Delete course")
-  remove(@Param("id") id: string) {
-    return this.courseService.remove(+id);
+  remove(@Param("id") id: string, @Req() req) {
+    return this.courseService.remove(+id, req.user.id);
   }
 }

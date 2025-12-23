@@ -283,7 +283,7 @@ const NavbarUser = () => {
                   href="/profile"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
                 >
-                  Hồ sơ học viên
+                  Hồ sơ của tôi
                 </Link>
                 <Link
                   href="/my-learning"

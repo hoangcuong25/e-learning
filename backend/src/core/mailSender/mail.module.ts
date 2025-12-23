@@ -25,7 +25,13 @@ import * as dayjs from "dayjs";
           from: `"EduConnect" <no-reply@educonnect.com>`,
         },
         template: {
-          dir: path.join(process.cwd(), "src", "mail", "templates"),
+          dir: path.join(
+            process.cwd(),
+            "src",
+            "core",
+            "mailSender",
+            "templates"
+          ),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,

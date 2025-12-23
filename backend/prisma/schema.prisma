@@ -25,18 +25,23 @@ enum ApplicationStatus {
   REJECTED
 }
 
+enum CourseType {
+  FREE
+  PAID
+}
+
 // ─── USER ──────────────────────────────
 model User {
-  id       Int       @id @default(autoincrement())
-  fullname String    @db.VarChar(50)
-  email    String    @unique
-  password String    @db.VarChar(100)
-  avatar   String    @default("https://res.cloudinary.com/dtaawt3ej/image/upload/v1747292486/q9lmgugyqgrm7q5voatw.jpg")
-  gender   Gender?
-  dob      DateTime? @db.Date
-  address  String?
-  role     UserRole  @default(USER)
-  phone    String?
+  id        Int       @id @default(autoincrement())
+  fullname  String    @db.VarChar(50)
+  email     String    @unique
+  password  String    @db.VarChar(100)
+  avatar    String    @default("https://res.cloudinary.com/dtaawt3ej/image/upload/v1747292486/q9lmgugyqgrm7q5voatw.jpg")
+  gender    Gender?
+  dob       DateTime? @db.Date
+  address   String?
+  role      UserRole  @default(USER)
+  phone     String?
 
   isVerified             Boolean   @default(false)
   resetOtp               String?
@@ -49,7 +54,7 @@ model User {
 
   // Relations
   instructorApplications InstructorApplication[]
-  courses                Course[] 
+  courses                Course[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -57,17 +62,17 @@ model User {
 
 // ─── INSTRUCTOR APPLICATION ──────────────────────────────
 model InstructorApplication {
-  id             Int                @id @default(autoincrement())
-  userId         Int
-  experience     String?            @db.Text
-  bio            String?            @db.Text
-  status         ApplicationStatus  @default(PENDING)
-  reviewedAt     DateTime?
-  reviewedBy     Int?
+  id         Int               @id @default(autoincrement())
+  userId     Int
+  experience String?            @db.Text
+  bio        String?            @db.Text
+  status     ApplicationStatus  @default(PENDING)
+  reviewedAt DateTime?
+  reviewedBy Int?
 
   // Relations
-  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  applicationSpecializations ApplicationSpecializations[]
+  user                     User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applicationSpecializations ApplicationSpecialization[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -75,52 +80,54 @@ model InstructorApplication {
 
 // ─── SPECIALIZATION ──────────────────────────────
 model Specialization {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique @db.VarChar(100)
-  desc     String?   @db.Text
+  id       Int     @id @default(autoincrement())
+  name     String  @unique @db.VarChar(100)
+  desc     String? @db.Text
 
   // Relations
-  applicationSpecializations ApplicationSpecializations[]
-  courseSpecializations      CourseSpecialization[]  
+  applicationSpecializations ApplicationSpecialization[]
+  courseSpecializations      CourseSpecialization[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model ApplicationSpecializations {
-  applicationId     Int
-  specializationId  Int
+// ─── JUNCTION: InstructorApplication ↔ Specialization ──────────────────────────────
+model ApplicationSpecialization {
+  applicationId    Int
+  specializationId Int
 
-  application       InstructorApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  specialization    Specialization        @relation(fields: [specializationId], references: [id], onDelete: Cascade)
+  application      InstructorApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  specialization   Specialization        @relation(fields: [specializationId], references: [id], onDelete: Cascade)
 
   @@id([applicationId, specializationId])
 }
 
-// ─── COURSE MODULE ──────────────────────────────
+// ─── COURSE ──────────────────────────────
 model Course {
-  id            Int       @id @default(autoincrement())
-  title         String    @db.VarChar(150)
-  description   String?   @db.Text
-  thumbnail     String?   // Cloudinary URL
-  price         Float     @default(0)
-  isPublished   Boolean   @default(false)
+  id           Int        @id @default(autoincrement())
+  title        String     @db.VarChar(150)
+  description  String?    @db.Text
+  thumbnail    String?    // Cloudinary URL
+  price        Float      @default(0)
+  type         CourseType @default(FREE)
+  isPublished  Boolean    @default(false)
 
-  // Relations
-  instructorId  Int
-  instructor    User       @relation(fields: [instructorId], references: [id], onDelete: Cascade)
-  lessons       Lesson[]
-  specializations CourseSpecialization[] 
+  instructorId Int
+  instructor   User        @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+  lessons      Lesson[]
+  specializations CourseSpecialization[]
 
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
+// ─── LESSON ──────────────────────────────
 model Lesson {
   id          Int       @id @default(autoincrement())
   title       String    @db.VarChar(150)
   content     String?   @db.Text     // HTML content
-  videoUrl    String?   // Cloudinary / iframe URL
+  videoUrl    String?   // Cloudinary URL
   orderIndex  Int       @default(0)
 
   // Relations
@@ -129,9 +136,11 @@ model Lesson {
 
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+
+  @@unique([courseId, orderIndex])
 }
 
-// ─── N-N RELATION: Course ↔ Specialization ──────────────
+// ─── JUNCTION: Course ↔ Specialization ──────────────
 model CourseSpecialization {
   courseId         Int
   specializationId Int

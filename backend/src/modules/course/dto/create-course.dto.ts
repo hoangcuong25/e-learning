@@ -45,4 +45,13 @@ export class CreateCourseDto {
   @Type(() => Number)
   @IsNumber()
   instructorId: number;
+
+  @ApiProperty({
+    example: [1, 2],
+    description:
+      "List of specialization IDs that this course belongs to (must be approved specializations of the instructor)",
+  })
+  @Type(() => Number)
+  @IsOptional()
+  specializationIds: number[];
 }

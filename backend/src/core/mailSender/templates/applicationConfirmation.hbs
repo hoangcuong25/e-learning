@@ -1,0 +1,142 @@
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xác nhận gửi đơn ứng tuyển Giảng viên</title>
+    <style>
+      body {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        background-color: #f9fafb;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+
+      .header {
+        background-color: #2563eb;
+        color: #ffffff;
+        text-align: center;
+        padding: 24px 16px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+      }
+
+      .content {
+        padding: 32px 24px;
+        line-height: 1.6;
+      }
+
+      .content h2 {
+        font-size: 18px;
+        color: #111827;
+        margin-top: 0;
+      }
+
+      .content p {
+        margin: 12px 0;
+      }
+
+      .highlight {
+        color: #2563eb;
+        font-weight: 600;
+      }
+
+      ul {
+        padding-left: 20px;
+      }
+
+      .footer {
+        text-align: center;
+        font-size: 13px;
+        color: #6b7280;
+        padding: 20px 0;
+        border-top: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+      }
+
+      .btn {
+        display: inline-block;
+        margin-top: 16px;
+        padding: 10px 20px;
+        background-color: #2563eb;
+        color: white !important;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Xác nhận gửi đơn ứng tuyển Giảng viên</h1>
+      </div>
+
+      <div class="content">
+        <h2>Xin chào {{user.fullname}},</h2>
+
+        <p>
+          Chúng tôi đã nhận được đơn ứng tuyển trở thành
+          <span class="highlight">Giảng viên</span>
+          từ bạn vào ngày
+          <strong>{{formatDate application.createdAt}}</strong>.
+        </p>
+
+        {{#if application.bio}}
+          <p><strong>Giới thiệu bản thân:</strong><br />{{application.bio}}</p>
+        {{/if}}
+
+        {{#if application.experience}}
+          <p><strong>Kinh nghiệm giảng dạy:</strong><br
+            />{{application.experience}}</p>
+        {{/if}}
+
+        {{#if specializations.length}}
+          <p><strong>Chuyên ngành đã chọn:</strong></p>
+          <ul>
+            {{#each specializations}}
+              <li>{{this}}</li>
+            {{/each}}
+          </ul> 
+        {{/if}}
+
+        <p>
+          Đơn của bạn hiện đang trong trạng thái:
+          <span class="highlight">{{application.status}}</span>
+        </p>
+
+        <p>
+          Chúng tôi sẽ thông báo cho bạn qua email này ngay khi có kết quả
+          duyệt.
+        </p>
+
+        <p>
+          Cảm ơn bạn đã quan tâm và mong muốn đồng hành cùng
+          {{platformName}}.<br />
+          Chúc bạn một ngày tốt lành!
+        </p>
+
+        <p>Trân trọng,<br />Đội ngũ {{platformName}}</p>
+      </div>
+
+      <div class="footer">
+        ©
+        {{platformName}}. Mọi quyền được bảo lưu.
+      </div>
+    </div>
+  </body>
+</html>
