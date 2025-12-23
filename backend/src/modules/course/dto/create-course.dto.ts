@@ -7,6 +7,7 @@ import {
   MinLength,
 } from "class-validator";
 import { Type } from "class-transformer";
+import { CourseType } from "@prisma/client";
 
 export class CreateCourseDto {
   @ApiProperty({ example: "React for Beginners", description: "Course title" })
@@ -39,14 +40,6 @@ export class CreateCourseDto {
   isPublished?: boolean;
 
   @ApiProperty({
-    example: 1,
-    description: "Instructor ID who owns this course",
-  })
-  @Type(() => Number)
-  @IsNumber()
-  instructorId: number;
-
-  @ApiProperty({
     example: [1, 2],
     description:
       "List of specialization IDs that this course belongs to (must be approved specializations of the instructor)",
@@ -54,4 +47,8 @@ export class CreateCourseDto {
   @Type(() => Number)
   @IsOptional()
   specializationIds: number[];
+
+  @ApiProperty({ example: true, description: "Is the course free?" })
+  @IsOptional()
+  type: CourseType;
 }

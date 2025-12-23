@@ -18,7 +18,7 @@ import { Response } from "express";
 import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Public, ResponseMessage } from "src/core/decorator/customize";
 
-@ApiTags("auth")
+@ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -35,6 +35,7 @@ export class AuthController {
   @Post("register")
   @ResponseMessage("register")
   @ApiResponse({ status: 200, description: "Users register successfully" })
+  @ApiBearerAuth()
   @Public()
   register(@Body() registerDto: CreateAuthDto) {
     return this.authService.handleRegister(registerDto);
@@ -50,26 +51,43 @@ export class AuthController {
 
   @Post("send-email-active")
   @ResponseMessage("send mail active account")
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: "Send email active account successfully",
+  })
   sendMail(@Req() req) {
     return this.authService.sendEmailActive(req.user.id);
   }
 
   @Post("active-account")
   @ResponseMessage("comfirm active account")
+  @ApiResponse({
+    status: 200,
+    description: "Comfirm active account successfully",
+  })
+  @ApiBearerAuth()
   comfirmActive(@Req() req, @Body() body) {
     return this.authService.comfirmActive(req.user.id, body.otp);
   }
 
   @Post("send-reset-otp")
   @Public()
+  @ApiResponse({
+    status: 200,
+    description: "Send reset otp password successfully",
+  })
   @ResponseMessage("send reset otp password")
+  @ApiBearerAuth()
   sendResetOtp(@Body() body) {
     return this.authService.sendResetOtp(body.email);
   }
 
   @Post("reset-password")
   @Public()
-  @ResponseMessage("comfirm active account")
+  @ApiResponse({ status: 200, description: "Reset password successfully" })
+  @ResponseMessage("reset password")
+  @ApiBearerAuth()
   resetPassword(@Body() body) {
     return this.authService.resetPassword(
       body.email,
@@ -80,6 +98,7 @@ export class AuthController {
 
   @Post("login-google")
   @Public()
+  @ApiResponse({ status: 200, description: "Login with google successfully" })
   @ResponseMessage("login with google")
   loginGoogle(
     @Body() body: { googleToken: string },
@@ -89,7 +108,9 @@ export class AuthController {
   }
 
   @Post("logout")
+  @ApiResponse({ status: 200, description: "Users logout successfully" })
   @ResponseMessage("logout")
+  @ApiBearerAuth()
   logout(@Req() req) {
     return this.authService.logout(req);
   }

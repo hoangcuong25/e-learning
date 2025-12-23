@@ -7,15 +7,6 @@ import {
   deleteLessonApi,
 } from "@/api/lesson.api";
 
-export interface LessonType {
-  id: number;
-  title: string;
-  content?: string;
-  videoUrl?: string;
-  orderIndex: number;
-  courseId: number;
-}
-
 interface LessonState {
   lessons: LessonType[];
   currentLesson: LessonType | null;
@@ -37,7 +28,7 @@ export const fetchLessonsByCourse = createAsyncThunk(
   "lessons/fetchByCourse",
   async (courseId: number) => {
     const response = await getLessonsByCourseApi(courseId);
-    return response;
+    return response.data;
   }
 );
 
@@ -46,7 +37,7 @@ export const fetchLessonById = createAsyncThunk(
   "lessons/fetchById",
   async (id: number) => {
     const response = await getLessonByIdApi(id);
-    return response;
+    return response.data;
   }
 );
 

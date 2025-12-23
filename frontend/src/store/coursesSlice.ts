@@ -47,8 +47,6 @@ export const fetchCoursesByInstructor = createAsyncThunk(
   "course/fetchByInstructor",
   async () => {
     const response = await getCoursesByInstructorApi();
-
-    console.log(response.data);
     return response.data;
   }
 );

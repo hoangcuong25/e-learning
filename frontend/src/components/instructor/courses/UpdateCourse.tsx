@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
@@ -14,58 +13,94 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon, X, Edit } from "lucide-react";
+import { ImageIcon, X, ChevronDown, Check, Edit } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
 import { updateCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
-import { CourseFormData, courseSchema } from "@/hook/zod-schema/CourseSchema";
+import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice";
+import LoadingScreen from "@/components/LoadingScreen";
+import RichTextEditor from "@/components/RichTextEditor";
 
-interface UpdateCourseProps {
-  course: CourseType;
+interface Props {
+  course: any;
 }
 
-export default function UpdateCourse({ course }: UpdateCourseProps) {
+interface CourseFormData {
+  title: string;
+  description: string;
+  price?: number;
+  type?: string;
+  thumbnail?: File | string;
+  specializationIds: number[];
+}
+
+export default function UpdateCourse({ course }: Props) {
   const dispatch = useDispatch<AppDispatch>();
+  const { user, loading: userLoading } = useSelector(
+    (state: RootState) => state.user
+  );
+  const { instructorSpecializaions, loading: specializationLoading } =
+    useSelector((state: RootState) => state.specialization);
 
   const [open, setOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(
     course.thumbnail || null
   );
   const [file, setFile] = useState<File | null>(null);
+  const [selectedSpecs, setSelectedSpecs] = useState<number[]>(
+    course.specializations?.map((s: any) => s.specializationId) || []
+  );
+  const [courseType, setCourseType] = useState<"FREE" | "PAID">(
+    course.type || "FREE"
+  );
+  const [selectPublic, setSelectPublic] = useState(course.isPublished || false);
 
   const {
     register,
     handleSubmit,
     setValue,
-    reset,
-    formState: { errors, isSubmitting },
+    watch,
+    formState: { isSubmitting },
   } = useForm<CourseFormData>({
-    resolver: zodResolver(courseSchema),
-    mode: "onChange",
     defaultValues: {
       title: course.title,
       description: course.description,
       price: course.price,
+      type: course.type,
+      specializationIds:
+        course.specializations?.map((s: any) => s.specializationId) || [],
     },
   });
 
   useEffect(() => {
-    reset({
-      title: course.title,
-      description: course.description,
-      price: course.price,
-    });
-  }, [course, reset]);
+    if (user) {
+      dispatch(fetchSpecializationsByInstructorId(Number(user.id)));
+    }
+  }, [dispatch, user]);
 
-  // 🖼️ Preview ảnh
+  const toggleSelect = (id: number) => {
+    const updated = selectedSpecs.includes(id)
+      ? selectedSpecs.filter((item) => item !== id)
+      : [...selectedSpecs, id];
+    setSelectedSpecs(updated);
+    setValue("specializationIds", updated);
+  };
+
+  const removeSpec = (id: number) => {
+    const updated = selectedSpecs.filter((item) => item !== id);
+    setSelectedSpecs(updated);
+    setValue("specializationIds", updated);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (selected) {
-      setFile(selected);
-      setPreview(URL.createObjectURL(selected));
-      setValue("thumbnail", selected);
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
+      setValue("thumbnail", selectedFile);
     }
   };
 
@@ -75,13 +110,36 @@ export default function UpdateCourse({ course }: UpdateCourseProps) {
     setValue("thumbnail", undefined);
   };
 
-  // 🚀 Submit
   const onSubmit = async (data: CourseFormData) => {
+    // ✅ Validate thủ công
+    if (!data.title || data.title.trim().length < 3) {
+      toast.error("Tên khóa học phải có ít nhất 3 ký tự");
+      return;
+    }
+    if (!data.description || data.description.trim().length < 10) {
+      toast.error("Mô tả phải có ít nhất 10 ký tự");
+      return;
+    }
+    if (!selectedSpecs.length) {
+      toast.error("Vui lòng chọn ít nhất một chuyên ngành!");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("description", data.description);
-      formData.append("price", data.price.toString());
+      formData.append("type", courseType);
+      formData.append("isPublished", String(selectPublic ?? false));
+      formData.append(
+        "price",
+        courseType === "PAID" ? data.price?.toString() ?? "0" : "0"
+      );
+
+      selectedSpecs.forEach((id) =>
+        formData.append("specializationIds", id.toString())
+      );
+
       if (file) formData.append("thumbnail", file);
 
       await dispatch(
@@ -96,78 +154,179 @@ export default function UpdateCourse({ course }: UpdateCourseProps) {
     }
   };
 
-  console.log(file);
+  if (userLoading || specializationLoading) return <LoadingScreen />;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Edit className="w-4 h-4" /> Sửa
+        <Button variant="outline" size="sm" className="flex items-center gap-1">
+          <Edit className="w-4 h-4" />
+          Sửa
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="md:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>Chỉnh sửa khóa học</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">
+            Cập nhật khóa học
+          </DialogTitle>
         </DialogHeader>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 mt-4"
+          className="flex flex-col gap-5 mt-4"
           encType="multipart/form-data"
         >
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Tên khóa học
-            </label>
-            <Input
-              placeholder="Nhập tên khóa học"
-              {...register("title")}
-              className={errors.title ? "border-red-500" : ""}
-            />
-            {errors.title && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.title.message}
-              </p>
+          {/* ─── Tên khóa học ───────────────────── */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-sm">Tên khóa học</label>
+            <Input placeholder="Nhập tên khóa học" {...register("title")} />
+          </div>
+
+          {/* ─── Loại khóa học ───────────────────── */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-sm">Loại khóa học</label>
+            <div className="flex items-center gap-6">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  value="FREE"
+                  checked={courseType === "FREE"}
+                  onChange={() => {
+                    setCourseType("FREE");
+                    setValue("type", "FREE");
+                    setValue("price", 0);
+                  }}
+                />
+                Miễn phí
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  value="PAID"
+                  checked={courseType === "PAID"}
+                  onChange={() => {
+                    setCourseType("PAID");
+                    setValue("type", "PAID");
+                  }}
+                />
+                Trả phí
+              </label>
+            </div>
+          </div>
+
+          {/* ─── Giá ───────────────────────────── */}
+          {courseType === "PAID" && (
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-sm">Giá (VNĐ)</label>
+              <Input
+                type="number"
+                placeholder="Nhập giá khóa học"
+                {...register("price", { valueAsNumber: true })}
+              />
+            </div>
+          )}
+
+          {/* ─── Trạng thái ───────────────────────────── */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-sm">Trạng thái khóa học</label>
+            <div className="flex items-center gap-6">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  value="true"
+                  checked={selectPublic === true}
+                  onChange={() => setSelectPublic(true)}
+                />
+                Công khai
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  value="false"
+                  checked={selectPublic === false}
+                  onChange={() => setSelectPublic(false)}
+                />
+                Bản nháp
+              </label>
+            </div>
+          </div>
+
+          {/* ─── Chuyên ngành ───────────────────────────── */}
+          <div className="flex flex-col gap-2 relative">
+            <label className="font-medium text-sm">Chuyên ngành</label>
+            <button
+              type="button"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex justify-between items-center border rounded-md px-3 py-2 bg-white hover:bg-gray-50 focus:outline-none"
+            >
+              {selectedSpecs.length > 0
+                ? `${selectedSpecs.length} chuyên ngành đã chọn`
+                : "Chọn chuyên ngành"}
+              <ChevronDown className="w-4 h-4 opacity-60" />
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute top-10 z-50 my-10 w-full bg-white border rounded-md shadow-lg max-h-56 overflow-auto">
+                {instructorSpecializaions.length === 0 ? (
+                  <p className="text-sm text-gray-500 p-3 text-center">
+                    Không có chuyên ngành
+                  </p>
+                ) : (
+                  instructorSpecializaions.map((spec) => (
+                    <div
+                      key={spec.id}
+                      onClick={() => toggleSelect(spec.id)}
+                      className="flex justify-between items-center px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                    >
+                      <span>{spec.name}</span>
+                      {selectedSpecs.includes(spec.id) && (
+                        <Check className="w-4 h-4 text-green-500" />
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {selectedSpecs.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedSpecs.map((id) => {
+                  const spec = instructorSpecializaions.find(
+                    (s) => s.id === id
+                  );
+                  return (
+                    <span
+                      key={id}
+                      className="flex items-center bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-medium"
+                    >
+                      {spec?.name}
+                      <button
+                        type="button"
+                        onClick={() => removeSpec(id)}
+                        className="ml-1 hover:text-red-600"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
             )}
           </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Mô tả</label>
-            <Textarea
-              placeholder="Nhập mô tả"
-              {...register("description")}
-              className={errors.description ? "border-red-500" : ""}
+          {/* ─── Mô tả ───────────────────────────── */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-sm">Mô tả</label>
+            <RichTextEditor
+              value={watch("description") || ""}
+              onChange={(val) => setValue("description", val)}
             />
-            {errors.description && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.description.message}
-              </p>
-            )}
           </div>
 
-          {/* Price */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Giá (VNĐ)</label>
-            <Input
-              type="number"
-              {...register("price", { valueAsNumber: true })}
-              className={errors.price ? "border-red-500" : ""}
-            />
-            {errors.price && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.price.message}
-              </p>
-            )}
-          </div>
-
-          {/* Thumbnail */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Ảnh khóa học
-            </label>
+          {/* ─── Ảnh khóa học ───────────────────────────── */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-sm">Ảnh khóa học</label>
             {!preview ? (
               <label
                 htmlFor="thumbnail"
@@ -213,7 +372,7 @@ export default function UpdateCourse({ course }: UpdateCourseProps) {
               Hủy
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
+              {isSubmitting ? "Đang lưu..." : "Cập nhật"}
             </Button>
           </DialogFooter>
         </form>

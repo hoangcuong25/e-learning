@@ -10,7 +10,7 @@ import {
 import { SpecializationService } from "./specialization.service";
 import { CreateSpecializationDto } from "./dto/create-specialization.dto";
 import { UpdateSpecializationDto } from "./dto/update-specialization.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Public, ResponseMessage, Roles } from "src/core/decorator/customize";
 
 @ApiTags("Specializations")
@@ -22,6 +22,7 @@ export class SpecializationController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Tạo chuyên ngành mới" })
   @ResponseMessage("Tạo chuyên ngành thành công")
+  @ApiBearerAuth()
   create(@Body() createSpecializationDto: CreateSpecializationDto) {
     return this.specializationService.create(createSpecializationDto);
   }
@@ -46,6 +47,7 @@ export class SpecializationController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Cập nhật chuyên ngành" })
   @ResponseMessage("Cập nhật chuyên ngành thành công")
+  @ApiBearerAuth()
   update(
     @Param("id") id: string,
     @Body() updateSpecializationDto: UpdateSpecializationDto
@@ -57,6 +59,7 @@ export class SpecializationController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Xóa chuyên ngành" })
   @ResponseMessage("Xóa chuyên ngành thành công")
+  @ApiBearerAuth()
   remove(@Param("id") id: string) {
     return this.specializationService.remove(+id);
   }
@@ -66,6 +69,7 @@ export class SpecializationController {
   @ApiOperation({
     summary: "Lấy danh sách chuyên ngành của giảng viên",
   })
+  @ApiBearerAuth()
   @ResponseMessage("Danh sách chuyên ngành của giảng viên")
   findByUserId(@Param("instructorId") instructorId: number) {
     return this.specializationService.findByInstructorId(instructorId);

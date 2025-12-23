@@ -109,4 +109,35 @@ declare global {
     specializationId: number;
     specialization?: SpecializationType;
   };
+
+  // 🧩 OptionType — đại diện cho từng lựa chọn (đáp án)
+  type OptionType = {
+    id: number;
+    text: string; // Nội dung lựa chọn
+    isCorrect: boolean; // Có phải đáp án đúng không
+    questionId: number;
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  // 🧩 QuestionType — đại diện cho một câu hỏi trong quiz
+  type QuestionType = {
+    id: number;
+    questionText: string; // Nội dung câu hỏi
+    quizId: number;
+    options?: OptionType[]; // Danh sách lựa chọn
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  // 🧩 QuizType — đại diện cho bài quiz (gắn với 1 lesson duy nhất)
+  type QuizType = {
+    id: number;
+    title: string; // Tên quiz
+    lessonId: number;
+    lesson?: Pick<LessonType, "id" | "title" | "orderIndex">; // Thông tin bài học (nếu có)
+    questions?: QuestionType[]; // Danh sách câu hỏi
+    createdAt: string;
+    updatedAt: string;
+  };
 }

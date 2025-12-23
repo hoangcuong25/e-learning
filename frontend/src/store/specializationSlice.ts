@@ -5,6 +5,7 @@ import {
   createSpecializationApi,
   updateSpecializationApi,
   deleteSpecializationApi,
+  getSpecializationsByInstructorIdApi,
 } from "@/api/specialization.api";
 
 // 🧱 Kiểu dữ liệu chuyên ngành
@@ -20,6 +21,7 @@ export interface SpecializationType {
 interface SpecializationState {
   specializations: SpecializationType[];
   current: SpecializationType | null;
+  instructorSpecializaions: SpecializationType[];
   loading: boolean;
   error: string | null;
   successMessage: string | null;
@@ -29,6 +31,7 @@ interface SpecializationState {
 const initialState: SpecializationState = {
   specializations: [],
   current: null,
+  instructorSpecializaions: [],
   loading: false,
   error: null,
   successMessage: null,
@@ -82,6 +85,15 @@ export const deleteSpecialization = createAsyncThunk(
   async (id: number) => {
     const response = await deleteSpecializationApi(id);
     return { id, message: response?.message ?? "Đã xóa chuyên ngành" };
+  }
+);
+
+// 👨‍🏫 Lấy danh sách chuyên ngành theo giảng viên
+export const fetchSpecializationsByInstructorId = createAsyncThunk(
+  "specialization/fetchByInstructorId",
+  async (instructorId: number) => {
+    const response = await getSpecializationsByInstructorIdApi(instructorId);
+    return response.data;
   }
 );
 
@@ -177,6 +189,24 @@ const specializationSlice = createSlice({
       })
       .addCase(deleteSpecialization.rejected, (state, action) => {
         state.error = action.error.message ?? "Lỗi khi xóa chuyên ngành";
+      })
+
+      // 👨‍🏫 Fetch by instructor
+      .addCase(fetchSpecializationsByInstructorId.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(
+        fetchSpecializationsByInstructorId.fulfilled,
+        (state, action: PayloadAction<SpecializationType[]>) => {
+          state.loading = false;
+          state.instructorSpecializaions = action.payload;
+        }
+      )
+      .addCase(fetchSpecializationsByInstructorId.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.error.message ??
+          "Không thể tải danh sách chuyên ngành của giảng viên";
       });
   },
 });

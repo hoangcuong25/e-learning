@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -28,6 +29,22 @@ export class LessonService {
 
     if (!course)
       throw new NotFoundException("Course not found or access denied");
+
+    // 🧩 Kiểm tra trùng orderIndex trong cùng khóa học
+    if (dto.orderIndex !== undefined && dto.orderIndex !== null) {
+      const existingLesson = await this.prisma.lesson.findFirst({
+        where: {
+          courseId: dto.courseId,
+          orderIndex: dto.orderIndex,
+        },
+      });
+
+      if (existingLesson) {
+        throw new BadRequestException(
+          `Order index ${dto.orderIndex} already exists in this course`
+        );
+      }
+    }
 
     // 🧩 Upload video lên Cloudinary
     if (!video) throw new NotFoundException("Video file is required");

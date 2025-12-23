@@ -341,7 +341,7 @@ const Home = () => {
                 whileTap={{ scale: 0.95 }}
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
               >
-                <Link href="/register">Bắt đầu học ngay</Link>
+                <Link href="/signup">Bắt đầu học ngay</Link>
               </motion.button>
 
               <motion.button
@@ -349,7 +349,7 @@ const Home = () => {
                 whileTap={{ scale: 0.95 }}
                 className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold border border-blue-600 hover:bg-blue-50 transition"
               >
-                <Link href="/instructor/become">Trở thành giảng viên</Link>
+                <Link href="/signup">Trở thành giảng viên</Link>
               </motion.button>
             </div>
           </div>
