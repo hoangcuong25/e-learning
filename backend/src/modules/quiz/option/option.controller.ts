@@ -7,11 +7,16 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
 } from "@nestjs/common";
 import { OptionService } from "./option.service";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
-import { CreateOptionDto, UpdateOptionDto } from "./dto/create-option.dto";
+import {
+  CreateManyOptionsDto,
+  CreateOptionDto,
+  UpdateOptionDto,
+} from "./dto/create-option.dto";
 
 @ApiTags("Option")
 @Controller("options")
@@ -20,11 +25,21 @@ export class OptionController {
 
   // Create option
   @Post()
-  @Roles("INSTRUCTOR", "ADMIN")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Create new option for a question" })
   @ResponseMessage("create new option")
-  create(@Body() dto: CreateOptionDto) {
-    return this.optionService.create(dto);
+  @ApiBearerAuth()
+  create(@Body() dto: CreateOptionDto, @Req() req) {
+    return this.optionService.create(dto, req.user.id);
+  }
+
+  @Post("bulk")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({ summary: "Create multiple options for a question" })
+  @ResponseMessage("create multiple options")
+  @ApiBearerAuth()
+  createMany(@Body() dto: CreateManyOptionsDto, @Req() req) {
+    return this.optionService.createMany(dto.options, req.user.id);
   }
 
   // Get all options
@@ -32,6 +47,7 @@ export class OptionController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Get all options" })
   @ResponseMessage("get all options")
+  @ApiBearerAuth()
   findAll() {
     return this.optionService.findAll();
   }
@@ -41,6 +57,7 @@ export class OptionController {
   @Roles("ADMIN", "INSTRUCTOR")
   @ApiOperation({ summary: "Get option by ID" })
   @ResponseMessage("get option by ID")
+  @ApiBearerAuth()
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.optionService.findOne(id);
   }
@@ -50,6 +67,7 @@ export class OptionController {
   @Roles("ADMIN", "INSTRUCTOR")
   @ApiOperation({ summary: "Get all options of a specific question" })
   @ResponseMessage("get options by question ID")
+  @ApiBearerAuth()
   findByQuestion(@Param("questionId", ParseIntPipe) questionId: number) {
     return this.optionService.findByQuestionId(questionId);
   }
@@ -59,6 +77,7 @@ export class OptionController {
   @Roles("INSTRUCTOR", "ADMIN")
   @ApiOperation({ summary: "Update option" })
   @ResponseMessage("update option")
+  @ApiBearerAuth()
   update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateOptionDto) {
     return this.optionService.update(id, dto);
   }
@@ -68,6 +87,7 @@ export class OptionController {
   @Roles("INSTRUCTOR", "ADMIN")
   @ApiOperation({ summary: "Delete option" })
   @ResponseMessage("delete option")
+  @ApiBearerAuth()
   remove(@Param("id", ParseIntPipe) id: number) {
     return this.optionService.remove(id);
   }

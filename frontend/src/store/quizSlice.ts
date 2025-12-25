@@ -3,6 +3,7 @@ import {
   createQuizApi,
   deleteQuizApi,
   getAllQuizzesApi,
+  getInstructorQuizzesApi,
   getQuizByIdApi,
   updateQuizApi,
 } from "@/api/quiz.api";
@@ -80,6 +81,21 @@ export const deleteQuiz = createAsyncThunk(
   }
 );
 
+// 🎓 Lấy quiz của giảng viên hiện tại
+export const fetchInstructorQuizzes = createAsyncThunk(
+  "quiz/fetchInstructorQuizzes",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getInstructorQuizzesApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Lỗi khi tải quiz giảng viên"
+      );
+    }
+  }
+);
+
 // 🧩 Slice
 const quizSlice = createSlice({
   name: "quiz",
@@ -112,7 +128,7 @@ const quizSlice = createSlice({
       })
       .addCase(fetchQuizById.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentQuiz = action.payload.data;
+        state.currentQuiz = action.payload;
       })
       .addCase(fetchQuizById.rejected, (state, action) => {
         state.loading = false;
@@ -163,6 +179,21 @@ const quizSlice = createSlice({
       .addCase(deleteQuiz.rejected, (state, action) => {
         state.loading = false;
         state.error = (action.payload as string) ?? "Lỗi khi xóa quiz";
+      })
+
+      // 🎓 Fetch instructor quizzes
+      .addCase(fetchInstructorQuizzes.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchInstructorQuizzes.fulfilled, (state, action) => {
+        state.loading = false;
+        state.instructorQuizzes = action.payload.data || [];
+      })
+      .addCase(fetchInstructorQuizzes.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          (action.payload as string) ?? "Không thể tải quiz của giảng viên";
       });
   },
 });

@@ -12,7 +12,12 @@ import {
 } from "@nestjs/common";
 import { LessonService } from "./lesson.service";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
-import { ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from "@nestjs/swagger";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
@@ -28,6 +33,7 @@ export class LessonController {
   @ApiOperation({ summary: "Instructor create a new lesson" })
   @ResponseMessage("Lesson created successfully")
   @UseInterceptors(FileInterceptor("video"))
+  @ApiBearerAuth()
   create(
     @Body() dto: CreateLessonDto,
     @Req() req: any,
@@ -43,6 +49,7 @@ export class LessonController {
   @ApiOperation({ summary: "Update lesson by ID" })
   @ResponseMessage("Lesson updated successfully")
   @UseInterceptors(FileInterceptor("video"))
+  @ApiBearerAuth()
   update(
     @Param("id") id: string,
     @Body() dto: UpdateLessonDto,
@@ -56,6 +63,7 @@ export class LessonController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Get all lessons" })
   @ResponseMessage("Fetched all lessons")
+  @ApiBearerAuth()
   findAll() {
     return this.lessonService.findAll();
   }
@@ -63,6 +71,7 @@ export class LessonController {
   @Get(":id")
   @ApiOperation({ summary: "Get lesson detail by ID" })
   @ResponseMessage("Fetched lesson detail")
+  @ApiBearerAuth()
   findOne(@Param("id") id: string, @Req() req: any) {
     return this.lessonService.findOne(+id);
   }
@@ -70,6 +79,7 @@ export class LessonController {
   @Get("course/:courseId")
   @ApiOperation({ summary: "Get all lessons by course ID" })
   @ResponseMessage("Fetched lessons by course")
+  @ApiBearerAuth()
   getLessonsByCourse(@Param("courseId") courseId: string) {
     return this.lessonService.getLessonsByCourse(+courseId);
   }
@@ -78,6 +88,7 @@ export class LessonController {
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Delete lesson by ID" })
   @ResponseMessage("Lesson deleted successfully")
+  @ApiBearerAuth()
   remove(@Param("id") id: string) {
     return this.lessonService.remove(+id);
   }

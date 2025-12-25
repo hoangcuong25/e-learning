@@ -29,3 +29,9 @@ export const deleteQuizApi = async (id: number) => {
   const response = await axiosClient.delete(`/quiz/${id}`);
   return response.data;
 };
+
+// 🧩 6. Lấy quiz theo instructorId (dành cho giảng viên)
+export const getInstructorQuizzesApi = async () => {
+  const response = await axiosClient.get("/quiz/instructor/quizzes");
+  return response.data;
+};

@@ -12,12 +12,17 @@ import {
 } from "@nestjs/common";
 import { CourseService } from "./course.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
-import { ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 
-@ApiTags("course")
+@ApiTags("Course")
 @Controller("course")
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
@@ -27,6 +32,7 @@ export class CourseController {
   @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "Create new course" })
   @UseInterceptors(FileInterceptor("thumbnail"))
+  @ApiBearerAuth()
   create(
     @Body() dto: CreateCourseDto,
     @Req() req,
@@ -39,6 +45,7 @@ export class CourseController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Get all courses" })
   @ResponseMessage("Get all courses")
+  @ApiBearerAuth()
   findAll() {
     return this.courseService.findAll();
   }
@@ -47,6 +54,7 @@ export class CourseController {
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Get course detail by ID" })
   @ResponseMessage("Get course detail")
+  @ApiBearerAuth()
   findOne(@Param("id") id: string, @Req() req) {
     return this.courseService.findOne(+id, req.user.id);
   }
@@ -55,6 +63,7 @@ export class CourseController {
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Get all courses by instructor ID" })
   @ResponseMessage("Get courses by instructor")
+  @ApiBearerAuth()
   getCoursesByInstructor(@Req() req) {
     const instructorId = req.user.id;
     return this.courseService.getCoursesByInstructor(+instructorId);
@@ -66,6 +75,7 @@ export class CourseController {
   @ApiConsumes("multipart/form-data")
   @ResponseMessage("Update course")
   @UseInterceptors(FileInterceptor("thumbnail"))
+  @ApiBearerAuth()
   update(
     @Param("id") id: string,
     @Body() updateCourseDto: UpdateCourseDto,
@@ -84,6 +94,7 @@ export class CourseController {
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Delete a course by ID" })
   @ResponseMessage("Delete course")
+  @ApiBearerAuth()
   remove(@Param("id") id: string, @Req() req) {
     return this.courseService.remove(+id, req.user.id);
   }

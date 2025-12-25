@@ -1,9 +1,13 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   IsBoolean,
+  IsArray,
+  ValidateNested,
 } from "class-validator";
 
 export class CreateOptionDto {
@@ -26,4 +30,12 @@ export class UpdateOptionDto {
   @IsOptional()
   @IsBoolean()
   isCorrect?: boolean;
+}
+
+export class CreateManyOptionsDto {
+  @ApiProperty({ type: [CreateOptionDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateOptionDto)
+  options: CreateOptionDto[];
 }

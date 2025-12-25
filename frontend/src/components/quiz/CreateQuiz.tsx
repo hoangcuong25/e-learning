@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchCoursesByInstructor } from "@/store/coursesSlice";
-import { clearQuizState, createQuiz } from "@/store/quizSlice";
+import { clearQuizState, createQuiz, fetchInstructorQuizzes } from "@/store/quizSlice";
 
 const QuizForm = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -77,7 +77,7 @@ const QuizForm = () => {
   const onSubmit = async (values: QuizFormData) => {
     try {
       await dispatch(createQuiz(values)).unwrap();
-
+      await dispatch(fetchInstructorQuizzes()).unwrap();
       toast.success("Tạo quiz thành công");
     } catch {
       toast.error("Có lỗi đã xảy ra");
