@@ -51,11 +51,7 @@ export class QuizService {
     const quiz = await this.prisma.quiz.findUnique({
       where: { id },
       include: {
-        lesson: {
-          include: {
-            course: true,
-          },
-        },
+        lesson: true,
         questions: {
           include: {
             options: true,
@@ -68,17 +64,8 @@ export class QuizService {
   }
 
   // ─── UPDATE ──────────────────────────────
-  async update(id: number, updateQuizDto: UpdateQuizDto, instructorId) {
-    const quiz = await this.prisma.quiz.findUnique({
-      where: {
-        id,
-        lesson: {
-          course: {
-            instructorId,
-          },
-        },
-      },
-    });
+  async update(id: number, updateQuizDto: UpdateQuizDto) {
+    const quiz = await this.prisma.quiz.findUnique({ where: { id } });
     if (!quiz) throw new NotFoundException("Quiz not found");
 
     return this.prisma.quiz.update({
@@ -87,35 +74,12 @@ export class QuizService {
     });
   }
 
-  // ─── DELETE QUIZ ──────────────────────────────
-  async remove(id: number, instructorId: number) {
-    // Tìm quiz theo id, đồng thời kiểm tra quyền instructor
-    const quiz = await this.prisma.quiz.findFirst({
-      where: {
-        id,
-        lesson: {
-          course: {
-            instructorId,
-          },
-        },
-      },
-    });
+  // ─── DELETE ──────────────────────────────
+  async remove(id: number) {
+    const quiz = await this.prisma.quiz.findUnique({ where: { id } });
+    if (!quiz) throw new NotFoundException("Quiz not found");
 
-    if (!quiz) {
-      throw new NotFoundException(
-        "Quiz not found or you don't have permission to delete it"
-      );
-    }
-
-    // Nếu tìm thấy, xóa quiz
-    await this.prisma.quiz.delete({
-      where: { id },
-    });
-
-    return {
-      message: "Quiz deleted successfully",
-      deletedQuizId: id,
-    };
+    return this.prisma.quiz.delete({ where: { id } });
   }
 
   // ─── GET INSTRUCTOR QUIZZES ──────────────────────────────

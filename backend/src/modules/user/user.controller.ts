@@ -26,7 +26,7 @@ import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
 
 @ApiBearerAuth()
-@ApiTags("User")
+@ApiTags("user")
 @Controller("user")
 export class UserController {
   constructor(
@@ -59,7 +59,6 @@ export class UserController {
 
   @Patch("profile")
   @ResponseMessage("update profile")
-  @ApiOperation({ summary: "Update user profile" })
   @UseInterceptors(FileInterceptor("avatar"))
   updateProfile(
     @Req() req,
@@ -70,8 +69,6 @@ export class UserController {
   }
 
   @Patch("change-password")
-  @ResponseMessage("update password")
-  @ApiOperation({ summary: "Change user password" })
   updatePassword(
     @Req() req,
     @Body()
@@ -85,8 +82,6 @@ export class UserController {
   }
 
   @Delete("delete-user/:id")
-  @ResponseMessage("delete user")
-  @ApiResponse({ status: 200, description: "User deleted successfully" })
   @Roles("ADMIN")
   deleteUser(@Param("id") userId: number) {
     return this.userService.deleteUser(userId);
