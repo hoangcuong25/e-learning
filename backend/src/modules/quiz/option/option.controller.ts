@@ -33,6 +33,7 @@ export class OptionController {
     return this.optionService.create(dto, req.user.id);
   }
 
+  // Create many option
   @Post("bulk")
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Create multiple options for a question" })

@@ -99,6 +99,7 @@ declare global {
     videoUrl?: string;
     orderIndex: number;
     courseId: number;
+    course?: Pick<CourseType, "id" | "title">;
     createdAt: string;
     updatedAt: string;
   };
@@ -135,7 +136,7 @@ declare global {
     id: number;
     title: string; // Tên quiz
     lessonId: number;
-    lesson?: Pick<LessonType, "id" | "title" | "orderIndex">; // Thông tin bài học (nếu có)
+    lesson?: Pick<LessonType, "id" | "title" | "orderIndex" | "courseId">; // Thông tin bài học (nếu có)
     questions?: QuestionType[]; // Danh sách câu hỏi
     createdAt: string;
     updatedAt: string;

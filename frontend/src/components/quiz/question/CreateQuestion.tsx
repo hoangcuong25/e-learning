@@ -17,7 +17,9 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { Textarea } from "@/components/ui/textarea";
 import { createQuestion } from "@/store/question.slice";
+import { createManyOptions } from "@/store/option.slice";
 import { toast } from "sonner";
+import { fetchQuizById } from "@/store/quizSlice";
 
 interface CreateQuestionProps {
   quizId: number;
@@ -37,7 +39,7 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
     defaultValues: { questionText: "" },
   });
 
-  // State sau khi tạo xong question
+  // State lưu id câu hỏi sau khi tạo
   const [createdQuestionId, setCreatedQuestionId] = useState<number | null>(
     null
   );
@@ -47,20 +49,21 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
     { id: number; text: string; isCorrect: boolean }[]
   >([]);
   const [optionText, setOptionText] = useState("");
+  const [isSavingOptions, setIsSavingOptions] = useState(false);
 
   // 🧩 Gửi API tạo câu hỏi
   const onSubmit = async (values: any) => {
     try {
       const payload = { ...values, quizId };
       const result = await dispatch(createQuestion(payload)).unwrap();
-      setCreatedQuestionId(result.data.id); // lưu id của câu hỏi vừa tạo
+      setCreatedQuestionId(result.data.id); // lưu id câu hỏi vừa tạo
       toast.success("Câu hỏi đã được tạo thành công.");
     } catch (error) {
       toast.error("Có lỗi xảy ra khi tạo câu hỏi.");
     }
   };
 
-  // Thêm option tạm
+  // 🧩 Thêm option tạm
   const handleAddOption = () => {
     if (!optionText.trim()) {
       toast.error("Nội dung đáp án không được để trống.");
@@ -77,7 +80,7 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
     setOptionText("");
   };
 
-  // Đánh dấu option đúng
+  // 🧩 Đánh dấu option đúng
   const handleMarkCorrect = (id: number) => {
     setOptions((prev) =>
       prev.map((opt) =>
@@ -88,12 +91,12 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
     );
   };
 
-  // Xóa option
+  // 🧩 Xóa option
   const handleDeleteOption = (id: number) => {
     setOptions((prev) => prev.filter((opt) => opt.id !== id));
   };
 
-  // Lưu option vào DB 
+  // 🧩 Lưu option vào DB (gọi API /options/bulk)
   const handleSaveOptions = async () => {
     if (!createdQuestionId) {
       toast.error("Bạn cần tạo câu hỏi trước khi thêm đáp án.");
@@ -105,13 +108,33 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
       return;
     }
 
-    // TODO: Gọi API /option/create (tùy backend của bạn)
-    toast.success("Các lựa chọn đã được lưu thành công!");
-    setOptions([]);
-    setOptionText("");
-    setOpen(false);
-    reset();
-    setCreatedQuestionId(null);
+    try {
+      setIsSavingOptions(true);
+
+      const payload = {
+        options: options.map((opt) => ({
+          text: opt.text,
+          isCorrect: opt.isCorrect,
+          questionId: createdQuestionId,
+        })),
+      };
+
+      await dispatch(createManyOptions(payload)).unwrap();
+      await dispatch(fetchQuizById(quizId)).unwrap();
+
+      toast.success("Các lựa chọn đã được lưu thành công!");
+
+      // Reset toàn bộ form
+      setOptions([]);
+      setOptionText("");
+      setOpen(false);
+      reset();
+      setCreatedQuestionId(null);
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi lưu lựa chọn.");
+    } finally {
+      setIsSavingOptions(false);
+    }
   };
 
   return (
@@ -231,8 +254,9 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
                 type="button"
                 onClick={handleSaveOptions}
                 className="bg-blue-600 hover:bg-blue-700"
+                disabled={isSavingOptions}
               >
-                Lưu tất cả lựa chọn
+                {isSavingOptions ? "Đang lưu..." : "Lưu tất cả lựa chọn"}
               </Button>
             </DialogFooter>
           </div>

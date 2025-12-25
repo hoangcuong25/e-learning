@@ -29,3 +29,12 @@ export const deleteQuestionApi = async (id: number) => {
   const response = await axiosClient.delete(`/question/${id}`);
   return response.data;
 };
+
+// 🧩 6. Lưu câu hỏi (tạo mới options)
+export const saveQuestionApi = async (id: number, payload: any) => {
+  const response = await axiosClient.patch(
+    `/question/save-question/${id}`,
+    payload
+  );
+  return response.data;
+};

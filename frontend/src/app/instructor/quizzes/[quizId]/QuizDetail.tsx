@@ -1,5 +1,16 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import React, { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,6 +22,9 @@ import { fetchQuizById } from "@/store/quizSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import { ArrowLeft, PlusCircle } from "lucide-react";
 import CreateQuestion from "@/components/quiz/question/CreateQuestion";
+import EditQuestion from "@/components/quiz/question/EditQuestion";
+import { deleteQuestion } from "@/store/question.slice";
+import { toast } from "sonner";
 
 const QuizDetail = () => {
   const { quizId } = useParams();
@@ -32,6 +46,16 @@ const QuizDetail = () => {
   };
 
   const course = lesson?.course as CourseType | undefined;
+
+  const handleDeleteQuestion = async (questionId: number) => {
+    try {
+      await dispatch(deleteQuestion(questionId)).unwrap();
+      toast.success("Xóa câu hỏi thành công!");
+      dispatch(fetchQuizById(id));
+    } catch {
+      toast.error("Xóa thất bại!");
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -75,46 +99,78 @@ const QuizDetail = () => {
         </CardHeader>
 
         <CardContent>
-          {currentQuiz.questions?.length === 0 ? (
-            <p className="text-gray-500 italic text-center py-6">
-              Chưa có câu hỏi nào trong quiz này.
-            </p>
-          ) : (
-            <div className="space-y-5">
-              {currentQuiz.questions?.map((q, index) => (
-                <div
-                  key={q.id}
-                  className="p-4 border rounded-lg bg-white hover:bg-gray-50 transition"
-                >
-                  <h3 className="font-semibold text-gray-800 mb-2">
-                    Câu {index + 1}: {q.questionText}
-                  </h3>
+          {currentQuiz.questions?.map((q, index) => (
+            <div
+              key={q.id}
+              className="p-4 border rounded-lg bg-white hover:bg-gray-50 transition"
+            >
+              <div className="flex justify-between items-start">
+                <h3 className="font-semibold text-gray-800 mb-2">
+                  Câu {index + 1}: {q.questionText}
+                </h3>
 
-                  {q.options && q.options.length > 0 ? (
-                    <ul className="ml-5 list-disc text-gray-700 space-y-1">
-                      {q.options.map((opt) => (
-                        <li
-                          key={opt.id}
-                          className={`${
-                            opt.isCorrect
-                              ? "text-green-600 font-medium"
-                              : "text-gray-700"
-                          }`}
+                <div className="flex gap-2">
+                  <EditQuestion
+                    currentQuiz={currentQuiz}
+                    question={q}
+                    onUpdated={() => dispatch(fetchQuizById(id))}
+                  />
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        Xóa
+                      </Button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Xác nhận xóa câu hỏi
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Bạn có chắc chắn muốn xóa câu hỏi này? Hành động này
+                          không thể hoàn tác.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-red-600 hover:bg-red-700"
+                          onClick={() => handleDeleteQuestion(q.id)}
                         >
-                          {opt.text}
-                          {opt.isCorrect && " ✅"}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-gray-500 italic">
-                      Chưa có lựa chọn cho câu hỏi này.
-                    </p>
-                  )}
+                          Xóa
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
-              ))}
+              </div>
+
+              {q.options && q.options.length > 0 ? (
+                <ul className="ml-5 list-disc text-gray-700 space-y-1">
+                  {q.options.map((opt) => (
+                    <li
+                      key={opt.id}
+                      className={`${
+                        opt.isCorrect
+                          ? "text-green-600 font-medium"
+                          : "text-gray-700"
+                      }`}
+                    >
+                      {opt.text}
+                      {opt.isCorrect && " ✅"}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500 italic">
+                  Chưa có lựa chọn cho câu hỏi này.
+                </p>
+              )}
             </div>
-          )}
+          ))}
         </CardContent>
       </Card>
     </div>

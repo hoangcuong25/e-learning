@@ -18,24 +18,21 @@ import { PlusCircle, Trash2, CheckCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { toast } from "sonner";
-import { updateQuestion } from "@/store/question.slice";
+import { saveQuestion, updateQuestion } from "@/store/question.slice";
 import { createOption, deleteOption, updateOption } from "@/store/option.slice";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import DeleteOption from "./DeleteQuestion";
 
 interface EditQuestionProps {
   question: any;
   onUpdated: () => void;
+  currentQuiz: QuizType;
 }
 
-const EditQuestion: React.FC<EditQuestionProps> = ({ question, onUpdated }) => {
+const EditQuestion: React.FC<EditQuestionProps> = ({
+  question,
+  onUpdated,
+  currentQuiz,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const [open, setOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
@@ -58,38 +55,29 @@ const EditQuestion: React.FC<EditQuestionProps> = ({ question, onUpdated }) => {
   // 🧩 Cập nhật câu hỏi & các lựa chọn
   const onSubmit = async (data: any) => {
     try {
-      // 1️⃣ Update question
+      const formattedOptions = options.map((opt) => ({
+        optionText: opt.text, // đổi tên field cho khớp backend
+        isCorrect: opt.isCorrect,
+      }));
+
       await dispatch(
-        updateQuestion({
+        saveQuestion({
           id: question.id,
-          payload: { questionText: data.questionText },
+          payload: {
+            quizId: currentQuiz.id,
+            courseId: currentQuiz?.lesson?.courseId,
+            lessonId: currentQuiz?.lessonId,
+            questionText: data.questionText,
+            newOptions: formattedOptions, // gửi đúng định dạng
+          },
         })
       ).unwrap();
-
-      // 2️⃣ Update or create options
-      for (const opt of options) {
-        if (opt.id) {
-          await dispatch(
-            updateOption({
-              id: opt.id,
-              payload: { text: opt.text, isCorrect: opt.isCorrect },
-            })
-          ).unwrap();
-        } else {
-          await dispatch(
-            createOption({
-              text: opt.text,
-              isCorrect: opt.isCorrect,
-              questionId: question.id,
-            })
-          ).unwrap();
-        }
-      }
 
       toast.success("Cập nhật câu hỏi và lựa chọn thành công!");
       setOpen(false);
       onUpdated();
-    } catch {
+    } catch (error) {
+      console.error("Save question failed:", error);
       toast.error("Cập nhật thất bại!");
     }
   };
@@ -100,10 +88,14 @@ const EditQuestion: React.FC<EditQuestionProps> = ({ question, onUpdated }) => {
       toast.error("Nội dung lựa chọn không được để trống.");
       return;
     }
-    setOptions([
-      ...options,
-      { id: Date.now(), text: newOptionText, isCorrect: false, temp: true },
-    ]);
+
+    const newOption = {
+      id: Date.now(), // tạm ID
+      text: newOptionText,
+      isCorrect: false,
+    };
+
+    setOptions((prev) => [...prev, newOption]);
     setNewOptionText("");
   };
 
@@ -246,28 +238,11 @@ const EditQuestion: React.FC<EditQuestionProps> = ({ question, onUpdated }) => {
       </Dialog>
 
       {/* AlertDialog Confirm Delete */}
-      <AlertDialog
+      <DeleteOption
         open={!!deleteConfirmId}
-        onOpenChange={() => setDeleteConfirmId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa lựa chọn?</AlertDialogTitle>
-          </AlertDialogHeader>
-          <p className="text-gray-600 text-sm">
-            Hành động này không thể hoàn tác.
-          </p>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700"
-              onClick={() => handleDeleteOption(deleteConfirmId!)}
-            >
-              Xóa
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => handleDeleteOption(deleteConfirmId!)}
+      />
     </>
   );
 };

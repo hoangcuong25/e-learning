@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -6,6 +7,7 @@ import {
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CreateQuestionDto } from "./dto/create-question.dto";
 import { UpdateQuestionDto } from "./dto/update-question.dto";
+import { SaveQuestionDto } from "./dto/save-question.dto";
 
 @Injectable()
 export class QuestionService {
@@ -101,6 +103,69 @@ export class QuestionService {
     return this.prisma.question.update({
       where: { id },
       data: updateQuestionDto,
+    });
+  }
+
+  async saveQuestion(
+    id: number,
+    saveQuestionDto: SaveQuestionDto,
+    instructorId: number
+  ) {
+    const { courseId, lessonId, questionText, quizId, newOptions } =
+      saveQuestionDto;
+
+    // 🧩 Kiểm tra câu hỏi có tồn tại và thuộc quiz của giảng viên này không
+    const question = await this.prisma.question.findFirst({
+      where: {
+        id,
+        quizId,
+        quiz: {
+          lesson: {
+            id: lessonId,
+            course: {
+              id: courseId,
+              instructorId, // chỉ cho phép instructor này sửa câu hỏi
+            },
+          },
+        },
+      },
+      include: { options: true },
+    });
+
+    if (!question) {
+      throw new BadRequestException(
+        "Không tìm thấy câu hỏi hoặc bạn không có quyền."
+      );
+    }
+
+    // 🧩 Cập nhật nội dung câu hỏi
+    if (question.questionText !== questionText) {
+      await this.prisma.question.update({
+        where: { id },
+        data: { questionText },
+      });
+    }
+
+    // 🧩 Xóa toàn bộ option cũ
+    await this.prisma.option.deleteMany({
+      where: { questionId: id },
+    });
+
+    // 🧩 Tạo mới toàn bộ options
+    if (newOptions && newOptions.length > 0) {
+      await this.prisma.option.createMany({
+        data: newOptions.map((opt) => ({
+          text: opt.optionText,
+          isCorrect: opt.isCorrect,
+          questionId: id,
+        })),
+      });
+    }
+
+    // 🧩 Trả về dữ liệu mới nhất
+    return await this.prisma.question.findUnique({
+      where: { id },
+      include: { options: true },
     });
   }
 

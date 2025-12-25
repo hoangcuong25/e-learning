@@ -5,6 +5,7 @@ import {
   createQuestionApi,
   updateQuestionApi,
   deleteQuestionApi,
+  saveQuestionApi,
 } from "@/api/question.api";
 
 interface QuestionState {
@@ -68,6 +69,15 @@ export const deleteQuestion = createAsyncThunk(
   }
 );
 
+// 🧩 Lưu câu hỏi (tạo mới options)
+export const saveQuestion = createAsyncThunk(
+  "questions/saveQuestion",
+  async (data: { id: number; payload: any }) => {
+    const response = await saveQuestionApi(data.id, data.payload);
+    return response;
+  }
+);
+
 // 🧱 Slice
 const questionsSlice = createSlice({
   name: "questions",
@@ -125,6 +135,19 @@ const questionsSlice = createSlice({
           (q) => q.id !== action.payload.id
         );
         state.successMessage = "Xóa câu hỏi thành công!";
+      })
+
+      // 📘 Save Question
+      .addCase(saveQuestion.fulfilled, (state, action) => {
+        const index = state.questions.findIndex(
+          (q) => q.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.questions[index] = action.payload;
+        } else {
+          state.questions.push(action.payload);
+        }
+        state.successMessage = "Lưu câu hỏi thành công!";
       });
   },
 });

@@ -13,6 +13,7 @@ import { CreateQuestionDto } from "./dto/create-question.dto";
 import { UpdateQuestionDto } from "./dto/update-question.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { SaveQuestionDto } from "./dto/save-question.dto";
 
 @ApiTags("Question")
 @Controller("question")
@@ -55,6 +56,19 @@ export class QuestionController {
     @Req() req
   ) {
     return this.questionService.update(+id, updateQuestionDto, req.user.id);
+  }
+
+  @Patch("save-question/:id")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({ summary: "Save question (create/update options)" })
+  @ResponseMessage("Save question successfully")
+  @ApiBearerAuth()
+  saveQuestion(
+    @Param("id") id: string,
+    @Body() saveQuestionDto: SaveQuestionDto,
+    @Req() req
+  ) {
+    return this.questionService.saveQuestion(+id, saveQuestionDto, req.user.id);
   }
 
   @Delete(":id")
