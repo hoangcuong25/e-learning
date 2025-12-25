@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Req,
+  Query,
 } from "@nestjs/common";
 import { CourseService } from "./course.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
@@ -19,8 +20,9 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { Public, ResponseMessage, Roles } from "src/core/decorator/customize";
 import { UpdateCourseDto } from "./dto/update-course.dto";
+import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
 
 @ApiTags("Course")
 @Controller("course")
@@ -42,15 +44,22 @@ export class CourseController {
   }
 
   @Get()
-  @Roles("ADMIN")
-  @ApiOperation({ summary: "Get all courses" })
+  @Public()
+  @ApiOperation({ summary: "Get all courses with pagination and filter" })
   @ResponseMessage("Get all courses")
-  @ApiBearerAuth()
-  findAll() {
-    return this.courseService.findAll();
+  findAll(@Query() dto: PaginationQueryDto) {
+    return this.courseService.findAll(dto);
   }
 
   @Get(":id")
+  @Public()
+  @ApiOperation({ summary: "Get course detail by ID" })
+  @ResponseMessage("Get course detail")
+  findCourseById(@Param("id") id: string) {
+    return this.courseService.findCourseById(+id);
+  }
+
+  @Get(":id/instructor")
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Get course detail by ID" })
   @ResponseMessage("Get course detail")
@@ -97,5 +106,26 @@ export class CourseController {
   @ApiBearerAuth()
   remove(@Param("id") id: string, @Req() req) {
     return this.courseService.remove(+id, req.user.id);
+  }
+
+  @Post(":id/rating")
+  @ApiOperation({ summary: "Rate a course by ID" })
+  @ResponseMessage("Rate course")
+  @ApiBearerAuth()
+  rateCourse(
+    @Param("id") id: string,
+    @Body("rating") rating: number,
+    @Req() req
+  ) {
+    return this.courseService.rateCourse(+id, rating, req.user.id);
+  }
+
+  @Post(":id/view")
+  @ApiOperation({ summary: "Increase course view count" })
+  @ResponseMessage("Increase course view")
+  @ApiBearerAuth()
+  increaseView(@Param("id") id: string, @Req() req) {
+    const userId = req.user?.id;
+    return this.courseService.increaseView(+id, userId);
   }
 }

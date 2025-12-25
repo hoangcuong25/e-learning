@@ -77,11 +77,12 @@ export class LessonController {
   }
 
   @Get("course/:courseId")
+  @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Get all lessons by course ID" })
   @ResponseMessage("Fetched lessons by course")
   @ApiBearerAuth()
-  getLessonsByCourse(@Param("courseId") courseId: string) {
-    return this.lessonService.getLessonsByCourse(+courseId);
+  getLessonsByCourse(@Param("courseId") courseId: string, @Req() req: any) {
+    return this.lessonService.getLessonsByCourse(+courseId, req.user.id);
   }
 
   @Delete(":id")

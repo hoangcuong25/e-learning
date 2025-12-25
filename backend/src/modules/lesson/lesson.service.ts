@@ -87,10 +87,17 @@ export class LessonService {
     return lesson;
   }
 
-  async getLessonsByCourse(courseId: number) {
+  async getLessonsByCourse(courseId: number, instructorId: number) {
     return this.prisma.lesson.findMany({
-      where: { courseId },
+      where: { courseId, course: { instructorId } },
       orderBy: { orderIndex: "asc" },
+      include: {
+        quizzes: {
+          include: {
+            _count: { select: { questions: true } },
+          },
+        },
+      },
     });
   }
 

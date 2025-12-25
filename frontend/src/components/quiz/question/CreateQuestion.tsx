@@ -216,29 +216,34 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
               {options.map((opt) => (
                 <div
                   key={opt.id}
-                  className="flex items-center justify-between border rounded-md p-2"
+                  className="flex items-center justify-between border rounded-md p-2 bg-gray-50"
                 >
-                  <span
-                    className={`${
-                      opt.isCorrect
-                        ? "text-green-600 font-medium"
-                        : "text-gray-800"
-                    }`}
-                  >
-                    {opt.text} {opt.isCorrect && "✅"}
-                  </span>
-                  <div className="flex gap-2">
+                  <Input
+                    value={opt.text}
+                    onChange={(e) =>
+                      setOptions((prev) =>
+                        prev.map((o) =>
+                          o.id === opt.id ? { ...o, text: e.target.value } : o
+                        )
+                      )
+                    }
+                  />
+                  <div className="flex gap-2 items-center">
                     <Button
                       type="button"
-                      size="sm"
+                      size="icon"
                       variant="outline"
                       onClick={() => handleMarkCorrect(opt.id)}
                     >
-                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <CheckCircle
+                        className={`w-4 h-4 ${
+                          opt.isCorrect ? "text-green-600" : "text-gray-400"
+                        }`}
+                      />
                     </Button>
                     <Button
                       type="button"
-                      size="sm"
+                      size="icon"
                       variant="outline"
                       onClick={() => handleDeleteOption(opt.id)}
                     >

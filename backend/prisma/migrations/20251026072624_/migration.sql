@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `course` ADD COLUMN `viewCount` INTEGER NOT NULL DEFAULT 0;
