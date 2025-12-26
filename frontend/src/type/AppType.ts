@@ -77,6 +77,8 @@ declare global {
 
   // 🧩 CourseType — đại diện cho một khóa học
   type CourseType = {
+    lessons: any;
+    chapter: ChapterType[];
     id: number;
     title: string;
     description?: string;
@@ -86,9 +88,6 @@ declare global {
 
     instructorId: number;
     instructor?: Pick<UserType, "id" | "fullname" | "email" | "avatar">;
-
-    // Danh sách bài học
-    lessons?: LessonType[];
 
     // Danh sách chuyên ngành / chủ đề (qua bảng trung gian)
     specializations?: {
@@ -106,6 +105,8 @@ declare global {
     content?: string;
     videoUrl?: string;
     orderIndex: number;
+    duration: number; // Thời lượng bài học
+    chapter: ChapterType;
     quizzes?: QuizType[];
     courseId: number;
     course?: Pick<CourseType, "id" | "title">;
@@ -148,6 +149,79 @@ declare global {
     lessonId: number;
     lesson?: Pick<LessonType, "id" | "title" | "orderIndex" | "courseId">; // Thông tin bài học (nếu có)
     questions?: QuestionType[]; // Danh sách câu hỏi
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  type ChapterType = {
+    id: number;
+    title: string;
+    description?: string;
+    courseId: number;
+    orderIndex: number;
+    lessons?: LessonType[];
+    createdAt?: string;
+    updatedAt?: string;
+  };
+
+  enum CouponTargetEnum {
+    ALL = "ALL",
+    COURSE = "COURSE",
+    SPECIALIZATION = "SPECIALIZATION",
+  }
+
+  type CouponType = {
+    id: number;
+    code: string;
+    percentage: number; // % giảm giá
+    maxUsage?: number | null; // Giới hạn số lần dùng
+    usedCount: number; // Số lần đã dùng
+    expiresAt?: string | null; // Hạn sử dụng
+    isActive: boolean;
+    target: CouponTargetEnum;
+
+    // Quan hệ
+    createdById: number;
+    createdBy?: Pick<UserType, "id" | "fullname" | "email">;
+
+    courseId?: number | null;
+    course?: Pick<CourseType, "id" | "title"> | null;
+
+    specializationId?: number | null;
+    specialization?: Pick<SpecializationType, "id" | "name"> | null;
+
+    // Các quan hệ phụ
+    couponUsages?: CouponUsageType[];
+    discountCampaigns?: DiscountCampaignType[];
+
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  type CouponUsageType = {
+    id: number;
+    couponId: number;
+    userId: number;
+    usedAt: string;
+
+    coupon?: Pick<CouponType, "id" | "code" | "percentage">;
+    user?: Pick<UserType, "id" | "fullname" | "email">;
+  };
+
+  type DiscountCampaignType = {
+    id: number;
+    title: string;
+    description?: string;
+    percentage: number;
+    startsAt: string;
+    endsAt: string;
+    isActive: boolean;
+
+    createdById: number;
+    createdBy?: Pick<UserType, "id" | "fullname">;
+
+    coupons?: Pick<CouponType, "id" | "code" | "percentage">[];
+
     createdAt: string;
     updatedAt: string;
   };

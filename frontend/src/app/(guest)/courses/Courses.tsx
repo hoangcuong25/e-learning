@@ -1,76 +1,78 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Loader2 } from "lucide-react";
-import { Pagination } from "@/components/ui/pagination";
-import { AppDispatch, RootState } from "@/store";
-import { fetchAllCourses } from "@/store/coursesSlice";
-import CoursesFilter from "@/components/course/CoursesFilter";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import CourseCard from "@/components/course/CourseCard";
-import { useRouter, useSearchParams } from "next/navigation";
+import CoursesFilter from "@/components/course/CoursesFilter";
+import { Pagination } from "@/components/ui/pagination";
+import LoadingScreen from "@/components/LoadingScreen";
+import { getAllCoursesApi } from "@/api/courses.api";
 
-const CoursesPage = () => {
-  const dispatch = useDispatch<AppDispatch>();
+interface Props {
+  initialCourses: any[];
+  totalPages: number;
+  initialParams: PaginationParams;
+}
+
+const CoursesClient = ({
+  initialCourses,
+  totalPages,
+  initialParams,
+}: Props) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const [params, setParams] = useState(initialParams);
+  const [courses, setCourses] = useState(initialCourses ?? []);
+  const [loading, setLoading] = useState(false);
 
-  // 🧩 Lấy params từ URL khi load trang
-  const [params, setParams] = useState<PaginationParams>({
-    page: Number(searchParams.get("page")) || 1,
-    limit: Number(searchParams.get("limit")) || 8,
-    search: searchParams.get("search") || "",
-    sortBy: searchParams.get("sortBy") || "createdAt",
-    order: (searchParams.get("order") as "asc" | "desc") || "desc",
-  });
-
-  const { courses, loading } = useSelector((state: RootState) => state.courses);
-
-  // 🧩 Khi params thay đổi → fetch API + cập nhật URL
   useEffect(() => {
-    // Tạo query string
-    const query = new URLSearchParams({
-      page: String(params.page),
-      limit: String(params.limit),
-      search: params.search ?? "",
-      sortBy: params.sortBy ?? "",
-      order: params.order ?? "",
-    });
-    router.replace(`?${query.toString()}`);
+    let isFirst = true;
 
-    // Gọi API
-    dispatch(fetchAllCourses(params));
-  }, [params, dispatch, router]);
+    const fetchData = async () => {
+      if (isFirst) {
+        isFirst = false;
+        return; //  Bỏ qua lần đầu
+      }
 
-  // 🔍 Tìm kiếm
-  const handleSearch = (search: string) => {
-    setParams((prev) => ({ ...prev, search, page: 1 }));
-  };
+      setLoading(true);
+      const query = new URLSearchParams({
+        page: String(params.page),
+        limit: String(params.limit),
+        search: params.search ?? "",
+        sortBy: params.sortBy ?? "",
+        order: params.order ?? "desc",
+      });
 
-  // 🔽 Sắp xếp
-  const handleSort = (sortBy: string, order: "asc" | "desc") => {
-    setParams((prev) => ({ ...prev, sortBy, order }));
-  };
+      router.replace(`?${query.toString()}`, { scroll: false });
 
-  // 📄 Chuyển trang
-  const handlePageChange = (page: number) => {
-    setParams((prev) => ({ ...prev, page }));
-  };
+      const data = await getAllCoursesApi(params);
+      setCourses(data?.courses ?? []);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [params]);
+
+  const handleSearch = (search: string) =>
+    setParams({ ...params, search, page: 1 });
+
+  const handleSort = (sortBy: string, order: "asc" | "desc") =>
+    setParams({ ...params, sortBy, order });
+
+  const handlePageChange = (page: number) => setParams({ ...params, page });
+
+  console.log(courses);
+  console.log("initialCourses", initialCourses);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        Danh sách khóa học
-      </h1>
+      <h1 className="text-3xl font-bold mb-6">Danh sách khóa học</h1>
 
       <CoursesFilter onSearch={handleSearch} onSort={handleSort} />
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="animate-spin w-8 h-8 text-gray-500" />
-        </div>
-      ) : courses.length === 0 ? (
-        <p className="text-gray-500 text-center py-10">
+        <LoadingScreen />
+      ) : !courses || courses.length === 0 ? (
+        <p className="text-center text-gray-500 py-10">
           Không tìm thấy khóa học nào.
         </p>
       ) : (
@@ -83,7 +85,7 @@ const CoursesPage = () => {
 
           <div className="flex justify-center mt-10">
             <Pagination
-              total={10}
+              total={totalPages}
               page={params.page ?? 1}
               onChange={handlePageChange}
             />
@@ -94,4 +96,4 @@ const CoursesPage = () => {
   );
 };
 
-export default CoursesPage;
+export default CoursesClient;

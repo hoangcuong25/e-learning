@@ -46,7 +46,12 @@ export default function LoginPage() {
 
       toast.success("Đăng nhập thành công");
     } catch (err: any) {
-      toast.error("Đăng nhập thất bại");
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Đăng nhập thất bại! Vui lòng kiểm tra lại email hoặc mật khẩu.";
+
+      toast.error(errorMessage);
     }
   };
 

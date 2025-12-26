@@ -30,6 +30,12 @@ enum CourseType {
   PAID
 }
 
+enum CouponTarget {
+  ALL
+  COURSE
+  SPECIALIZATION
+}
+
 // ─── USER ──────────────────────────────
 model User {
   id        Int       @id @default(autoincrement())
@@ -58,6 +64,10 @@ model User {
   courses                Course[]
   CourseRating CourseRating[]
   CourseView CourseView[]
+
+  Coupon Coupon[]
+  CouponUsage CouponUsage[]
+  DiscountCampaign DiscountCampaign[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -91,6 +101,8 @@ model Specialization {
   applicationSpecializations ApplicationSpecialization[]
   courseSpecializations      CourseSpecialization[]
 
+  Coupon Coupon[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -116,16 +128,19 @@ model Course {
   type         CourseType @default(FREE)
   isPublished  Boolean    @default(false)
   viewCount    Int        @default(0)
+  duration     Int        @default(0) // Tổng thời lượng (phút)
 
   // Relations
   instructorId Int
   instructor   User        @relation(fields: [instructorId], references: [id], onDelete: Cascade)
 
-  lessons      Lesson[]
   specializations CourseSpecialization[]
 
-  CourseRating CourseRating[]
-  CourseView CourseView[]
+  courseRating CourseRating[]
+  courseView CourseView[]
+  chapter Chapter[]
+  
+  Coupon Coupon[]
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -145,6 +160,25 @@ model CourseView {
   @@unique([courseId, userId, ipAddress])
 }
 
+// ─── CHAPTER ──────────────────────────────
+model Chapter {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(150)
+  description String?   @db.Text
+  orderIndex  Int       @default(0)
+  duration    Int       @default(0) // Tổng thời lượng (phút)
+
+  // Relations
+  courseId Int
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons  Lesson[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, orderIndex]) // mỗi course có thứ tự chapter riêng
+}
+
 // ─── LESSON ──────────────────────────────
 model Lesson {
   id          Int       @id @default(autoincrement())
@@ -152,17 +186,16 @@ model Lesson {
   content     String?   @db.Text     // HTML content
   videoUrl    String?   // Cloudinary URL
   orderIndex  Int       @default(0)
+  duration    Int       @default(0) // Tổng thời lượng (phút)
 
   // Relations
-  courseId    Int
-  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
   quizzes Quiz[]
+
+  chapterId   Int?
+  chapter     Chapter?   @relation(fields: [chapterId], references: [id], onDelete: SetNull)
 
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-
-  @@unique([courseId, orderIndex])
 }
 
 // ─── JUNCTION: Course ↔ Specialization ──────────────
@@ -225,4 +258,58 @@ model CourseRating {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, courseId]) // mỗi user chỉ được rate 1 lần / course
+}
+
+model Coupon {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique
+  percentage  Float     @default(0)
+  maxUsage    Int?
+  usedCount   Int       @default(0)
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  target      CouponTarget  @default(ALL) // ALL, COURSE, SPECIALIZATION
+  createdById Int
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  courseId    Int?
+  course      Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  specializationId Int?  // nếu coupon áp dụng cho specialization
+  specialization   Specialization? @relation(fields: [specializationId], references: [id], onDelete: Cascade)
+
+  CouponUsage CouponUsage[]
+  DiscountCampaign DiscountCampaign[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CouponUsage {
+  id         Int      @id @default(autoincrement())
+  couponId   Int
+  userId     Int
+  usedAt     DateTime @default(now())
+
+  coupon     Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, userId])
+}
+
+model DiscountCampaign {
+  id          Int             @id @default(autoincrement())
+  title       String
+  description String?
+  percentage  Float
+  startsAt    DateTime
+  endsAt      DateTime
+  isActive    Boolean @default(true)
+  
+  coupons     Coupon[]
+
+  createdById Int
+  createdBy   User @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

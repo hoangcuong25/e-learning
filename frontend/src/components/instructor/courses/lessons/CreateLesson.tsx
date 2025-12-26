@@ -24,7 +24,13 @@ import { fetchCourseById } from "@/store/coursesSlice";
 import { lessonSchema, LessonFormData } from "@/hook/zod-schema/LessonSchema";
 import RichTextEditor from "@/components/RichTextEditor";
 
-const CreateLesson = ({ courseId }: { courseId: number }) => {
+const CreateLesson = ({
+  courseId,
+  chapterId,
+}: {
+  courseId: number;
+  chapterId: number;
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const [open, setOpen] = useState(false);
 
@@ -51,6 +57,7 @@ const CreateLesson = ({ courseId }: { courseId: number }) => {
       formData.append("title", data.title);
       formData.append("content", data.content);
       formData.append("orderIndex", String(data.orderIndex ?? "0"));
+      formData.append("chapterId", String(chapterId));
 
       // ✅ Lấy video
       if (data.video instanceof FileList && data.video.length > 0) {
@@ -61,8 +68,6 @@ const CreateLesson = ({ courseId }: { courseId: number }) => {
         toast.error("Vui lòng chọn file video.");
         return;
       }
-
-      formData.append("courseId", String(courseId));
 
       await dispatch(createLesson(formData)).unwrap();
       await dispatch(fetchCourseById(courseId)).unwrap();

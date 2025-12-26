@@ -23,16 +23,15 @@ function removeVietnameseTones(str: string) {
     .replace(/Đ/g, "D");
 }
 
-export function buildSearchFilter(
+export function buildSearchFilter<T extends object>(
   dto: any,
-  searchableFields: string[] = []
-): Prisma.CourseWhereInput | undefined {
+  searchableFields: (keyof T)[] = []
+): Partial<T> | undefined {
   if (!dto.search || searchableFields.length === 0) return undefined;
 
   const search = String(dto.search).trim();
   const normalized = removeVietnameseTones(search.toLowerCase());
 
-  // Tạo nhiều dạng tìm để dễ khớp hơn
   const variants = [
     search, // gốc
     search.toLowerCase(), // thường
@@ -42,10 +41,10 @@ export function buildSearchFilter(
   return {
     OR: searchableFields.flatMap((field) =>
       variants.map((text) => ({
-        [field]: { contains: text },
+        [field]: { contains: text, mode: "insensitive" },
       }))
     ),
-  };
+  } as any;
 }
 
 export function buildPaginationResponse(

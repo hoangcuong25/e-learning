@@ -15,7 +15,7 @@ const axiosClient = axios.create({
   },
 });
 
-// Add request interceptor for token
+// 🧠 Request Interceptor
 axiosClient.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("access_token");
@@ -25,13 +25,16 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// 🧠 Response Interceptor
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // 🚫 Không refresh token nếu đang logout
-    if (isLoggingOut) return Promise.reject(error);
+    // 🚫 Không refresh token nếu đang logout hoặc request có flag skipAuthRefresh
+    if (isLoggingOut || originalRequest?.skipAuthRefresh) {
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -53,7 +56,6 @@ axiosClient.interceptors.response.use(
       } catch (refreshError) {
         console.error("Token refresh failed");
         localStorage.removeItem("access_token");
-
         return Promise.reject(refreshError);
       }
     }

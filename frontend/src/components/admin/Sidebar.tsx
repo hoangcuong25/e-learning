@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   Home,
+  Tag,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
@@ -39,6 +40,11 @@ const SidebarAdmin = () => {
       href: "/admin/instructors",
       label: "Quản lý giảng viên",
       icon: GraduationCap,
+    },
+    {
+      href: "/admin/discount-campaigns",
+      label: "Quản lý chiến dịch",
+      icon: Tag,
     },
     { href: "/admin/revenue", label: "Doanh thu", icon: DollarSign },
     { href: "/admin/reports", label: "Báo cáo thống kê", icon: BarChart3 },

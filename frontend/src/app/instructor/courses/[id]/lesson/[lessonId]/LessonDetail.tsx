@@ -173,6 +173,16 @@ const LessonDetail = () => {
 
             {/* Lesson Info */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              {currentLesson.chapter && (
+                <div className="mb-4 text-sm text-gray-500">
+                  <span className="font-medium text-gray-700">
+                    Thuộc chương:
+                  </span>{" "}
+                  <span className="text-gray-600">
+                    {currentLesson.chapter.title}
+                  </span>
+                </div>
+              )}
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                 {currentLesson.title}
               </h2>

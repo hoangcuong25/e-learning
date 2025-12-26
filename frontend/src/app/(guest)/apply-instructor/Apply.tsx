@@ -9,13 +9,6 @@ import { AppDispatch, RootState } from "@/store";
 import { useEffect, useState } from "react";
 import { fetchAllSpecializations } from "@/store/specializationSlice";
 import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Command, CommandItem, CommandList } from "@/components/ui/command";
-import {
   applyInstructorApi,
   ApplyInstructorPayload,
 } from "@/api/instructor.api";

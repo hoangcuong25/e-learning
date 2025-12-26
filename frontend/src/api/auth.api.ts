@@ -27,7 +27,10 @@ export type LoginPayload = {
 
 export const LoginApi = async (payload: LoginPayload) => {
   try {
-    const response = await axiosClient.post("/auth/login", payload);
+    const response = await axiosClient.post("/auth/login", payload,
+      // cast to any to allow custom config property `skipAuthRefresh`
+      { skipAuthRefresh: true } as any
+    );
     return response.data.data;
   } catch (error) {
     throw error;

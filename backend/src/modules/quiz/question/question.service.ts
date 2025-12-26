@@ -13,41 +13,53 @@ import { SaveQuestionDto } from "./dto/save-question.dto";
 export class QuestionService {
   constructor(private prisma: PrismaService) {}
 
-  // ─── CREATE QUESTION ──────────────────────────────
+  // ─── TẠO CÂU HỎI ──────────────────────────────
   async create(createQuestionDto: CreateQuestionDto, instructorId: number) {
     const { questionText, quizId } = createQuestionDto;
 
-    // Kiểm tra quiz có tồn tại
-    const quiz = await this.prisma.quiz.findUnique({
-      where: { id: quizId },
+    // Kiểm tra quiz có tồn tại và thuộc quyền của giảng viên không
+    const quiz = await this.prisma.quiz.findFirst({
+      where: {
+        id: quizId,
+        lesson: {
+          chapter: {
+            course: {
+              instructorId,
+            },
+          },
+        },
+      },
       include: {
         lesson: {
           include: {
-            course: true,
+            chapter: {
+              include: { course: true },
+            },
           },
         },
       },
     });
 
-    if (!quiz) throw new NotFoundException("Quiz not found");
-
-    // Kiểm tra quiz có thuộc quyền instructor không
-    if (quiz.lesson.course.instructorId !== instructorId) {
+    if (!quiz)
       throw new ForbiddenException(
-        "You do not have permission to add questions to this quiz"
+        "Bạn không có quyền thêm câu hỏi vào bài kiểm tra này hoặc bài kiểm tra không tồn tại"
       );
-    }
 
-    // Tạo question
-    return this.prisma.question.create({
+    // Tạo câu hỏi mới
+    const newQuestion = await this.prisma.question.create({
       data: {
         questionText,
         quizId,
       },
     });
+
+    return {
+      message: "Tạo câu hỏi thành công",
+      data: newQuestion,
+    };
   }
 
-  // ─── GET ALL ──────────────────────────────
+  // ─── LẤY TẤT CẢ CÂU HỎI ──────────────────────────────
   async findAll() {
     return this.prisma.question.findMany({
       include: {
@@ -58,7 +70,7 @@ export class QuestionService {
     });
   }
 
-  // ─── GET ONE ──────────────────────────────
+  // ─── LẤY MỘT CÂU HỎI ──────────────────────────────
   async findOne(id: number) {
     const question = await this.prisma.question.findUnique({
       where: { id },
@@ -67,11 +79,13 @@ export class QuestionService {
         options: true,
       },
     });
-    if (!question) throw new NotFoundException("Question not found");
+
+    if (!question) throw new NotFoundException("Không tìm thấy câu hỏi");
+
     return question;
   }
 
-  // ─── UPDATE ──────────────────────────────
+  // ─── CẬP NHẬT CÂU HỎI ──────────────────────────────
   async update(
     id: number,
     updateQuestionDto: UpdateQuestionDto,
@@ -84,7 +98,11 @@ export class QuestionService {
           include: {
             lesson: {
               include: {
-                course: true,
+                chapter: {
+                  include: {
+                    course: true,
+                  },
+                },
               },
             },
           },
@@ -92,12 +110,13 @@ export class QuestionService {
       },
     });
 
-    if (!question) throw new NotFoundException("Question not found");
+    if (!question) {
+      throw new NotFoundException("Không tìm thấy câu hỏi");
+    }
 
-    if (question.quiz.lesson.course.instructorId !== instructorId) {
-      throw new ForbiddenException(
-        "You do not have permission to update this question"
-      );
+    // Kiểm tra quyền giảng viên
+    if (question.quiz.lesson.chapter.course.instructorId !== instructorId) {
+      throw new ForbiddenException("Bạn không có quyền chỉnh sửa câu hỏi này");
     }
 
     return this.prisma.question.update({
@@ -106,6 +125,7 @@ export class QuestionService {
     });
   }
 
+  // ─── LƯU CÂU HỎI (CẬP NHẬT CẢ OPTIONS) ──────────────────────────────
   async saveQuestion(
     id: number,
     saveQuestionDto: SaveQuestionDto,
@@ -114,7 +134,7 @@ export class QuestionService {
     const { courseId, lessonId, questionText, quizId, newOptions } =
       saveQuestionDto;
 
-    // 🧩 Kiểm tra câu hỏi có tồn tại và thuộc quiz của giảng viên này không
+    // Kiểm tra câu hỏi có tồn tại và có thuộc quiz của giảng viên này không
     const question = await this.prisma.question.findFirst({
       where: {
         id,
@@ -122,9 +142,11 @@ export class QuestionService {
         quiz: {
           lesson: {
             id: lessonId,
-            course: {
-              id: courseId,
-              instructorId, // chỉ cho phép instructor này sửa câu hỏi
+            chapter: {
+              course: {
+                id: courseId,
+                instructorId: instructorId,
+              },
             },
           },
         },
@@ -134,11 +156,11 @@ export class QuestionService {
 
     if (!question) {
       throw new BadRequestException(
-        "Không tìm thấy câu hỏi hoặc bạn không có quyền."
+        "Không tìm thấy câu hỏi hoặc bạn không có quyền thao tác"
       );
     }
 
-    // 🧩 Cập nhật nội dung câu hỏi
+    // Cập nhật nội dung câu hỏi (nếu có thay đổi)
     if (question.questionText !== questionText) {
       await this.prisma.question.update({
         where: { id },
@@ -146,12 +168,12 @@ export class QuestionService {
       });
     }
 
-    // 🧩 Xóa toàn bộ option cũ
+    // Xóa toàn bộ option cũ
     await this.prisma.option.deleteMany({
       where: { questionId: id },
     });
 
-    // 🧩 Tạo mới toàn bộ options
+    // Tạo mới toàn bộ option
     if (newOptions && newOptions.length > 0) {
       await this.prisma.option.createMany({
         data: newOptions.map((opt) => ({
@@ -162,14 +184,14 @@ export class QuestionService {
       });
     }
 
-    // 🧩 Trả về dữ liệu mới nhất
-    return await this.prisma.question.findUnique({
+    // Trả về dữ liệu mới nhất
+    return this.prisma.question.findUnique({
       where: { id },
       include: { options: true },
     });
   }
 
-  // ─── DELETE ──────────────────────────────
+  // ─── XÓA CÂU HỎI ──────────────────────────────
   async remove(id: number, instructorId: number) {
     const question = await this.prisma.question.findUnique({
       where: { id },
@@ -178,7 +200,11 @@ export class QuestionService {
           include: {
             lesson: {
               include: {
-                course: true,
+                chapter: {
+                  include: {
+                    course: true,
+                  },
+                },
               },
             },
           },
@@ -186,14 +212,16 @@ export class QuestionService {
       },
     });
 
-    if (!question) throw new NotFoundException("Question not found");
-
-    if (question.quiz.lesson.course.instructorId !== instructorId) {
-      throw new ForbiddenException(
-        "You do not have permission to delete this question"
-      );
+    if (!question) {
+      throw new NotFoundException("Không tìm thấy câu hỏi");
     }
 
+    // Kiểm tra quyền giảng viên
+    if (question.quiz.lesson.chapter.course.instructorId !== instructorId) {
+      throw new ForbiddenException("Bạn không có quyền xóa câu hỏi này");
+    }
+
+    // Xóa câu hỏi (Prisma sẽ tự động xóa các option liên quan nếu có cascade)
     return this.prisma.question.delete({ where: { id } });
   }
 }

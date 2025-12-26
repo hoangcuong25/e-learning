@@ -265,36 +265,57 @@ const NavbarUser = () => {
             {/* Dropdown */}
             <div
               className="
-                invisible opacity-0 translate-y-1
-                group-hover:visible group-hover:opacity-100 group-hover:translate-y-0
-                transition-all duration-150
-                absolute right-0 mt-2 w-56 z-50
-                rounded-xl border border-gray-200 bg-white/95 backdrop-blur-md shadow-lg
-              "
+    invisible opacity-0 translate-y-1
+    group-hover:visible group-hover:opacity-100 group-hover:translate-y-0
+    transition-all duration-200 ease-out
+    absolute right-0 mt-2 w-72 z-50
+    rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-md shadow-2xl
+  "
             >
-              <div className="px-4 py-3">
-                <p className="text-sm font-semibold text-gray-800 truncate">
-                  {user.fullname}
-                </p>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              {/* Header user info */}
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
+                <Image
+                  src={user.avatar || "/default-avatar.png"}
+                  alt={user.fullname}
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full object-cover border border-indigo-200"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {user.fullname}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                </div>
               </div>
-              <div className="py-1">
+
+              {/* Menu links */}
+              <div className="py-2 flex flex-col">
                 <Link
                   href="/profile"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                  className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition rounded-md"
                 >
                   Hồ sơ của tôi
                 </Link>
+
+                <Link
+                  href="/cart"
+                  className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition rounded-md"
+                >
+                  Giỏ hàng của tôi
+                </Link>
+
                 <Link
                   href="/my-learning"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                  className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition rounded-md"
                 >
                   Khóa học của tôi
                 </Link>
+
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
+                  className="w-full text-left px-5 py-2.5 text-sm text-red-600 hover:bg-red-50 transition rounded-md font-medium"
                 >
                   Đăng xuất
                 </button>

@@ -79,7 +79,7 @@ const EditProfile = () => {
 
       await updateUser(formData);
       await dispatch(fetchUser());
-      toast.success("Cập nhật hồ sơ thành công 🎉");
+      toast.success("Cập nhật hồ sơ thành công");
     } catch (error) {
       console.error(error);
       toast.error("Cập nhật hồ sơ thất bại!");

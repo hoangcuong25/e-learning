@@ -80,8 +80,13 @@ const ChangePassword = () => {
       setCurrentPwd("");
       setNewPwd("");
       setConfirmPwd("");
-    } catch (error) {
-      toast.error("Đổi mật khẩu thất bại, vui lòng thử lại!");
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Đổi mật khẩu thất bại! Vui lòng kiểm tra lại mật khẩu hiện tại.";
+
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
