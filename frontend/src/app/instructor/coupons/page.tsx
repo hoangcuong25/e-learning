@@ -190,7 +190,7 @@ const Coupons = () => {
                         </p>
                       ) : (
                         <p>
-                          ♾️ <strong>Không giới hạn thời gian</strong>
+                          <strong>Không giới hạn thời gian</strong>
                         </p>
                       )}
 

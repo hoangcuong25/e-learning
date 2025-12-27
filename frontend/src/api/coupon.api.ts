@@ -43,3 +43,9 @@ export const getInstructorCouponsApi = async () => {
   const response = await axiosClient.get("/coupon/instructor/me");
   return response.data;
 };
+
+// 🧩 8.  Admin tạo coupon  link với DiscountCampaign)
+export const createCouponDiscountByAdminApi = async (payload: any) => {
+  const response = await axiosClient.post("/coupon/admin", payload);
+  return response.data;
+};

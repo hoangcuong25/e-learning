@@ -81,6 +81,72 @@ export class CouponService {
     };
   }
 
+  async createCouponDiscountByAdmin(dto: CreateCouponDto, adminId: number) {
+    // Bắt buộc phải có discountCampaignId
+    if (!dto.discountCampaignId) {
+      throw new BadRequestException("discountCampaignId là bắt buộc");
+    }
+
+    // Kiểm tra chiến dịch tồn tại
+    const campaign = await this.prisma.discountCampaign.findUnique({
+      where: { id: dto.discountCampaignId },
+    });
+    if (!campaign) {
+      throw new NotFoundException("Chiến dịch giảm giá không tồn tại");
+    }
+
+    // Kiểm tra expiresAt
+    if (dto.expiresAt) {
+      const expiresDate = new Date(dto.expiresAt);
+      if (isNaN(expiresDate.getTime())) {
+        throw new BadRequestException("Định dạng ngày hết hạn không hợp lệ");
+      }
+      const now = new Date();
+      if (expiresDate <= now) {
+        throw new BadRequestException("Ngày hết hạn phải nằm trong tương lai");
+      }
+    }
+
+    // Sinh mã coupon ngẫu nhiên
+    const randomId = uuidv4().split("-")[0].toUpperCase();
+    const generatedCode = `${dto.code.trim().toUpperCase()}-${randomId}`;
+
+    // Kiểm tra trùng code
+    const existing = await this.prisma.coupon.findUnique({
+      where: { code: generatedCode },
+    });
+    if (existing) {
+      throw new BadRequestException("Mã coupon đã tồn tại");
+    }
+
+    // Tạo coupon gắn liền với DiscountCampaign
+    const coupon = await this.prisma.coupon.create({
+      data: {
+        code: generatedCode,
+        percentage: dto.percentage ?? 0,
+        maxUsage: dto.maxUsage ?? 0,
+        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
+        isActive: dto.isActive ?? true,
+        target: dto.target ?? "ALL",
+        createdById: adminId,
+        usedCount: 0,
+
+        // bắt buộc gắn campaign
+        DiscountCampaign: {
+          connect: { id: dto.discountCampaignId },
+        },
+      },
+      include: {
+        DiscountCampaign: true,
+      },
+    });
+
+    return {
+      message: "Tạo coupon cho chiến dịch thành công",
+      data: coupon,
+    };
+  }
+
   async findAll(query: PaginationQueryDto) {
     const { skip, take, page, limit } = buildPaginationParams(query);
     const orderBy = buildOrderBy(query);

@@ -46,11 +46,6 @@ const InstructorSidebar = () => {
       icon: TicketPercent,
     },
     { href: "/instructor/students", label: "Học viên", icon: Users },
-    {
-      href: "/instructor/applications",
-      label: "Đơn ứng tuyển",
-      icon: FileText,
-    },
     { href: "/instructor/earnings", label: "Thu nhập", icon: DollarSign },
     { href: "/instructor/settings", label: "Cài đặt", icon: Settings },
   ];

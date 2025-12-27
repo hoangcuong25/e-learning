@@ -19,11 +19,23 @@ export class DiscountService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateDiscountDto, createdById: number) {
-    const { startsAt, endsAt } = dto;
+    const { title, startsAt, endsAt } = dto;
 
+    // Kiểm tra xem title đã tồn tại chưa
+    const existing = await this.prisma.discountCampaign.findFirst({
+      where: { title },
+    });
+
+    if (existing) {
+      throw new BadRequestException(
+        "Chiến dịch giảm giá với tiêu đề này đã tồn tại!"
+      );
+    }
+
+    // Nếu chưa tồn tại thì tạo mới
     return this.prisma.discountCampaign.create({
       data: {
-        title: dto.title,
+        title,
         description: dto.description,
         percentage: dto.percentage,
         startsAt: new Date(startsAt),

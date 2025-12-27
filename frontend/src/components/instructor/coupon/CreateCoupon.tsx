@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
+import { useForm } from "react-hook-form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,6 +19,7 @@ import { toast } from "sonner";
 import { createCoupon, fetchInstructorCoupons } from "@/store/couponSlice";
 import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice";
 import { fetchCoursesByInstructor } from "@/store/coursesSlice";
+import { CouponFormData, couponSchema } from "@/hook/zod-schema/CoupondSchema";
 
 const CouponForm = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,14 +31,29 @@ const CouponForm = () => {
   );
   const { user } = useSelector((state: RootState) => state.user);
 
-  const [code, setCode] = useState("");
-  const [percentage, setPercentage] = useState("");
-  const [maxUsage, setMaxUsage] = useState("");
-  const [expiresAt, setExpiresAt] = useState("");
-  const [target, setTarget] = useState("ALL");
-  const [courseId, setCourseId] = useState("");
-  const [specializationId, setSpecializationId] = useState("");
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<CouponFormData>({
+    resolver: zodResolver(couponSchema),
+    defaultValues: {
+      code: "",
+      percentage: "",
+      maxUsage: "",
+      expiresAt: "",
+      target: "ALL",
+      courseId: "",
+      specializationId: "",
+    },
+  });
 
+  const target = watch("target");
+
+  // 🧭 Fetch data on mount
   useEffect(() => {
     dispatch(fetchCoursesByInstructor());
     if (user?.id) {
@@ -42,39 +61,30 @@ const CouponForm = () => {
     }
   }, [dispatch, user?.id]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!code || !percentage) {
-      toast.error("Vui lòng nhập mã coupon và phần trăm giảm!");
-      return;
-    }
-
+  // 🧠 Handle form submit
+  const onSubmit = async (data: CouponFormData) => {
     try {
       await dispatch(
         createCoupon({
-          code,
-          percentage: Number(percentage),
-          maxUsage: maxUsage ? Number(maxUsage) : undefined,
-          expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
-          target,
-          courseId: target === "COURSE" ? Number(courseId) : undefined,
+          code: data.code.toUpperCase(),
+          percentage: Number(data.percentage),
+          maxUsage: data.maxUsage ? Number(data.maxUsage) : undefined,
+          expiresAt: data.expiresAt
+            ? new Date(data.expiresAt).toISOString()
+            : undefined,
+          target: data.target,
+          courseId:
+            data.target === "COURSE" ? Number(data.courseId) : undefined,
           specializationId:
-            target === "SPECIALIZATION" ? Number(specializationId) : undefined,
+            data.target === "SPECIALIZATION"
+              ? Number(data.specializationId)
+              : undefined,
         })
       ).unwrap();
 
       toast.success("Tạo coupon thành công!");
       await dispatch(fetchInstructorCoupons());
-
-      // Reset form
-      setCode("");
-      setPercentage("");
-      setMaxUsage("");
-      setExpiresAt("");
-      setTarget("ALL");
-      setCourseId("");
-      setSpecializationId("");
+      reset();
     } catch {
       toast.error("Tạo coupon thất bại!");
     }
@@ -82,58 +92,54 @@ const CouponForm = () => {
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       className="space-y-5 p-4 border rounded-lg bg-white shadow-sm"
     >
       <h2 className="text-lg font-semibold text-gray-800 mb-2">
         Tạo Coupon Mới
       </h2>
 
-      {/* Mã Coupon */}
+      {/* Code */}
       <div>
         <label className="block text-sm font-medium mb-1">Mã Coupon *</label>
         <Input
-          placeholder="Ví dụ: SUMMER50"
-          value={code}
+          {...register("code")}
+          placeholder="VD: SUMMER50"
           className="uppercase"
-          onChange={(e) => setCode(e.target.value)}
         />
+        {errors.code && (
+          <p className="text-red-500 text-sm mt-1">{errors.code.message}</p>
+        )}
       </div>
 
-      {/* Phần trăm giảm */}
+      {/* Percentage */}
       <div>
         <label className="block text-sm font-medium mb-1">
           Phần trăm giảm (%)
         </label>
-        <Input
-          type="number"
-          placeholder="VD: 20"
-          value={percentage}
-          onChange={(e) => setPercentage(e.target.value)}
-        />
+        <Input type="number" placeholder="VD: 20" {...register("percentage")} />
+        {errors.percentage && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.percentage.message}
+          </p>
+        )}
       </div>
 
-      {/* Giới hạn số lần */}
+      {/* Max usage */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          Giới hạn số lần sử dụng
+          Giới hạn số lần
         </label>
-        <Input
-          type="number"
-          placeholder="VD: 100"
-          value={maxUsage}
-          onChange={(e) => setMaxUsage(e.target.value)}
-        />
+        <Input type="number" placeholder="VD: 100" {...register("maxUsage")} />
+        {errors.maxUsage && (
+          <p className="text-red-500 text-sm mt-1">{errors.maxUsage.message}</p>
+        )}
       </div>
 
-      {/* Ngày hết hạn */}
+      {/* Expiration date */}
       <div>
         <label className="block text-sm font-medium mb-1">Ngày hết hạn</label>
-        <Input
-          type="datetime-local"
-          value={expiresAt}
-          onChange={(e) => setExpiresAt(e.target.value)}
-        />
+        <Input type="datetime-local" {...register("expiresAt")} />
       </div>
 
       {/* Target */}
@@ -141,7 +147,10 @@ const CouponForm = () => {
         <label className="block text-sm font-medium mb-1">
           Mục tiêu áp dụng
         </label>
-        <Select value={target} onValueChange={setTarget}>
+        <Select
+          value={target}
+          onValueChange={(value) => setValue("target", value as any)}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Chọn mục tiêu áp dụng" />
           </SelectTrigger>
@@ -155,13 +164,16 @@ const CouponForm = () => {
         </Select>
       </div>
 
-      {/* Dropdown chọn khóa học */}
+      {/* Course selection */}
       {target === "COURSE" && (
         <div>
           <label className="block text-sm font-medium mb-1">
-            Chọn Khóa học
+            Chọn khóa học
           </label>
-          <Select value={courseId} onValueChange={setCourseId}>
+          <Select
+            value={watch("courseId")}
+            onValueChange={(value) => setValue("courseId", value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Chọn khóa học" />
             </SelectTrigger>
@@ -182,13 +194,16 @@ const CouponForm = () => {
         </div>
       )}
 
-      {/* Dropdown chọn chuyên ngành */}
+      {/* Specialization selection */}
       {target === "SPECIALIZATION" && (
         <div>
           <label className="block text-sm font-medium mb-1">
-            Chọn Chuyên ngành
+            Chọn chuyên ngành
           </label>
-          <Select value={specializationId} onValueChange={setSpecializationId}>
+          <Select
+            value={watch("specializationId")}
+            onValueChange={(value) => setValue("specializationId", value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Chọn chuyên ngành" />
             </SelectTrigger>
@@ -209,11 +224,13 @@ const CouponForm = () => {
         </div>
       )}
 
+      {/* Submit button */}
       <Button
         type="submit"
+        disabled={isSubmitting}
         className="w-full bg-blue-500 hover:bg-blue-600 text-white"
       >
-        Tạo Coupon
+        {isSubmitting ? "Đang tạo..." : "Tạo Coupon"}
       </Button>
     </form>
   );

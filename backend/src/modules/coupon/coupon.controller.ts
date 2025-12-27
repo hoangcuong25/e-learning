@@ -30,6 +30,17 @@ export class CouponController {
     return this.couponService.create(dto, req.user.id);
   }
 
+  @Post("admin")
+  @Roles("ADMIN")
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Admin tạo coupon (bắt buộc link với DiscountCampaign)",
+  })
+  @ResponseMessage("Admin create coupon successfully")
+  createCouponDiscountByAdmin(@Body() dto: CreateCouponDto, @Req() req) {
+    return this.couponService.createCouponDiscountByAdmin(dto, req.user.id);
+  }
+
   @Get()
   @Roles("ADMIN")
   @ApiBearerAuth()

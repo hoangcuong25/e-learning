@@ -9,22 +9,17 @@ import {
 } from "@/api/discount.api";
 
 // 🧩 Interface State
-interface DiscountCampaign {
-  id: number;
-  title: string;
-  description?: string;
-  startDate?: string;
-  endDate?: string;
-  active?: boolean;
-  [key: string]: any;
-}
 
 interface DiscountState {
-  discounts: DiscountCampaign[];
-  currentDiscount: DiscountCampaign | null;
+  discounts: DiscountCampaignType[];
+  currentDiscount: DiscountCampaignType | null;
   loading: boolean;
   error: string | null;
   successMessage: string | null;
+  currentPage: number;
+  totalItems: number;
+  totalPages: number;
+  itemsPerPage: number;
 }
 
 const initialState: DiscountState = {
@@ -33,6 +28,11 @@ const initialState: DiscountState = {
   loading: false,
   error: null,
   successMessage: null,
+
+  currentPage: 1,
+  totalItems: 0,
+  totalPages: 1,
+  itemsPerPage: 10,
 };
 
 // 🧾 Lấy tất cả discount campaigns
@@ -61,7 +61,11 @@ export const createDiscount = createAsyncThunk(
       const response = await createDiscountApi(payload);
       return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Lỗi tạo discount");
+      if (error.response) {
+        return rejectWithValue(error.response.data);
+      }
+
+      return rejectWithValue(error.message || "Lỗi tạo discount");
     }
   }
 );
@@ -111,7 +115,12 @@ const discountSlice = createSlice({
       })
       .addCase(fetchAllDiscounts.fulfilled, (state, action) => {
         state.loading = false;
-        state.discounts = action.payload || [];
+        const apiResponse = action.payload;
+        state.discounts = apiResponse.data || [];
+        state.currentPage = apiResponse.pagination.currentPage || 1;
+        state.totalItems = apiResponse.pagination.total || 0;
+        state.itemsPerPage = apiResponse.pagination.pageSize || 10;
+        state.totalPages = apiResponse.pagination.totalPages;
       })
       .addCase(fetchAllDiscounts.rejected, (state, action) => {
         state.loading = false;
@@ -139,7 +148,7 @@ const discountSlice = createSlice({
         state.loading = false;
         state.successMessage =
           action.payload.message ?? "Tạo discount thành công";
-        state.discounts.push(action.payload.data);
+        state.discounts = action.payload.data || [];
       })
       .addCase(createDiscount.rejected, (state, action) => {
         state.loading = false;

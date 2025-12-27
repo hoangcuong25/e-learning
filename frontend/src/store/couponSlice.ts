@@ -6,6 +6,7 @@ import {
   getCouponByIdApi,
   getInstructorCouponsApi,
   updateCouponApi,
+  createCouponDiscountByAdminApi,
 } from "@/api/coupon.api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -54,6 +55,21 @@ export const createCoupon = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi tạo coupon");
+    }
+  }
+);
+
+// 🧠 Admin tạo coupon và liên kết với DiscountCampaign
+export const createCouponDiscountByAdmin = createAsyncThunk(
+  "coupon/createByAdmin",
+  async (payload: any, { rejectWithValue }) => {
+    try {
+      const response = await createCouponDiscountByAdminApi(payload);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Lỗi khi admin tạo coupon"
+      );
     }
   }
 );
@@ -151,7 +167,7 @@ const couponSlice = createSlice({
         state.error = action.error.message ?? "Không thể tải chi tiết coupon";
       })
 
-      // ➕ Create
+      // ➕ Create (Instructor)
       .addCase(createCoupon.pending, (state) => {
         state.loading = true;
       })
@@ -164,6 +180,21 @@ const couponSlice = createSlice({
       .addCase(createCoupon.rejected, (state, action) => {
         state.loading = false;
         state.error = (action.payload as string) ?? "Lỗi khi tạo coupon";
+      })
+
+      // 🧠 Create (Admin)
+      .addCase(createCouponDiscountByAdmin.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(createCouponDiscountByAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage =
+          action.payload.message ?? "Admin tạo coupon thành công";
+        state.coupons.push(action.payload.data);
+      })
+      .addCase(createCouponDiscountByAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) ?? "Lỗi khi admin tạo coupon";
       })
 
       // ✏️ Update

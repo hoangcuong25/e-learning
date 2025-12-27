@@ -15,7 +15,7 @@ const axiosClient = axios.create({
   },
 });
 
-// 🧠 Request Interceptor
+//  Request Interceptor
 axiosClient.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("access_token");
@@ -25,17 +25,18 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 🧠 Response Interceptor
+//  Response Interceptor
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // 🚫 Không refresh token nếu đang logout hoặc request có flag skipAuthRefresh
+    //  Không xử lý lại nếu đang logout hoặc request skip refresh
     if (isLoggingOut || originalRequest?.skipAuthRefresh) {
       return Promise.reject(error);
     }
 
+    //  Nếu lỗi 401 và chưa retry
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -46,11 +47,11 @@ axiosClient.interceptors.response.use(
         );
 
         const newAccessToken = response.data.data;
-
         if (newAccessToken) {
           localStorage.setItem("access_token", newAccessToken);
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
+          //  Gửi lại request gốc bằng axiosClient
           return axiosClient(originalRequest);
         }
       } catch (refreshError) {
@@ -60,6 +61,7 @@ axiosClient.interceptors.response.use(
       }
     }
 
+    //  Nếu vẫn lỗi => reject
     return Promise.reject(error);
   }
 );

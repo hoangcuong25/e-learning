@@ -84,4 +84,9 @@ export class CreateCouponDto {
   @IsOptional()
   @IsInt()
   specializationId: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  discountCampaignId?: number;
 }

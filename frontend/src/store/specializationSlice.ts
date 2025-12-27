@@ -44,7 +44,6 @@ export const fetchAllSpecializations = createAsyncThunk(
   "specialization/fetchAll",
   async () => {
     const response = await getAllSpecializationsApi();
-    // ✅ API trả { message, data }, ta chỉ lấy data
     return response.data;
   }
 );
