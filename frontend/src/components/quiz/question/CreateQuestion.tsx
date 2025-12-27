@@ -56,7 +56,8 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
     try {
       const payload = { ...values, quizId };
       const result = await dispatch(createQuestion(payload)).unwrap();
-      setCreatedQuestionId(result.data.id); // lưu id câu hỏi vừa tạo
+
+      setCreatedQuestionId(result.id); // lưu id câu hỏi vừa tạo
       toast.success("Câu hỏi đã được tạo thành công.");
     } catch (error) {
       toast.error("Có lỗi xảy ra khi tạo câu hỏi.");
@@ -136,6 +137,8 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
       setIsSavingOptions(false);
     }
   };
+
+  console.log(createdQuestionId);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

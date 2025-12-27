@@ -27,17 +27,17 @@ const UserSidebar = () => {
     {
       label: "Hồ sơ của tôi",
       href: "/profile",
-      icon: <User className="w-5 h-5 text-indigo-500" />,
+      icon: <User className="w-5 h-5 text-blue-500" />,
     },
     {
       label: "Giỏ hàng của tôi",
       href: "/cart",
-      icon: <ShoppingCart className="w-5 h-5 text-indigo-500" />,
+      icon: <ShoppingCart className="w-5 h-5 text-blue-500" />,
     },
     {
       label: "Khóa học của tôi",
       href: "/my-learning",
-      icon: <BookOpen className="w-5 h-5 text-indigo-500" />,
+      icon: <BookOpen className="w-5 h-5 text-blue-500" />,
     },
   ];
 
@@ -55,7 +55,7 @@ const UserSidebar = () => {
           alt="User avatar"
           width={48}
           height={48}
-          className="rounded-full border border-indigo-200 object-cover"
+          className="rounded-full border border-blue-200 object-cover"
         />
         <div>
           <p className="text-sm font-semibold text-gray-800">
@@ -71,7 +71,7 @@ const UserSidebar = () => {
           <Link
             key={item.href}
             href={item.href}
-            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition"
+            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
           >
             {item.icon}
             {item.label}

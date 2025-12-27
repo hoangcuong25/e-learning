@@ -18,6 +18,7 @@ import { RedisModule } from "./core/redis/redis.module";
 import { ChapterModule } from "./modules/course/chapter/chapter.module";
 import { CouponModule } from './modules/coupon/coupon.module';
 import { DiscountModule } from './modules/discount/discount.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { DiscountModule } from './modules/discount/discount.module';
     ChapterModule,
     CouponModule,
     DiscountModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

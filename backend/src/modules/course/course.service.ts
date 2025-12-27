@@ -330,6 +330,13 @@ export class CourseService {
             },
           },
         },
+        chapter: {
+          include: {
+            lessons: {
+              select: { id: true, title: true },
+            },
+          },
+        },
       },
     });
   }

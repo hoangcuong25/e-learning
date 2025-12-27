@@ -65,7 +65,7 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
           id: question.id,
           payload: {
             quizId: currentQuiz.id,
-            courseId: currentQuiz?.lesson?.courseId,
+            courseId: currentQuiz?.lesson?.chapter?.courseId,
             lessonId: currentQuiz?.lessonId,
             questionText: data.questionText,
             newOptions: formattedOptions, // gửi đúng định dạng

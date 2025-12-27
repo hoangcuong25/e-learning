@@ -147,7 +147,7 @@ declare global {
     id: number;
     title: string; // Tên quiz
     lessonId: number;
-    lesson?: Pick<LessonType, "id" | "title" | "orderIndex" | "courseId">; // Thông tin bài học (nếu có)
+    lesson?: Pick<LessonType, "id" | "title" | "orderIndex" | "courseId" | any>; // Thông tin bài học
     questions?: QuestionType[]; // Danh sách câu hỏi
     createdAt: string;
     updatedAt: string;

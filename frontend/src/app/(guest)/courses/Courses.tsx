@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import CourseCard from "@/components/course/CourseCard";
 import CoursesFilter from "@/components/course/CoursesFilter";
@@ -24,16 +24,18 @@ const CoursesClient = ({
   const [courses, setCourses] = useState(initialCourses ?? []);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    let isFirst = true;
+  const isFirst = useRef(true);
 
+  useEffect(() => {
     const fetchData = async () => {
-      if (isFirst) {
-        isFirst = false;
-        return; //  Bỏ qua lần đầu
+      // Bỏ qua lần đầu
+      if (isFirst.current) {
+        isFirst.current = false;
+        return;
       }
 
       setLoading(true);
+
       const query = new URLSearchParams({
         page: String(params.page),
         limit: String(params.limit),
@@ -44,14 +46,19 @@ const CoursesClient = ({
 
       router.replace(`?${query.toString()}`, { scroll: false });
 
-      const data = await getAllCoursesApi(params);
-      setCourses(data?.courses ?? []);
-      setLoading(false);
+      try {
+        const data = await getAllCoursesApi(params);
+        console.log(data.data.data);
+        setCourses(data.data.data ?? []);
+      } catch (err) {
+        console.error("Fetch courses error:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
   }, [params]);
-
   const handleSearch = (search: string) =>
     setParams({ ...params, search, page: 1 });
 
@@ -60,14 +67,18 @@ const CoursesClient = ({
 
   const handlePageChange = (page: number) => setParams({ ...params, page });
 
-  console.log(courses);
-  console.log("initialCourses", initialCourses);
+  const handleFilterBySpecialization = (specId: number | null) =>
+    setParams({ ...params, page: 1 });
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Danh sách khóa học</h1>
 
-      <CoursesFilter onSearch={handleSearch} onSort={handleSort} />
+      <CoursesFilter
+        onSearch={handleSearch}
+        onSort={handleSort}
+        onFilterBySpecialization={handleFilterBySpecialization}
+      />
 
       {loading ? (
         <LoadingScreen />

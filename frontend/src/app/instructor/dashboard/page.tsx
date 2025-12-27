@@ -13,10 +13,8 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
+import DashboardOnboarding from "@/components/instructor/onboarding/DashboardOnboarding";
 
-// =============================
-// DUMMY DATA
-// =============================
 const stats = [
   { title: "Khóa học", value: "12", icon: BookOpen, color: "text-blue-600" },
   { title: "Học viên", value: "240", icon: Users, color: "text-green-600" },
@@ -53,26 +51,30 @@ const recentCourses = [
   { title: "Thiết kế REST API với NestJS", students: 27, status: "Bản nháp" },
 ];
 
-// =============================
-// DASHBOARD PAGE
-// =============================
 export default function InstructorDashboard() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* MAIN CONTENT */}
       <main className="flex-1 space-y-8 overflow-y-auto">
         {/* Header */}
-        <header>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Bảng điều khiển giảng viên
-          </h1>
-          <p className="text-gray-500">
-            Chào mừng bạn quay lại! Dưới đây là tổng quan hoạt động của bạn.
-          </p>
+        <header className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-1">
+              Bảng điều khiển giảng viên
+            </h1>
+            <p className="text-gray-500">
+              Chào mừng bạn quay lại! Dưới đây là tổng quan hoạt động của bạn.
+            </p>
+          </div>
+
+          {/* Nút hướng dẫn lại */}
+          <div>
+            <DashboardOnboarding />
+          </div>
         </header>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 step-dashboard">
           {stats.map(({ title, value, icon: Icon, color }) => (
             <Card key={title} className="hover:shadow-lg transition-all">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -91,7 +93,7 @@ export default function InstructorDashboard() {
         {/* Chart + Recent Courses */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Chart */}
-          <Card className="h-[360px]">
+          <Card className="h-[360px] step-stats">
             <CardHeader>
               <CardTitle>Doanh thu theo tháng</CardTitle>
             </CardHeader>
@@ -115,7 +117,7 @@ export default function InstructorDashboard() {
           </Card>
 
           {/* Recent Courses */}
-          <Card>
+          <Card className="step-courses">
             <CardHeader>
               <CardTitle>Khóa học gần đây</CardTitle>
             </CardHeader>

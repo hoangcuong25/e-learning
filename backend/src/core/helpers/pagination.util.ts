@@ -41,7 +41,7 @@ export function buildSearchFilter<T extends object>(
   return {
     OR: searchableFields.flatMap((field) =>
       variants.map((text) => ({
-        [field]: { contains: text, mode: "insensitive" },
+        [field]: { contains: text },
       }))
     ),
   } as any;

@@ -36,6 +36,25 @@ enum CouponTarget {
   SPECIALIZATION
 }
 
+enum PaymentType {
+  DEPOSIT   // nạp tiền
+  WITHDRAW  // rút tiền
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum TransactionType {
+  COURSE_PURCHASE   // mua khóa học
+  ADMIN_ADJUST      // admin cộng/trừ
+  DEPOSIT           // từ PaymentTransaction
+  WITHDRAW          // từ PaymentTransaction
+  REWARD
+}
+
 // ─── USER ──────────────────────────────
 model User {
   id        Int       @id @default(autoincrement())
@@ -58,6 +77,8 @@ model User {
   refreshToken        String?   @db.Text
   refreshTokenExpires DateTime?
 
+  walletBalance Float @default(0)
+
   // Relations
   instructorApplications InstructorApplication[]
   
@@ -68,6 +89,9 @@ model User {
   Coupon Coupon[]
   CouponUsage CouponUsage[]
   DiscountCampaign DiscountCampaign[]
+
+  PaymentTransaction PaymentTransaction[]
+  Transaction Transaction[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -312,4 +336,38 @@ model DiscountCampaign {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PaymentTransaction {
+  id           Int           @id @default(autoincrement())
+  userId       Int
+  amount       Float
+  type         PaymentType
+  status       PaymentStatus @default(PENDING)
+  tranId       String?        @unique // Mã giao dịch từ Sepay (transaction_id)
+  content      String          @unique // Nội dung chuyển khoản (ORDER123...)
+  bankAccount  String?         // Số tài khoản nhận (Sepay trả về)
+  qrCode       String?         // Base64 QR (Sepay trả về)
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Transaction Transaction[]
+
+  createdAt    DateTime        @default(now())
+  completedAt  DateTime?
+}
+
+model Transaction {
+  id          Int              @id @default(autoincrement())
+  userId      Int
+  amount      Float            // số tiền (+ hoặc -)
+  type        TransactionType
+  note        String?          @db.Text
+
+  // optional link đến PaymentTransaction
+  paymentTransactionId Int?
+  paymentTransaction   PaymentTransaction? @relation(fields: [paymentTransactionId], references: [id], onDelete: SetNull)
+
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime         @default(now())
 }

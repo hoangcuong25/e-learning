@@ -76,7 +76,7 @@ const NavbarUser = () => {
             className="rounded-full"
           />
         </Link>
-        <span className="hidden md:block text-xl font-bold text-indigo-600 tracking-wide">
+        <span className="hidden md:block text-xl font-bold text-blue-600 tracking-wide">
           EduSmart
         </span>
       </motion.div>
@@ -96,8 +96,8 @@ const NavbarUser = () => {
               transition={{ type: "spring", stiffness: 300 }}
               className={`cursor-pointer transition-all duration-200 ${
                 isActive
-                  ? "text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1"
-                  : "text-gray-700 hover:text-indigo-600"
+                  ? "text-blue-600 font-semibold border-b-2 border-blue-600 pb-1"
+                  : "text-gray-700 hover:text-blue-600"
               }`}
             >
               <Link href={item.path}>{item.label}</Link>
@@ -110,7 +110,7 @@ const NavbarUser = () => {
       <Sheet>
         <SheetTrigger className="lg:hidden">
           <motion.div whileTap={{ scale: 0.9 }}>
-            <Menu className="w-6 h-6 text-gray-600 cursor-pointer hover:text-indigo-600 transition-colors duration-200" />
+            <Menu className="w-6 h-6 text-gray-600 cursor-pointer hover:text-blue-600 transition-colors duration-200" />
           </motion.div>
         </SheetTrigger>
 
@@ -127,9 +127,7 @@ const NavbarUser = () => {
                 height={40}
                 className="rounded-full"
               />
-              <span className="text-lg font-bold text-indigo-600">
-                EduSmart
-              </span>
+              <span className="text-lg font-bold text-blue-600">EduSmart</span>
             </motion.div>
           </SheetHeader>
 
@@ -147,7 +145,7 @@ const NavbarUser = () => {
                   whileHover={{ x: 5, color: "#4f46e5" }}
                   transition={{ type: "spring", stiffness: 300 }}
                   className={`cursor-pointer transition-colors ${
-                    isActive ? "text-indigo-600 font-semibold" : ""
+                    isActive ? "text-blue-600 font-semibold" : ""
                   }`}
                 >
                   <Link href={item.path}>{item.label}</Link>
@@ -162,9 +160,9 @@ const NavbarUser = () => {
             <motion.div whileHover={{ scale: 1.05 }}>
               <div
                 onClick={handleClickInstructor}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 transition cursor-pointer"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-blue-300 bg-blue-50 hover:bg-blue-100 transition cursor-pointer"
               >
-                <span className="text-sm font-semibold text-indigo-700">
+                <span className="text-sm font-semibold text-blue-700">
                   Giảng dạy trên EduSmart
                 </span>
               </div>
@@ -173,10 +171,10 @@ const NavbarUser = () => {
             {/* 🔹 Thông báo */}
             <motion.button
               whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2 px-3 py-2 bg-indigo-100/50 border border-indigo-200 rounded-full hover:bg-indigo-100 transition duration-200"
+              className="flex items-center gap-2 px-3 py-2 bg-blue-100/50 border border-blue-200 rounded-full hover:bg-blue-100 transition duration-200"
             >
-              <Bell className="w-5 h-5 text-indigo-600" />
-              <span className="text-indigo-600 text-sm font-medium cursor-pointer">
+              <Bell className="w-5 h-5 text-blue-600" />
+              <span className="text-blue-600 text-sm font-medium cursor-pointer">
                 Thông báo
               </span>
               <span className="ml-auto flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
@@ -188,16 +186,16 @@ const NavbarUser = () => {
             {user ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="flex items-center gap-2 px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-full hover:bg-indigo-100 transition duration-200"
+                className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-full hover:bg-blue-100 transition duration-200"
               >
                 <Image
                   src={user.avatar || "/default-avatar.png"}
                   alt={user.fullname}
                   width={28}
                   height={28}
-                  className="w-7 h-7 rounded-full object-cover border border-indigo-400/40"
+                  className="w-7 h-7 rounded-full object-cover border border-blue-400/40"
                 />
-                <span className="text-sm font-medium text-indigo-600">
+                <span className="text-sm font-medium text-blue-600">
                   {user.fullname}
                 </span>
               </motion.button>
@@ -205,10 +203,10 @@ const NavbarUser = () => {
               <motion.div whileHover={{ scale: 1.05 }}>
                 <Link
                   href="/login"
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-400/30 rounded-full hover:bg-indigo-500/20 transition duration-200"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-400/30 rounded-full hover:bg-blue-500/20 transition duration-200"
                 >
-                  <User className="w-5 h-5 text-indigo-600" />
-                  <span className="text-indigo-600 text-sm font-semibold">
+                  <User className="w-5 h-5 text-blue-600" />
+                  <span className="text-blue-600 text-sm font-semibold">
                     Đăng nhập
                   </span>
                 </Link>
@@ -224,9 +222,9 @@ const NavbarUser = () => {
         <motion.div whileHover={{ scale: 1.05 }}>
           <div
             onClick={handleClickInstructor}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 transition cursor-pointer"
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-blue-300 bg-blue-50 hover:bg-blue-100 transition cursor-pointer"
           >
-            <span className="text-sm font-semibold text-indigo-700">
+            <span className="text-sm font-semibold text-blue-700">
               Giảng dạy trên EduSmart
             </span>
           </div>
@@ -235,10 +233,10 @@ const NavbarUser = () => {
         {/* 🔹 Thông báo */}
         <motion.button
           whileHover={{ scale: 1.05 }}
-          className="relative flex items-center gap-2 px-3 py-1.5 bg-indigo-100/50 border border-indigo-200 rounded-full hover:bg-indigo-100 transition duration-200"
+          className="relative flex items-center gap-2 px-3 py-1.5 bg-blue-100/50 border border-blue-200 rounded-full hover:bg-blue-100 transition duration-200"
         >
-          <Bell className="w-5 h-5 text-indigo-600" />
-          <span className="text-indigo-600 text-sm font-medium cursor-pointer">
+          <Bell className="w-5 h-5 text-blue-600" />
+          <span className="text-blue-600 text-sm font-medium cursor-pointer">
             Thông báo
           </span>
           <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
@@ -249,7 +247,7 @@ const NavbarUser = () => {
         {/* 🔹 User dropdown */}
         {user ? (
           <div className="relative group inline-block">
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full hover:bg-indigo-100 transition duration-200">
+            <button className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full hover:bg-blue-100 transition duration-200">
               <Image
                 src={user.avatar || "/default-avatar.png"}
                 alt={user.fullname}
@@ -257,7 +255,7 @@ const NavbarUser = () => {
                 height={24}
                 className="w-6 h-6 rounded-full object-cover"
               />
-              <span className="text-sm font-medium text-indigo-600">
+              <span className="text-sm font-medium text-blue-600">
                 {user.fullname}
               </span>
             </button>
@@ -279,7 +277,7 @@ const NavbarUser = () => {
                   alt={user.fullname}
                   width={40}
                   height={40}
-                  className="w-10 h-10 rounded-full object-cover border border-indigo-200"
+                  className="w-10 h-10 rounded-full object-cover border border-blue-200"
                 />
                 <div>
                   <p className="text-sm font-semibold text-gray-800">
@@ -293,21 +291,21 @@ const NavbarUser = () => {
               <div className="py-2 flex flex-col">
                 <Link
                   href="/profile"
-                  className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition rounded-md"
+                  className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition rounded-md"
                 >
                   Hồ sơ của tôi
                 </Link>
 
                 <Link
                   href="/cart"
-                  className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition rounded-md"
+                  className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition rounded-md"
                 >
                   Giỏ hàng của tôi
                 </Link>
 
                 <Link
                   href="/my-learning"
-                  className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition rounded-md"
+                  className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition rounded-md"
                 >
                   Khóa học của tôi
                 </Link>
@@ -325,10 +323,10 @@ const NavbarUser = () => {
         ) : (
           <Link
             href="/login"
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-400/30 rounded-full hover:bg-indigo-500/20 transition duration-200"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-400/30 rounded-full hover:bg-blue-500/20 transition duration-200"
           >
-            <User className="w-5 h-5 text-indigo-600" />
-            <span className="text-indigo-600 text-sm font-semibold">
+            <User className="w-5 h-5 text-blue-600" />
+            <span className="text-blue-600 text-sm font-semibold">
               Đăng nhập
             </span>
           </Link>

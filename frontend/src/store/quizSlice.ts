@@ -38,7 +38,7 @@ export const fetchQuizById = createAsyncThunk(
   "quiz/fetchById",
   async (id: number) => {
     const response = await getQuizByIdApi(id);
-    return response.data;
+    return response.data.data;
   }
 );
 

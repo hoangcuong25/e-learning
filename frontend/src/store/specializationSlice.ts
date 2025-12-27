@@ -8,15 +8,6 @@ import {
   getSpecializationsByInstructorIdApi,
 } from "@/api/specialization.api";
 
-// 🧱 Kiểu dữ liệu chuyên ngành
-export interface SpecializationType {
-  id: number;
-  name: string;
-  description?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
 // 🧱 State
 interface SpecializationState {
   specializations: SpecializationType[];

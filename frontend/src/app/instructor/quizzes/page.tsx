@@ -35,6 +35,7 @@ import { fetchCoursesByInstructor } from "@/store/coursesSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import QuizForm from "@/components/quiz/CreateQuiz";
 import { useRouter } from "next/navigation";
+import QuizOnboarding from "@/components/instructor/onboarding/QuizOnboarding";
 
 const Quizzes = () => {
   const router = useRouter();
@@ -101,7 +102,7 @@ const Quizzes = () => {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <div>
+        <div className="step-quiz-header">
           <h1 className="text-3xl font-bold text-gray-800">
             🎓 Quản lý Quiz của bạn
           </h1>
@@ -110,24 +111,30 @@ const Quizzes = () => {
           </p>
         </div>
 
-        {/* Nút mở form tạo quiz */}
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition-all shadow-md">
-              <PlusCircle className="w-5 h-5" /> Tạo Quiz Mới
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl w-full">
-            <DialogTitle className="text-lg font-semibold mb-2">
-              Tạo Quiz Mới
-            </DialogTitle>
-            <QuizForm />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-4 items-center">
+          <div className="step-create-quiz">
+            {/* Nút mở form tạo quiz */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition-all shadow-md">
+                  <PlusCircle className="w-5 h-5" /> Tạo Quiz Mới
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl w-full">
+                <DialogTitle className="text-lg font-semibold mb-2">
+                  Tạo Quiz Mới
+                </DialogTitle>
+                <QuizForm />
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <QuizOnboarding />
+        </div>
       </div>
 
       {/* Danh sách quiz */}
-      <Card className="shadow-sm border border-gray-200">
+      <Card className="shadow-sm border border-gray-200 step-quiz-list">
         <CardHeader className="border-b bg-gray-50">
           <CardTitle className="text-lg font-semibold">
             Danh sách Quiz ({instructorQuizzes.length})
@@ -142,33 +149,41 @@ const Quizzes = () => {
           ) : (
             <div className="grid gap-4">
               {instructorQuizzes.map((quiz) => {
-                const course = instructorCourses.find((c) =>
-                  c.lessons?.some((l: { id: number }) => l.id === quiz.lessonId)
-                );
-                const lesson = instructorCourses
-                  .flatMap((c) => c.lessons || [])
-                  .find((l) => l.id === quiz.lessonId);
+                const courseTitle =
+                  quiz.lesson?.chapter?.course?.title || "Không rõ khóa học";
+                const lessonTitle = quiz.lesson?.title || "Không rõ bài học";
 
                 return (
                   <div
                     key={quiz.id}
                     className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-xl hover:shadow-md bg-white transition-all group"
                   >
+                    {/* Thông tin Quiz */}
                     <div>
                       <h3 className="font-semibold text-gray-800 text-lg group-hover:text-blue-600 transition">
                         🧩 Quiz: {quiz.title}
                       </h3>
+
                       <p className="text-sm text-gray-500 mt-1">
                         🏫 <span className="font-bold">Khóa học:</span>{" "}
-                        {course?.title || "Không rõ khóa học"} • 📘{" "}
-                        <span className="font-bold">Bài học:</span>{" "}
-                        {lesson?.title || "Không rõ bài học"}
+                        {quiz.lesson?.chapter?.course?.title ||
+                          "Không rõ khóa học"}{" "}
+                        <br />
+                        📘 <span className="font-bold">Chương:</span>{" "}
+                        {quiz.lesson?.chapter?.title || "Không rõ chương"}{" "}
+                        <br />
+                        📖 <span className="font-bold">Bài học:</span>{" "}
+                        {quiz.lesson?.title || "Không rõ bài học"}
+                      </p>
+
+                      <p className="text-xs text-gray-400 mt-1">
+                        ❓ Số câu hỏi: {quiz._count?.questions ?? 0}
                       </p>
                     </div>
 
-                    {/* ─── Action buttons ─────────────────────────────── */}
+                    {/* Nút hành động */}
                     <div className="mt-4 flex items-center gap-2">
-                      {/* ✏️ Sửa */}
+                      {/* Sửa */}
                       <Dialog
                         open={editQuiz?.id === quiz.id}
                         onOpenChange={(open) =>
@@ -207,12 +222,10 @@ const Quizzes = () => {
 
                             <div className="p-3 rounded-md bg-gray-50 border text-sm text-gray-700 space-y-1">
                               <p>
-                                🏫 <strong>Khóa học:</strong>{" "}
-                                {course?.title || "Không rõ khóa học"}
+                                🏫 <strong>Khóa học:</strong> {courseTitle}
                               </p>
                               <p>
-                                📘 <strong>Bài học:</strong>{" "}
-                                {lesson?.title || "Không rõ bài học"}
+                                📘 <strong>Bài học:</strong> {lessonTitle}
                               </p>
                             </div>
                           </div>
@@ -238,8 +251,8 @@ const Quizzes = () => {
                       <Button
                         variant="outline"
                         className="border-2 border-blue-500 text-blue-600 font-semibold rounded-xl
-                        px-5 py-2 hover:bg-blue-500 hover:text-white 
-                        transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2"
+                px-5 py-2 hover:bg-blue-500 hover:text-white 
+                transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2"
                         onClick={() =>
                           router.push(`/instructor/quizzes/${quiz.id}`)
                         }
@@ -247,7 +260,8 @@ const Quizzes = () => {
                         <Eye size={18} />
                         Chi Tiết
                       </Button>
-                      {/* 🗑️ Xóa */}
+
+                      {/*  Xóa */}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button

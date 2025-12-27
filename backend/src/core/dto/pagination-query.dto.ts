@@ -46,4 +46,12 @@ export class PaginationQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({
+    example: "reactjs",
+    description: "Chuyên ngành",
+  })
+  @IsOptional()
+  @IsString()
+  specialization?: string;
 }

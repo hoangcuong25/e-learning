@@ -22,7 +22,7 @@ export class QuizController {
   @Post()
   @Roles("INSTRUCTOR")
   @ApiOperation({ summary: "Create new quiz for a lesson" })
-  @ResponseMessage("Create quiz successfully")
+  @ResponseMessage("Tạo quiz thành công")
   @ApiBearerAuth()
   create(@Body() createQuizDto: CreateQuizDto, @Req() req) {
     return this.quizService.create(createQuizDto, req.user.id);

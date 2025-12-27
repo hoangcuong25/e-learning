@@ -33,6 +33,7 @@ import {
 } from "@/store/couponSlice";
 import CouponForm from "@/components/instructor/coupon/CreateCoupon";
 import UpdateCouponForm from "@/components/instructor/coupon/UpdateCoupon";
+import CouponOnboarding from "@/components/instructor/onboarding/CouponOnboarding";
 
 const Coupons = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -100,7 +101,7 @@ const Coupons = () => {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <div>
+        <div className="step-coupon-header">
           <h1 className="text-3xl font-bold text-gray-800">
             🎟️ Quản lý Coupon của bạn
           </h1>
@@ -110,23 +111,26 @@ const Coupons = () => {
         </div>
 
         {/* Nút mở form tạo coupon */}
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 transition-all shadow-md">
-              <PlusCircle className="w-5 h-5" /> Tạo Coupon Mới
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl w-full">
-            <DialogTitle className="text-lg font-semibold mb-2">
-              🎟️ Tạo Coupon Mới
-            </DialogTitle>
-            <CouponForm />
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 transition-all shadow-md step-create-coupon">
+                <PlusCircle className="w-5 h-5" /> Tạo Coupon Mới
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl w-full">
+              <DialogTitle className="text-lg font-semibold mb-2">
+                🎟️ Tạo Coupon Mới
+              </DialogTitle>
+              <CouponForm />
+            </DialogContent>
+          </Dialog>
+          <CouponOnboarding />
+        </div>
       </div>
 
       {/* Danh sách coupon */}
-      <Card className="shadow-sm border border-gray-200">
+      <Card className="shadow-sm border border-gray-200 step-coupon-list">
         <CardHeader className="border-b bg-gray-50">
           <CardTitle className="text-lg font-semibold">
             Danh sách Coupon ({instructorCoupons.length})

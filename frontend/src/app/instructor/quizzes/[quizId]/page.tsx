@@ -20,7 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { fetchQuizById } from "@/store/quizSlice";
 import LoadingScreen from "@/components/LoadingScreen";
-import { ArrowLeft, PlusCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import CreateQuestion from "@/components/quiz/question/CreateQuestion";
 import EditQuestion from "@/components/quiz/question/EditQuestion";
 import { deleteQuestion } from "@/store/question.slice";
@@ -41,11 +41,9 @@ const QuizDetail = () => {
 
   if (loading || !currentQuiz) return <LoadingScreen />;
 
-  const lesson = currentQuiz.lesson as LessonType & {
-    course?: CourseType;
-  };
-
-  const course = lesson?.course as CourseType | undefined;
+  const lesson = currentQuiz.lesson;
+  const chapter = lesson?.chapter;
+  const course = chapter?.course;
 
   const handleDeleteQuestion = async (questionId: number) => {
     try {
@@ -73,16 +71,20 @@ const QuizDetail = () => {
         <CreateQuestion quizId={id} />
       </div>
 
+      {/* ─── QUIZ INFO ───────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold text-gray-800">
             🧩 {currentQuiz.title}
           </h1>
+
           <p className="text-gray-600">
-            📘 <strong>Bài học:</strong> {lesson?.title || "Không rõ"}{" "}
-            <span className="mx-2">•</span>
-            🎓 <strong>Khóa học:</strong> {course?.title || "Không rõ"}{" "}
-            <span className="mx-2">•</span>❓ <strong>Số câu hỏi:</strong>{" "}
+            🏫 <strong>Khóa học:</strong> {course?.title || "Không rõ khóa học"}{" "}
+            <br />
+            📘 <strong>Chương:</strong> {chapter?.title || "Không rõ chương"}{" "}
+            <br />
+            📖 <strong>Bài học:</strong> {lesson?.title || "Không rõ bài học"}{" "}
+            <br />❓ <strong>Số câu hỏi:</strong>{" "}
             {currentQuiz.questions?.length || 0}
           </p>
         </div>
@@ -99,78 +101,88 @@ const QuizDetail = () => {
         </CardHeader>
 
         <CardContent>
-          {currentQuiz.questions?.map((q, index) => (
-            <div
-              key={q.id}
-              className="p-4 border rounded-lg bg-white hover:bg-gray-50 transition"
-            >
-              <div className="flex justify-between items-start">
-                <h3 className="font-semibold text-gray-800 mb-2">
-                  Câu {index + 1}: {q.questionText}
-                </h3>
+          {currentQuiz &&
+          currentQuiz?.questions &&
+          currentQuiz?.questions?.length > 0 ? (
+            currentQuiz?.questions.map((q, index) => (
+              <div
+                key={q.id}
+                className="p-4 border rounded-lg bg-white hover:bg-gray-50 transition mb-3"
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className="font-semibold text-gray-800 mb-2">
+                    Câu {index + 1}: {q.questionText}
+                  </h3>
 
-                <div className="flex gap-2">
-                  <EditQuestion
-                    currentQuiz={currentQuiz}
-                    question={q}
-                    onUpdated={() => dispatch(fetchQuizById(id))}
-                  />
+                  {/* Nút sửa / xóa */}
+                  <div className="flex gap-2">
+                    <EditQuestion
+                      currentQuiz={currentQuiz}
+                      question={q}
+                      onUpdated={() => dispatch(fetchQuizById(id))}
+                    />
 
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
-                        Xóa
-                      </Button>
-                    </AlertDialogTrigger>
-
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Xác nhận xóa câu hỏi
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Bạn có chắc chắn muốn xóa câu hỏi này? Hành động này
-                          không thể hoàn tác.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Hủy</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-red-600 hover:bg-red-700"
-                          onClick={() => handleDeleteQuestion(q.id)}
-                        >
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm">
                           Xóa
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
+                        </Button>
+                      </AlertDialogTrigger>
 
-              {q.options && q.options.length > 0 ? (
-                <ul className="ml-5 list-disc text-gray-700 space-y-1">
-                  {q.options.map((opt) => (
-                    <li
-                      key={opt.id}
-                      className={`${
-                        opt.isCorrect
-                          ? "text-green-600 font-medium"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      {opt.text}
-                      {opt.isCorrect && " ✅"}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-gray-500 italic">
-                  Chưa có lựa chọn cho câu hỏi này.
-                </p>
-              )}
-            </div>
-          ))}
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Xác nhận xóa câu hỏi
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Bạn có chắc chắn muốn xóa câu hỏi này? Hành động này
+                            không thể hoàn tác.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Hủy</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-red-600 hover:bg-red-700"
+                            onClick={() => handleDeleteQuestion(q.id)}
+                          >
+                            Xóa
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+
+                {/* Danh sách lựa chọn */}
+                {q.options && q.options.length > 0 ? (
+                  <ul className="ml-5 list-disc text-gray-700 space-y-1">
+                    {q.options.map((opt) => (
+                      <li
+                        key={opt.id}
+                        className={`${
+                          opt.isCorrect
+                            ? "text-green-600 font-medium"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {opt.text}
+                        {opt.isCorrect && " ✅"}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500 italic mt-1">
+                    Chưa có lựa chọn cho câu hỏi này.
+                  </p>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-gray-500 italic py-6">
+              Chưa có câu hỏi nào trong quiz này.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
