@@ -7,6 +7,7 @@ declare global {
     search?: string;
     sortBy?: string;
     order?: "asc" | "desc";
+    specialization?: string;
   };
 
   type UserType = {
@@ -20,6 +21,7 @@ declare global {
     phone: string;
     isVerified: boolean;
     role: string;
+    walletBalance: number;
     createdAt?: string;
     updatedAt?: string;
     createdBy?: string;
@@ -79,6 +81,7 @@ declare global {
   type CourseType = {
     lessons: any;
     chapter: ChapterType[];
+    coupon: CouponType[];
     id: number;
     title: string;
     description?: string;

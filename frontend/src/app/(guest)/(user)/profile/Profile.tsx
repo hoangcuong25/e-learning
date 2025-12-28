@@ -18,7 +18,7 @@ export default function ProfilePage() {
         <Image
           src={user?.avatar || "/default-avatar.png"}
           alt="avatar"
-          width={112}
+          width={112} 
           height={112}
           className="w-28 h-28 rounded-full border-4 border-primary object-cover shadow-sm"
         />

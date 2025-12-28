@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { BookOpen, User } from "lucide-react";
+import { BookOpen, User, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 import CourseSidebar from "@/components/course/CourseSidebar";
 
@@ -42,15 +42,29 @@ const CourseDetail = ({ initialCourse }: Props) => {
           {course.title}
         </h1>
 
-        <div className="flex flex-wrap items-center text-gray-600 mb-5 gap-x-6 gap-y-3">
+        <div className="flex flex-wrap items-center text-gray-600 mb-4 gap-x-6 gap-y-3">
           <div className="flex items-center gap-2">
             <User className="w-4 h-4 text-blue-500" />
             <span>{course.instructor?.fullname || "Giảng viên ẩn danh"}</span>
           </div>
           <div className="font-semibold text-blue-500">
-            {course.price?.toLocaleString()}₫
+            {course.price?.toLocaleString()} LC
           </div>
         </div>
+
+        {/* Hiển thị chuyên ngành */}
+        {course.specializations && course.specializations.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            {course.specializations.map((sp: any, index: number) => (
+              <span
+                key={index}
+                className="text-sm bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded-full"
+              >
+                {sp.specialization?.name}
+              </span>
+            ))}
+          </div>
+        )}
 
         <hr className="border-gray-200 mb-5" />
 

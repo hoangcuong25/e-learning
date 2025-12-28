@@ -28,7 +28,7 @@ const CourseSidebar = ({ price, courseId }: CourseSidebarProps) => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.25 }}
         >
-          {price.toLocaleString()} ₫
+          {price.toLocaleString()} LC
         </motion.p>
         <p className="text-gray-500 text-sm">
           Thanh toán 1 lần - Truy cập trọn đời

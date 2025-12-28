@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, ShoppingCart, User, BookOpen } from "lucide-react";
+import { LogOut, ShoppingCart, User, BookOpen, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -28,6 +28,11 @@ const UserSidebar = () => {
       label: "Hồ sơ của tôi",
       href: "/profile",
       icon: <User className="w-5 h-5 text-blue-500" />,
+    },
+    {
+      label: "Ví của tôi",
+      href: "/wallet",
+      icon: <Wallet className="w-5 h-5 text-blue-500" />,
     },
     {
       label: "Giỏ hàng của tôi",

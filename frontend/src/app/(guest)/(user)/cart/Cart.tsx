@@ -79,7 +79,7 @@ export default function MyCartPage() {
                     </h2>
                     <p className="text-sm text-gray-600">{item.instructor}</p>
                     <p className="text-blue-600 font-bold mt-1">
-                      {item.price.toLocaleString()}₫
+                      {item.price.toLocaleString()} LC
                     </p>
                   </div>
 
@@ -106,13 +106,13 @@ export default function MyCartPage() {
 
                 <div className="flex justify-between text-gray-700">
                   <span>Tạm tính</span>
-                  <span>{subtotal.toLocaleString()}₫</span>
+                  <span>{subtotal.toLocaleString()} LC</span>
                 </div>
 
                 <div className="flex justify-between text-gray-700">
                   <span>Giảm giá</span>
                   <span className="text-red-500">
-                    -{discount.toLocaleString()}₫
+                    -{discount.toLocaleString()} LC
                   </span>
                 </div>
 
@@ -120,7 +120,7 @@ export default function MyCartPage() {
 
                 <div className="flex justify-between text-lg font-semibold text-blue-800">
                   <span>Tổng cộng</span>
-                  <span>{total.toLocaleString()}₫</span>
+                  <span>{total.toLocaleString()} LC</span>
                 </div>
 
                 <div className="flex gap-2">

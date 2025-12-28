@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -43,23 +42,13 @@ export default function Page() {
       {/* 🌟 HERO SECTION */}
       <section className="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-24 px-6 rounded-2xl mt-4">
         <div className="max-w-5xl mx-auto text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-4xl md:text-5xl font-bold mb-6"
-          >
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Chia sẻ kiến thức của bạn. Trở thành giảng viên hôm nay!
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-lg mb-8 max-w-2xl mx-auto"
-          >
+          </h1>
+          <p className="text-lg mb-8 max-w-2xl mx-auto">
             Hàng ngàn học viên đang tìm kiếm những khóa học tuyệt vời từ bạn.
             Hãy bắt đầu hành trình giảng dạy và kiếm thu nhập cùng chúng tôi.
-          </motion.p>
+          </p>
 
           <Link href="/apply-instructor">
             <Button
@@ -94,19 +83,15 @@ export default function Page() {
                 desc: "Chia sẻ kiến thức, giúp người khác phát triển sự nghiệp.",
               },
             ].map((item, i) => (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.2 }}
-                viewport={{ once: true }}
                 className="bg-white shadow-lg rounded-2xl p-8 border hover:shadow-xl transition"
               >
                 <h3 className="text-xl font-semibold text-indigo-600 mb-3">
                   {item.title}
                 </h3>
                 <p className="text-gray-600">{item.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -137,12 +122,8 @@ export default function Page() {
                 desc: "Khóa học của bạn sẽ hiển thị đến hàng ngàn học viên.",
               },
             ].map((item, i) => (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.2 }}
-                viewport={{ once: true }}
                 className="bg-white border rounded-2xl p-8 shadow-sm hover:shadow-md transition"
               >
                 <div className="w-12 h-12 flex items-center justify-center bg-indigo-600 text-white rounded-full mx-auto text-xl font-bold mb-4">
@@ -150,7 +131,7 @@ export default function Page() {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
                 <p className="text-gray-600">{item.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>

@@ -45,7 +45,7 @@ const Payment = () => {
       setMessage("🎉 Mã GIAM10 đã được áp dụng: giảm 10% giá khóa học!");
     } else if (code === "NEWUSER") {
       setDiscount(20000);
-      setMessage("🎉 Mã NEWUSER đã được áp dụng: giảm 20.000₫!");
+      setMessage("🎉 Mã NEWUSER đã được áp dụng");
     } else {
       setDiscount(0);
       setMessage("❌ Mã giảm giá không hợp lệ.");
@@ -59,7 +59,7 @@ const Payment = () => {
     alert(
       `✅ Thanh toán khóa học "${
         currentCourse.title
-      }" với số tiền ${finalTotal.toLocaleString()}₫ thành công!`
+      }" với số tiền ${finalTotal.toLocaleString()} LearnCoin thành công!`
     );
     router.push(`/courses/${courseId}`);
   };
@@ -107,7 +107,9 @@ const Payment = () => {
 
         <div className="flex justify-between text-gray-700 mb-2">
           <span>Giá khóa học</span>
-          <span className="font-medium">{total.toLocaleString()}₫</span>
+          <span className="font-medium">
+            {total.toLocaleString()} LearnCoin
+          </span>
         </div>
 
         <div className="flex items-center gap-2 mt-3">
@@ -139,7 +141,7 @@ const Payment = () => {
         <div className="flex justify-between text-gray-700 mt-4 mb-2">
           <span>Giảm giá</span>
           <span className="text-green-600 font-medium">
-            -{discount.toLocaleString()}₫
+            -{discount.toLocaleString()} LearnCoin
           </span>
         </div>
 
@@ -147,36 +149,7 @@ const Payment = () => {
 
         <div className="flex justify-between text-lg font-semibold text-blue-800">
           <span>Tổng cộng</span>
-          <span>{finalTotal.toLocaleString()}₫</span>
-        </div>
-      </div>
-
-      {/* PAYMENT METHOD */}
-      <div className="mb-10">
-        <h2 className="text-lg font-semibold text-blue-700 mb-4">
-          Chọn phương thức thanh toán
-        </h2>
-
-        <label className="group flex items-center gap-4 p-5 border-2 border-blue-500 rounded-2xl cursor-pointer bg-blue-50 hover:bg-blue-100 transition">
-          <input
-            type="radio"
-            name="payment"
-            defaultChecked
-            className="hidden"
-          />
-          <div>
-            <p className="font-medium text-gray-900">Thanh toán Online</p>
-            <p className="text-sm text-gray-600">
-              Hỗ trợ chuyển khoản tự động, xác nhận trong vài giây.
-            </p>
-          </div>
-        </label>
-
-        <div className="mt-4 text-sm text-gray-500 bg-gray-50 p-4 rounded-xl border border-blue-100">
-          <p>
-            • Sau khi thanh toán thành công, hệ thống sẽ tự động kích hoạt khóa
-            học.
-          </p>
+          <span>{finalTotal.toLocaleString()} LearnCoin</span>
         </div>
       </div>
 
@@ -186,7 +159,7 @@ const Payment = () => {
         className="w-full py-6 text-lg font-semibold flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white transition"
       >
         <CheckCircle className="w-5 h-5" />
-        Thanh toán Online
+        Thanh toán
       </Button>
     </motion.div>
   );

@@ -40,6 +40,7 @@ const CoursesClient = ({
         page: String(params.page),
         limit: String(params.limit),
         search: params.search ?? "",
+        specialization: params.specialization ?? "",
         sortBy: params.sortBy ?? "",
         order: params.order ?? "desc",
       });
@@ -67,8 +68,8 @@ const CoursesClient = ({
 
   const handlePageChange = (page: number) => setParams({ ...params, page });
 
-  const handleFilterBySpecialization = (specId: number | null) =>
-    setParams({ ...params, page: 1 });
+  const handleFilterBySpecialization = (specName: string | null) =>
+    setParams({ ...params, specialization: specName ?? "", page: 1 });
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

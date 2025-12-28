@@ -119,10 +119,24 @@ export class CourseService {
   async findAll(dto: PaginationQueryDto) {
     const { skip, take, page, limit } = buildPaginationParams(dto);
     const orderBy = buildOrderBy(dto);
-    const where = buildSearchFilter<Prisma.CourseWhereInput>(dto, [
-      "title",
-      "description",
-    ]);
+    const where =
+      buildSearchFilter<Prisma.CourseWhereInput>(dto, [
+        "title",
+        "description",
+      ]) || {};
+
+    // Nếu có specializationId thì filter theo đó
+    if (dto.specialization) {
+      where.specializations = {
+        some: {
+          specialization: {
+            name: dto.specialization,
+          },
+        },
+      };
+    }
+
+    const now = new Date();
 
     const [courses, total] = await this.prisma.$transaction([
       this.prisma.course.findMany({
@@ -133,6 +147,19 @@ export class CourseService {
         include: {
           instructor: {
             select: { id: true, fullname: true, email: true },
+          },
+          specializations: {
+            include: {
+              specialization: {
+                select: { name: true },
+              },
+            },
+          },
+          coupon: {
+            where: {
+              isActive: true,
+              OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+            },
           },
         },
       }),
@@ -152,6 +179,13 @@ export class CourseService {
       include: {
         instructor: {
           select: { id: true, fullname: true, email: true },
+        },
+        specializations: {
+          include: {
+            specialization: {
+              select: { name: true },
+            },
+          },
         },
         chapter: {
           orderBy: { orderIndex: "asc" },

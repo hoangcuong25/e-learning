@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { BookOpen, User } from "lucide-react";
+import { BookOpen, User, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -41,6 +41,20 @@ const CourseCard = ({ course }: Props) => {
         </div>
       )}
 
+      {/* Chuyên ngành */}
+      {course.specializations && course.specializations.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-3">
+          {course.specializations.map((sp, index) => (
+            <span
+              key={index}
+              className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full"
+            >
+              {sp.specialization?.name}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Mô tả ngắn */}
       <p className="text-gray-600 text-sm flex-1 leading-relaxed mb-3">
         {course.description ? (
@@ -58,10 +72,18 @@ const CourseCard = ({ course }: Props) => {
         )}
       </p>
 
+      {/* Coupon */}
+      {course.coupon && course.coupon.length > 0 && (
+        <div className="flex items-center text-sm text-green-600 font-medium mb-3">
+          <Tag className="w-4 h-4 mr-1 text-green-600" />
+          Có mã giảm giá
+        </div>
+      )}
+
       {/* Giá & Nút hành động */}
       <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
         <p className="text-blue-600 font-bold">
-          {course.price?.toLocaleString()}₫
+          {course.price?.toLocaleString()} LC
         </p>
         <Button
           size="sm"

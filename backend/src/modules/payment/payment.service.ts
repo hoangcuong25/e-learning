@@ -3,7 +3,6 @@ import {
   BadRequestException,
   ForbiddenException,
 } from "@nestjs/common";
-import axios from "axios";
 import * as crypto from "crypto";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CreateDepositDto } from "./dto/create-payment.dto";
@@ -13,6 +12,27 @@ import { TransactionType } from "@prisma/client";
 export class PaymentService {
   constructor(private prisma: PrismaService) {}
 
+  // Tạo mã QR Sepay (chỉ hiển thị cho người dùng để chuyển tiền)
+  private async generateQRCode(amount: number, content: string) {
+    const bankAccount = process.env.SEPAY_RECEIVE_ACCOUNT;
+    const bankId = process.env.SEPAY_PAYMENT_BANK_ID;
+
+    if (!bankAccount || !bankId) {
+      throw new Error("Bank account and bank ID are required");
+    }
+
+    const qrString = `https://qr.sepay.vn/img?acc=${bankAccount}&bank=${bankId}&amount=${amount}&des=${encodeURIComponent(
+      content
+    )}`;
+
+    return {
+      qrDataURL: qrString,
+      content,
+      amount,
+      bankAccount,
+    };
+  }
+
   // 1) Tạo yêu cầu nạp tiền (DEPOSIT)
   async createDeposit(dto: CreateDepositDto, userId: number) {
     const { amount } = dto;
@@ -20,62 +40,52 @@ export class PaymentService {
     if (amount < 10000)
       throw new BadRequestException("Số tiền tối thiểu là 10,000đ");
 
-    const content = `UID${userId}_${Date.now()}`;
+    const content = `Elearning_UID${userId}_${Date.now()}`;
 
-    const res = await axios.post(
-      "https://api.sepay.vn/v1/transactions/create",
-      {
-        account_number: process.env.SEPAY_RECEIVE_ACCOUNT,
-        amount,
-        content,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.SEPAY_API_TOKEN}`,
-        },
-      }
-    );
+    // Tạo QR code để user quét chuyển khoản
+    const qrData = await this.generateQRCode(amount, content);
 
-    const { qr_code, account_number } = res.data.data;
-
+    // Lưu giao dịch chờ (pending)
     const payment = await this.prisma.paymentTransaction.create({
       data: {
         userId,
         amount,
         type: "DEPOSIT",
         content,
-        bankAccount: account_number,
-        qrCode: qr_code,
+        bankAccount: qrData.bankAccount,
+        qrCode: qrData.qrDataURL,
+        status: "PENDING",
       },
     });
 
-    return payment;
+    return {
+      id: payment.id,
+      amount: payment.amount,
+      content: payment.content,
+      qrCode: payment.qrCode,
+      bankAccount: payment.bankAccount,
+    };
   }
 
-  // 2) Webhook Sepay
+  //  2) Xử lý Webhook từ Sepay
   async handleSepayWebhook(payload: any) {
-    // Sepay gửi dạng { data: { ... } }
     const { transaction_id, amount, description } = payload.data;
     const content = description.trim();
 
-    // Tìm PaymentTransaction theo content (ghi chú chuyển khoản)
     const payment = await this.prisma.paymentTransaction.findUnique({
       where: { content },
     });
 
     if (!payment) return "Payment not found";
 
-    // Nếu đã xử lý rồi → bỏ qua (tránh cộng tiền 2 lần)
     if (payment.status === "COMPLETED") return "Already processed";
 
-    // Nếu transaction_id này tồn tại trong Transaction table → bỏ qua duplicate
     const existed = await this.prisma.transaction.findFirst({
       where: { id: transaction_id },
     });
     if (existed) return "Duplicate transaction";
 
     await this.prisma.$transaction([
-      // Cập nhật trạng thái Payment
       this.prisma.paymentTransaction.update({
         where: { id: payment.id },
         data: {
@@ -85,18 +95,16 @@ export class PaymentService {
         },
       }),
 
-      // Tạo transaction record
       this.prisma.transaction.create({
         data: {
+          id: transaction_id,
           userId: payment.userId,
           amount,
           type: "DEPOSIT",
           paymentTransactionId: payment.id,
-          id: transaction_id,
         },
       }),
 
-      // Cộng tiền vào ví
       this.prisma.user.update({
         where: { id: payment.userId },
         data: { walletBalance: { increment: amount } },
@@ -106,32 +114,30 @@ export class PaymentService {
     return "OK";
   }
 
-  // 3) User xem lịch sử
-
+  // 3) Lịch sử giao dịch của user
   async getUserTransactions(userId: number, type?: TransactionType) {
     return this.prisma.transaction.findMany({
       where: {
         userId,
-        ...(type ? { type: type } : {}),
+        ...(type ? { type } : {}),
       },
       orderBy: { createdAt: "desc" },
     });
   }
 
   // 4) Admin xem tất cả
-  async getAllTransactions(query: any) {
+  async getAllTransactions() {
     return this.prisma.transaction.findMany({
       orderBy: { createdAt: "desc" },
     });
   }
 
-  // 5) Xem chi tiết giao dịch
+  // 5) Chi tiết giao dịch
   async getTransactionDetail(id: number, userId: number) {
     const tx = await this.prisma.transaction.findUnique({ where: { id } });
 
     if (!tx) throw new BadRequestException("Transaction not found");
 
-    // Nếu không phải admin thì không được xem giao dịch của người khác
     if (tx.userId !== userId) throw new ForbiddenException("Not allowed");
 
     return tx;

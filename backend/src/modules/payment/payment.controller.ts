@@ -54,8 +54,8 @@ export class PaymentController {
   @ApiBearerAuth()
   @ApiOperation({ summary: "Admin xem tất cả giao dịch" })
   @ResponseMessage("Get all transactions")
-  getAll(@Query() query: any) {
-    return this.paymentService.getAllTransactions(query);
+  getAll() {
+    return this.paymentService.getAllTransactions();
   }
 
   // Xem chi tiết giao dịch

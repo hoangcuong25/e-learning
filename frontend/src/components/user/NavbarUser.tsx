@@ -297,6 +297,13 @@ const NavbarUser = () => {
                 </Link>
 
                 <Link
+                  href="/wallet"
+                  className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition rounded-md"
+                >
+                  Ví của tôi
+                </Link>
+
+                <Link
                   href="/cart"
                   className="block px-5 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition rounded-md"
                 >

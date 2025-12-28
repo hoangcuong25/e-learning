@@ -133,7 +133,7 @@ const CourseDetailPage = () => {
             <div>
               <p className="font-medium text-gray-800">Giá khóa học</p>
               <p className="text-sm text-gray-500">
-                {currentCourse.price.toLocaleString()}₫
+                {currentCourse.price.toLocaleString()}LearnCoin
               </p>
             </div>
           </div>

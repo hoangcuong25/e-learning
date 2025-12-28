@@ -17,7 +17,7 @@ import { fetchAllSpecializations } from "@/store/specializationSlice";
 interface Props {
   onSearch: (search: string) => void;
   onSort: (sortBy: string, order: "asc" | "desc") => void;
-  onFilterBySpecialization: (specId: number | null) => void;
+  onFilterBySpecialization: (specName: string | null) => void;
 }
 
 const CoursesFilter = ({
@@ -33,7 +33,7 @@ const CoursesFilter = ({
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 500);
   const [order, setOrder] = useState<"asc" | "desc">("desc");
-  const [selectedSpec, setSelectedSpec] = useState<number | null>(null);
+  const [selectedSpec, setSelectedSpec] = useState<string | null>(null);
 
   const handleSortChange = () => {
     const newOrder = order === "asc" ? "desc" : "asc";
@@ -73,7 +73,7 @@ const CoursesFilter = ({
           <Select
             onValueChange={(value) => {
               if (value === "all") setSelectedSpec(null);
-              else setSelectedSpec(Number(value));
+              else setSelectedSpec(value);
             }}
           >
             <SelectTrigger className="w-[200px]">
@@ -91,7 +91,7 @@ const CoursesFilter = ({
               {specializations.map((s) => (
                 <SelectItem
                   key={s.id}
-                  value={String(s.id)}
+                  value={s.name}
                   className="cursor-pointer transition-all duration-200 hover:bg-blue-100 hover:text-blue-600 rounded-md"
                 >
                   {s.name}

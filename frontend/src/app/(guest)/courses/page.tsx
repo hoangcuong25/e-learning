@@ -33,12 +33,13 @@ export default async function CoursesPage({
   const page = Number(params.page) || 1;
   const limit = Number(params.limit) || 10;
   const search = params.search || "";
+  const specialization = params.specialization || "";
   const sortBy = params.sortBy || "createdAt";
   const order = params.order || "desc";
 
   // 🚀 Fetch dữ liệu trên server
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}course?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&order=${order}`,
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}course?page=${page}&limit=${limit}&search=${search}&specialization=${specialization}&sortBy=${sortBy}&order=${order}`,
     { cache: "no-store" } // SSR fresh data
   );
 
@@ -48,7 +49,7 @@ export default async function CoursesPage({
     <CoursesClient
       initialCourses={data.data.data}
       totalPages={data.data.pagination.totalPages}
-      initialParams={{ page, limit, search, sortBy, order }}
+      initialParams={{ page, limit, search, sortBy, order, specialization }}
     />
   );
 }
