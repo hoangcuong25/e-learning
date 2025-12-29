@@ -49,3 +49,23 @@ export const getCoursesByInstructorApi = async () => {
   const response = await axiosClient.get(`/course/instructors/me/courses`);
   return response.data;
 };
+
+// 🧩 8. Lấy chi tiết khóa học (bao gồm enrollment - yêu cầu user đăng nhập)
+export const getCourseDetailWithAuthApi = async (id: number) => {
+  const response = await axiosClient.get(`/course/${id}/detail`);
+  return response.data;
+};
+
+// 🧩 9. Rate a course
+export const rateCourseApi = async (courseId: number, rating: number) => {
+  const response = await axiosClient.post(`/course/${courseId}/rating`, {
+    rating,
+  });
+  return response.data;
+};
+
+// 🧩 10. Increase course view
+export const increaseCourseViewApi = async (courseId: number) => {
+  const response = await axiosClient.post(`/course/${courseId}/view`);
+  return response.data;
+};

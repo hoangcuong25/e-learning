@@ -1,425 +1,425 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-}
-
-enum UserRole {
-  USER
-  ADMIN
-  INSTRUCTOR
-}
-
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
-
-enum ApplicationStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum CourseType {
-  FREE
-  PAID
-}
-
-enum CouponTarget {
-  ALL
-  COURSE
-  SPECIALIZATION
-}
-
-enum PaymentType {
-  DEPOSIT   // nạp tiền
-  WITHDRAW  // rút tiền
-}
-
-enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-}
-
-enum TransactionType {
-  COURSE_PURCHASE   // mua khóa học
-  ADMIN_ADJUST      // admin cộng/trừ
-  DEPOSIT           // từ PaymentTransaction
-  WITHDRAW          // từ PaymentTransaction
-  REWARD
-}
-
-// ─── USER ──────────────────────────────
-model User {
-  id        Int       @id @default(autoincrement())
-  fullname  String    @db.VarChar(50)
-  email     String    @unique
-  password  String    @db.VarChar(100)
-  avatar    String    @default("https://res.cloudinary.com/dtaawt3ej/image/upload/v1747292486/q9lmgugyqgrm7q5voatw.jpg")
-  gender    Gender?
-  dob       DateTime? @db.Date
-  address   String?
-  role      UserRole  @default(USER)
-  phone     String?
-
-  isVerified             Boolean   @default(false)
-  resetOtp               String?
-  resetOtpExpires        DateTime?
-  verificationOtp        String?
-  verificationOtpExpires DateTime?
-
-  refreshToken        String?   @db.Text
-  refreshTokenExpires DateTime?
-
-  walletBalance Float @default(0)
-
-  // Relations
-  instructorApplications InstructorApplication[]
-  
-  courses                Course[]
-  CourseRating CourseRating[]
-  CourseView CourseView[]
-
-  coupon Coupon[]
-  couponUsage CouponUsage[]
-  discountCampaign DiscountCampaign[]
-
-  paymentTransaction PaymentTransaction[]
-  transaction Transaction[]
-  enrollments Enrollment[]
-  lessonProgresses LessonProgress[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ─── INSTRUCTOR APPLICATION ──────────────────────────────
-model InstructorApplication {
-  id         Int               @id @default(autoincrement())
-  userId     Int
-  experience String?            @db.Text
-  bio        String?            @db.Text
-  status     ApplicationStatus  @default(PENDING)
-  reviewedAt DateTime?
-  reviewedBy Int?
-
-  // Relations
-  user                     User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  applicationSpecializations ApplicationSpecialization[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ─── SPECIALIZATION ──────────────────────────────
-model Specialization {
-  id       Int     @id @default(autoincrement())
-  name     String  @unique @db.VarChar(100)
-  desc     String? @db.Text
-
-  // Relations
-  applicationSpecializations ApplicationSpecialization[]
-  courseSpecializations      CourseSpecialization[]
-
-  Coupon Coupon[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ─── JUNCTION: InstructorApplication ↔ Specialization ──────────────────────────────
-model ApplicationSpecialization {
-  applicationId    Int
-  specializationId Int
-
-  application      InstructorApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  specialization   Specialization        @relation(fields: [specializationId], references: [id], onDelete: Cascade)
-
-  @@id([applicationId, specializationId])
-}
-
-// ─── COURSE ──────────────────────────────
-model Course {
-  id           Int        @id @default(autoincrement())
-  title        String     @db.VarChar(150)
-  description  String?    @db.Text
-  thumbnail    String?    // Cloudinary URL
-  price        Float      @default(0)
-  type         CourseType @default(FREE)
-  isPublished  Boolean    @default(false)
-  viewCount    Int        @default(0)
-  duration     Int        @default(0) // Tổng thời lượng (phút)
-
-  // Relations
-  instructorId Int
-  instructor   User        @relation(fields: [instructorId], references: [id], onDelete: Cascade)
-
-  specializations CourseSpecialization[]
-
-  courseRating CourseRating[]
-  courseView CourseView[]
-  chapter Chapter[]
-  
-  coupon Coupon[]
-  enrollments Enrollment[]
-  lessonProgresses LessonProgress[]
-
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-}
-
-// ─── COURSE VIEW ──────────────────────────────
-model CourseView {
-  id        Int      @id @default(autoincrement())
-  courseId  Int
-  userId    Int?
-  ipAddress String?
-  viewedAt  DateTime @default(now())
-
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([courseId, userId, ipAddress])
-}
-
-// ─── CHAPTER ──────────────────────────────
-model Chapter {
-  id          Int       @id @default(autoincrement())
-  title       String    @db.VarChar(150)
-  description String?   @db.Text
-  orderIndex  Int       @default(0)
-  duration    Int       @default(0) // Tổng thời lượng (phút)
-
-  // Relations
-  courseId Int
-  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons  Lesson[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([courseId, orderIndex]) // mỗi course có thứ tự chapter riêng
-}
-
-// ─── LESSON ──────────────────────────────
-model Lesson {
-  id          Int       @id @default(autoincrement())
-  title       String    @db.VarChar(150)
-  content     String?   @db.Text     // HTML content
-  videoUrl    String?   // Cloudinary URL
-  orderIndex  Int       @default(0)
-  duration    Int       @default(0) // Tổng thời lượng (phút)
-
-  // Relations
-  quizzes Quiz[]
-
-  chapterId   Int?
-  chapter     Chapter?   @relation(fields: [chapterId], references: [id], onDelete: SetNull)
-
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  lessonProgresses LessonProgress[]
-}
-
-// ─── JUNCTION: Course ↔ Specialization ──────────────
-model CourseSpecialization {
-  courseId         Int
-  specializationId Int
-
-  course           Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  specialization   Specialization @relation(fields: [specializationId], references: [id], onDelete: Cascade)
-
-  @@id([courseId, specializationId])
-}
-
-// ─── QUIZ ──────────────────────────────
-model Quiz {
-  id        Int       @id @default(autoincrement())
-  title     String     @db.VarChar(150)
-  lessonId  Int        
-  lesson    Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  questions Question[]
-
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-}
-
-// ─── QUESTION ──────────────────────────────
-model Question {
-  id           Int       @id @default(autoincrement())
-  questionText String     @db.Text
-  quizId       Int
-  quiz         Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  options      Option[]   // Nhiều lựa chọn (multiple choice)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ─── OPTION ──────────────────────────────
-model Option {
-  id          Int      @id @default(autoincrement())
-  text        String   @db.VarChar(255)
-  isCorrect   Boolean  @default(false)
-  questionId  Int
-  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-}
-
-// ─── COURSE RATING ──────────────────────────────
-model CourseRating {
-  id        Int      @id @default(autoincrement())
-  rating    Int      @db.TinyInt // giá trị 1–5
-
-  // Relations
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  courseId  Int
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, courseId]) // mỗi user chỉ được rate 1 lần / course
-}
-
-model Coupon {
-  id          Int       @id @default(autoincrement())
-  code        String    @unique
-  percentage  Float     @default(0)
-  maxUsage    Int?
-  usedCount   Int       @default(0)
-  expiresAt   DateTime?
-  isActive    Boolean   @default(true)
-  target      CouponTarget  @default(ALL) // ALL, COURSE, SPECIALIZATION
-  createdById Int
-  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
-
-  courseId    Int?
-  course      Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  specializationId Int?  // nếu coupon áp dụng cho specialization
-  specialization   Specialization? @relation(fields: [specializationId], references: [id], onDelete: Cascade)
-
-  couponUsage CouponUsage[]
-  discountCampaign DiscountCampaign[]
-
-  enrollments Enrollment[]
-
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}
-
-model CouponUsage {
-  id         Int      @id @default(autoincrement())
-  couponId   Int
-  userId     Int
-  usedAt     DateTime @default(now())
-
-  coupon     Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([couponId, userId])
-}
-
-model DiscountCampaign {
-  id          Int             @id @default(autoincrement())
-  title       String
-  description String?
-  percentage  Float
-  startsAt    DateTime
-  endsAt      DateTime
-  isActive    Boolean @default(true)
-  
-  coupons     Coupon[]
-
-  createdById Int
-  createdBy   User @relation(fields: [createdById], references: [id], onDelete: Cascade)
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model PaymentTransaction {
-  id           Int           @id @default(autoincrement())
-  userId       Int
-  amount       Float
-  type         PaymentType
-  status       PaymentStatus @default(PENDING)
-  tranId       String?        @unique // Mã giao dịch từ Sepay (transaction_id)
-  content      String          @unique // Nội dung chuyển khoản (ORDER123...)
-  bankAccount  String?         // Số tài khoản nhận (Sepay trả về)
-  qrCode       String?         // Base64 QR (Sepay trả về)
-
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transaction Transaction[]
-
-  createdAt    DateTime        @default(now())
-  completedAt  DateTime?
-}
-
-model Transaction {
-  id          Int              @id @default(autoincrement())
-  userId      Int
-  amount      Float            // số tiền (+ hoặc -)
-  type        TransactionType
-  note        String?          @db.Text
-
-  // optional link đến PaymentTransaction
-  paymentTransactionId Int?
-  paymentTransaction   PaymentTransaction? @relation(fields: [paymentTransactionId], references: [id], onDelete: SetNull)
-
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt   DateTime         @default(now())
-}
-
-// ─── ENROLLMENT ──────────────────────────────
-model Enrollment {
-  id          Int        @id @default(autoincrement())
-  
-  userId      Int
-  courseId    Int
-
-  enrolledAt  DateTime   @default(now())
-  completedAt DateTime?  // nếu học xong
-
-  // tiến độ (%) — ví dụ: 0–100
-  progress    Float       @default(0)
-
-  // nếu có coupon áp dụng
-  couponId    Int?
-  coupon      Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
-
-  // Quan hệ
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  // mỗi user chỉ được enroll 1 lần / 1 course
-  @@unique([userId, courseId])
-}
-
-// ─── LESSON PROGRESS ──────────────────────────────
-model LessonProgress {
-  id         Int       @id @default(autoincrement())
-  userId     Int
-  lessonId   Int
-  courseId   Int
-
-  isCompleted Boolean   @default(false)
-  completedAt DateTime?
-
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson     Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId]) // 1 user chỉ có 1 record per lesson
-}
+  generator client {
+    provider = "prisma-client-js"
+  }
+
+  datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+  }
+
+  enum UserRole {
+    USER
+    ADMIN
+    INSTRUCTOR
+  }
+
+  enum Gender {
+    MALE
+    FEMALE
+    OTHER
+  }
+
+  enum ApplicationStatus {
+    PENDING
+    APPROVED
+    REJECTED
+  }
+
+  enum CourseType {
+    FREE
+    PAID
+  }
+
+  enum CouponTarget {
+    ALL
+    COURSE
+    SPECIALIZATION
+  }
+
+  enum PaymentType {
+    DEPOSIT   // nạp tiền
+    WITHDRAW  // rút tiền
+  }
+
+  enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+  }
+
+  enum TransactionType {
+    COURSE_PURCHASE   // mua khóa học
+    ADMIN_ADJUST      // admin cộng/trừ
+    DEPOSIT           // từ PaymentTransaction
+    WITHDRAW          // từ PaymentTransaction
+    REWARD
+  }
+
+  // ─── USER ──────────────────────────────
+  model User {
+    id        Int       @id @default(autoincrement())
+    fullname  String    @db.VarChar(50)
+    email     String    @unique
+    password  String    @db.VarChar(100)
+    avatar    String    @default("https://res.cloudinary.com/dtaawt3ej/image/upload/v1747292486/q9lmgugyqgrm7q5voatw.jpg")
+    gender    Gender?
+    dob       DateTime? @db.Date
+    address   String?
+    role      UserRole  @default(USER)
+    phone     String?
+
+    isVerified             Boolean   @default(false)
+    resetOtp               String?
+    resetOtpExpires        DateTime?
+    verificationOtp        String?
+    verificationOtpExpires DateTime?
+
+    refreshToken        String?   @db.Text
+    refreshTokenExpires DateTime?
+
+    walletBalance Float @default(0)
+
+    // Relations
+    instructorApplications InstructorApplication[]
+    
+    courses                Course[]
+    CourseRating CourseRating[]
+    CourseView CourseView[]
+
+    coupon Coupon[]
+    couponUsage CouponUsage[]
+    discountCampaign DiscountCampaign[]
+
+    paymentTransaction PaymentTransaction[]
+    transaction Transaction[]
+    enrollments Enrollment[]
+    lessonProgresses LessonProgress[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+
+  // ─── INSTRUCTOR APPLICATION ──────────────────────────────
+  model InstructorApplication {
+    id         Int               @id @default(autoincrement())
+    userId     Int
+    experience String?            @db.Text
+    bio        String?            @db.Text
+    status     ApplicationStatus  @default(PENDING)
+    reviewedAt DateTime?
+    reviewedBy Int?
+
+    // Relations
+    user                     User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    applicationSpecializations ApplicationSpecialization[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+
+  // ─── SPECIALIZATION ──────────────────────────────
+  model Specialization {
+    id       Int     @id @default(autoincrement())
+    name     String  @unique @db.VarChar(100)
+    desc     String? @db.Text
+
+    // Relations
+    applicationSpecializations ApplicationSpecialization[]
+    courseSpecializations      CourseSpecialization[]
+
+    Coupon Coupon[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+
+  // ─── JUNCTION: InstructorApplication ↔ Specialization ──────────────────────────────
+  model ApplicationSpecialization {
+    applicationId    Int
+    specializationId Int
+
+    application      InstructorApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+    specialization   Specialization        @relation(fields: [specializationId], references: [id], onDelete: Cascade)
+
+    @@id([applicationId, specializationId])
+  }
+
+  // ─── COURSE ──────────────────────────────
+  model Course {
+    id           Int        @id @default(autoincrement())
+    title        String     @db.VarChar(150)
+    description  String?    @db.Text
+    thumbnail    String?    // Cloudinary URL
+    price        Float      @default(0)
+    type         CourseType @default(FREE)
+    isPublished  Boolean    @default(false)
+    viewCount    Int        @default(0)
+    duration     Int        @default(0) // Tổng thời lượng (phút)
+
+    // Relations
+    instructorId Int
+    instructor   User        @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+
+    specializations CourseSpecialization[]
+
+    courseRating CourseRating[]
+    courseView CourseView[]
+    chapter Chapter[]
+    
+    coupon Coupon[]
+    enrollments Enrollment[]
+    lessonProgresses LessonProgress[]
+
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+  }
+
+  // ─── COURSE VIEW ──────────────────────────────
+  model CourseView {
+    id        Int      @id @default(autoincrement())
+    courseId  Int
+    userId    Int
+    ipAddress String?
+    viewedAt  DateTime @default(now())
+
+    course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([courseId, userId, ipAddress])
+  }
+
+  // ─── CHAPTER ──────────────────────────────
+  model Chapter {
+    id          Int       @id @default(autoincrement())
+    title       String    @db.VarChar(150)
+    description String?   @db.Text
+    orderIndex  Int       @default(0)
+    duration    Int       @default(0) // Tổng thời lượng (phút)
+
+    // Relations
+    courseId Int
+    course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    lessons  Lesson[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([courseId, orderIndex]) // mỗi course có thứ tự chapter riêng
+  }
+
+  // ─── LESSON ──────────────────────────────
+  model Lesson {
+    id          Int       @id @default(autoincrement())
+    title       String    @db.VarChar(150)
+    content     String?   @db.Text     // HTML content
+    videoUrl    String?   // Cloudinary URL
+    orderIndex  Int       @default(0)
+    duration    Int       @default(0) // Tổng thời lượng (phút)
+
+    // Relations
+    quizzes Quiz[]
+
+    chapterId   Int?
+    chapter     Chapter?   @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
+
+    lessonProgresses LessonProgress[]
+  }
+
+  // ─── JUNCTION: Course ↔ Specialization ──────────────
+  model CourseSpecialization {
+    courseId         Int
+    specializationId Int
+
+    course           Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    specialization   Specialization @relation(fields: [specializationId], references: [id], onDelete: Cascade)
+
+    @@id([courseId, specializationId])
+  }
+
+  // ─── QUIZ ──────────────────────────────
+  model Quiz {
+    id        Int       @id @default(autoincrement())
+    title     String     @db.VarChar(150)
+    lessonId  Int        
+    lesson    Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+    questions Question[]
+
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+  }
+
+  // ─── QUESTION ──────────────────────────────
+  model Question {
+    id           Int       @id @default(autoincrement())
+    questionText String     @db.Text
+    quizId       Int
+    quiz         Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
+    options      Option[]   // Nhiều lựa chọn (multiple choice)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+
+  // ─── OPTION ──────────────────────────────
+  model Option {
+    id          Int      @id @default(autoincrement())
+    text        String   @db.VarChar(255)
+    isCorrect   Boolean  @default(false)
+    questionId  Int
+    question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  }
+
+  // ─── COURSE RATING ──────────────────────────────
+  model CourseRating {
+    id        Int      @id @default(autoincrement())
+    rating    Int      @db.TinyInt // giá trị 1–5
+
+    // Relations
+    userId    Int
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    courseId  Int
+    course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([userId, courseId]) // mỗi user chỉ được rate 1 lần / course
+  }
+
+  model Coupon {
+    id          Int       @id @default(autoincrement())
+    code        String    @unique
+    percentage  Float     @default(0)
+    maxUsage    Int?
+    usedCount   Int       @default(0)
+    expiresAt   DateTime?
+    isActive    Boolean   @default(true)
+    target      CouponTarget  @default(ALL) // ALL, COURSE, SPECIALIZATION
+    createdById Int
+    createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+    courseId    Int?
+    course      Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    specializationId Int?  // nếu coupon áp dụng cho specialization
+    specialization   Specialization? @relation(fields: [specializationId], references: [id], onDelete: Cascade)
+
+    couponUsage CouponUsage[]
+    discountCampaign DiscountCampaign[]
+
+    enrollments Enrollment[]
+
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+  }
+
+  model CouponUsage {
+    id         Int      @id @default(autoincrement())
+    couponId   Int
+    userId     Int
+    usedAt     DateTime @default(now())
+
+    coupon     Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([couponId, userId])
+  }
+
+  model DiscountCampaign {
+    id          Int             @id @default(autoincrement())
+    title       String
+    description String?
+    percentage  Float
+    startsAt    DateTime
+    endsAt      DateTime
+    isActive    Boolean @default(true)
+    
+    coupons     Coupon[]
+
+    createdById Int
+    createdBy   User @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+
+  model PaymentTransaction {
+    id           Int           @id @default(autoincrement())
+    userId       Int
+    amount       Float
+    type         PaymentType
+    status       PaymentStatus @default(PENDING)
+    tranId       String?        @unique // Mã giao dịch từ Sepay (transaction_id)
+    content      String          @unique // Nội dung chuyển khoản (ORDER123...)
+    bankAccount  String?         // Số tài khoản nhận (Sepay trả về)
+    qrCode       String?         // Base64 QR (Sepay trả về)
+
+    user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    transaction Transaction[]
+
+    createdAt    DateTime        @default(now())
+    completedAt  DateTime?
+  }
+
+  model Transaction {
+    id          Int              @id @default(autoincrement())
+    userId      Int
+    amount      Float            // số tiền (+ hoặc -)
+    type        TransactionType
+    note        String?          @db.Text
+
+    // optional link đến PaymentTransaction
+    paymentTransactionId Int?
+    paymentTransaction   PaymentTransaction? @relation(fields: [paymentTransactionId], references: [id], onDelete: SetNull)
+
+    user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt   DateTime         @default(now())
+  }
+
+  // ─── ENROLLMENT ──────────────────────────────
+  model Enrollment {
+    id          Int        @id @default(autoincrement())
+    
+    userId      Int
+    courseId    Int
+
+    enrolledAt  DateTime   @default(now())
+    completedAt DateTime?  // nếu học xong
+
+    // tiến độ (%) — ví dụ: 0–100
+    progress    Float       @default(0)
+
+    // nếu có coupon áp dụng
+    couponId    Int?
+    coupon      Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
+
+    // Quan hệ
+    user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+
+    // mỗi user chỉ được enroll 1 lần / 1 course
+    @@unique([userId, courseId])
+  }
+
+  // ─── LESSON PROGRESS ──────────────────────────────
+  model LessonProgress {
+    id         Int       @id @default(autoincrement())
+    userId     Int
+    lessonId   Int
+    courseId   Int
+
+    isCompleted Boolean   @default(false)
+    completedAt DateTime?
+
+    user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    lesson     Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+    course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, lessonId]) // 1 user chỉ có 1 record per lesson
+  }

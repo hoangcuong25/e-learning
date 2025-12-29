@@ -167,7 +167,7 @@ export default function MyLearningPage() {
                     </span>
                   </div>
                   <Link
-                    href={`/learn/${enrollment.course?.id}/${enrollment.course?.chapter?.[0]?.lessons?.[0]?.id}`}
+                    href={`/learn/${enrollment.course?.id}`}
                     className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition duration-200"
                   >
                     {enrollment.progress === 100 ? "Xem lại" : "Tiếp tục học"}

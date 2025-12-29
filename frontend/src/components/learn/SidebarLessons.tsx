@@ -54,5 +54,5 @@ export default function SidebarLessons({
         <p className="text-gray-500 text-sm italic">Chưa có bài học nào.</p>
       )}
     </aside>
-  );  
+  );
 }

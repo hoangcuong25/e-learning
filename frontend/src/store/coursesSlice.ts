@@ -7,6 +7,7 @@ import {
   deleteCourseApi,
   getCoursesByInstructorApi,
   getCourseDetailApi,
+  getCourseDetailWithAuthApi,
 } from "@/api/courses.api";
 
 // 🧱 State
@@ -60,6 +61,15 @@ export const fetchCoursesByInstructor = createAsyncThunk(
   "course/fetchByInstructor",
   async () => {
     const response = await getCoursesByInstructorApi();
+    return response.data;
+  }
+);
+
+// 🔍 Lấy chi tiết khóa học (bao gồm enrollment - cần đăng nhập)
+export const fetchCourseDetailWithAuth = createAsyncThunk(
+  "course/fetchDetailWithAuth",
+  async (id: number) => {
+    const response = await getCourseDetailWithAuthApi(id);
     return response.data;
   }
 );
@@ -147,6 +157,22 @@ const coursesSlice = createSlice({
       .addCase(fetchCourseById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Không thể tải chi tiết khóa học";
+      })
+
+      // 🔍 Fetch detail with auth
+      .addCase(fetchCourseDetailWithAuth.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCourseDetailWithAuth.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentCourse = action.payload;
+      })
+      .addCase(fetchCourseDetailWithAuth.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.error.message ??
+          "Không thể tải chi tiết khóa học (yêu cầu đăng nhập)";
       })
 
       // 🧩 Fetch courses by instructor

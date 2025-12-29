@@ -128,4 +128,12 @@ export class CourseController {
     const userId = req.user?.id;
     return this.courseService.increaseView(+id, userId);
   }
+
+  @Get(":id/detail")
+  @ApiOperation({ summary: "User Get course detail" })
+  @ResponseMessage("User Get full course detail")
+  @ApiBearerAuth()
+  async getCourseDetail(@Param("id") id: string, @Req() req) {
+    return this.courseService.getCourseDetail(+id, req.user.id);
+  }
 }

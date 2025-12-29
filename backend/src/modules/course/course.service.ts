@@ -233,6 +233,15 @@ export class CourseService {
                 content: true,
                 createdAt: true,
                 updatedAt: true,
+                quizzes: {
+                  include: {
+                    questions: {
+                      include: {
+                        options: true,
+                      },
+                    },
+                  },
+                },
               },
               orderBy: { orderIndex: "asc" },
             },
@@ -387,7 +396,7 @@ export class CourseService {
   }
 
   // 🧩 Tăng lượt xem khóa học
-  async increaseView(courseId: number, userId?: number) {
+  async increaseView(courseId: number, userId: number) {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
       select: { id: true },
@@ -395,19 +404,17 @@ export class CourseService {
 
     if (!course) throw new NotFoundException("Không tìm thấy khóa học.");
 
-    // Nếu người dùng đã xem trong 1 giờ qua thì bỏ qua
-    if (userId) {
-      const recentView = await this.prisma.courseView.findFirst({
-        where: {
-          courseId,
-          userId,
-          viewedAt: { gte: new Date(Date.now() - 3600_000) },
-        },
-      });
+    // Nếu người dùng đã xem trong 3 giờ qua thì bỏ qua
+    const recentView = await this.prisma.courseView.findFirst({
+      where: {
+        courseId,
+        userId,
+        viewedAt: { gte: new Date(Date.now() - 10_800_000) },
+      },
+    });
 
-      if (recentView) {
-        return { message: "Lượt xem đã được tính gần đây." };
-      }
+    if (recentView) {
+      return { message: "Lượt xem đã được tính gần đây." };
     }
 
     // Ghi nhận lượt xem
@@ -422,5 +429,51 @@ export class CourseService {
     });
 
     return { message: "Tăng lượt xem thành công." };
+  }
+
+  async getCourseDetail(courseId: number, userId?: number) {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      include: {
+        instructor: {
+          select: { id: true, fullname: true, avatar: true },
+        },
+        specializations: {
+          include: { specialization: true },
+        },
+        chapter: {
+          orderBy: { orderIndex: "asc" },
+          include: {
+            lessons: {
+              orderBy: { orderIndex: "asc" },
+              include: {
+                quizzes: {
+                  include: {
+                    questions: {
+                      include: {
+                        options: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        courseRating: {
+          select: { rating: true },
+        },
+        enrollments: {
+          where: { userId },
+          select: { id: true, progress: true, enrolledAt: true },
+        },
+      },
+    });
+
+    if (!course) {
+      throw new NotFoundException("Course not found");
+    }
+
+    return course;
   }
 }
