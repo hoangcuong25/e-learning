@@ -67,5 +67,5 @@ export default async function CourseDetailPage({ params }: Props) {
   const data = await res.json();
   const course = data.data;
 
-  return <CourseDetail initialCourse={course} />;
+  return <CourseDetail initialCourse={course} courseId={Number(courseId)} />;
 }

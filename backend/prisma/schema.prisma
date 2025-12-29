@@ -332,7 +332,6 @@
     id          Int             @id @default(autoincrement())
     title       String
     description String?
-    percentage  Float
     startsAt    DateTime
     endsAt      DateTime
     isActive    Boolean @default(true)

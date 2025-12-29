@@ -467,6 +467,17 @@ export class CourseService {
           where: { userId },
           select: { id: true, progress: true, enrolledAt: true },
         },
+        lessonProgresses: {
+          where: {
+            userId,
+            isCompleted: true,
+          },
+          select: {
+            isCompleted: true,
+            id: true,
+            lessonId: true,
+          },
+        },
       },
     });
 

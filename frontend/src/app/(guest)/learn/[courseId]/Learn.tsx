@@ -17,6 +17,7 @@ import {
 import SidebarLessons from "@/components/learn/SidebarLessons";
 import LoadingScreen from "@/components/LoadingScreen";
 import { increaseCourseViewApi } from "@/api/courses.api";
+import { markLessonCompletedApi } from "@/api/lesson.api";
 
 const Learn = () => {
   const router = useRouter();
@@ -28,6 +29,16 @@ const Learn = () => {
   );
 
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleVideoEnded = async () => {
+    if (!currentLesson?.id) return;
+
+    // Gửi yêu cầu cập nhật tiến độ
+    await markLessonCompletedApi(currentLesson.id);
+
+    // Cập nhật local state và tải lại chi tiết khóa học để cập nhật progress bar/sidebar
+    dispatch(fetchCourseDetailWithAuth(Number(courseId)));
+  };
 
   useEffect(() => {
     // Chỉ chạy khi courseId tồn tại
@@ -79,6 +90,9 @@ const Learn = () => {
 
   const [currentLesson, setCurrentLesson] = useState<any>(lessons[0]);
   const currentIndex = lessons.findIndex((l) => l?.id === currentLesson?.id);
+
+  const completedLessonIds =
+    currentCourse?.lessonProgresses.map((cl) => cl.lessonId) || [];
 
   useEffect(() => {
     if (lessons.length > 0 && !currentLesson) {
@@ -134,6 +148,7 @@ const Learn = () => {
         onSelectLesson={(lesson) => {
           setCurrentLesson(lesson);
         }}
+        completedLessonIds={completedLessonIds}
       />
 
       {/* Main content */}
@@ -168,6 +183,7 @@ const Learn = () => {
                   src={currentLesson.videoUrl}
                   controls
                   preload="metadata"
+                  onEnded={handleVideoEnded}
                   className="w-full h-full object-contain"
                   poster={
                     currentLesson.videoUrl

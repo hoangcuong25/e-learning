@@ -103,6 +103,8 @@ declare global {
       specialization: SpecializationType;
     }[];
 
+    lessonProgresses: LessonProgressType[];
+
     createdAt: string;
     updatedAt: string;
   };
@@ -257,6 +259,23 @@ declare global {
     // Thông tin quan hệ
     user?: UserType;
     course?: CourseType;
+
+    createdAt?: string;
+    updatedAt?: string;
+  };
+
+  type LessonProgressType = {
+    id: number;
+    userId: number;
+    lessonId: number;
+    courseId: number;
+
+    isCompleted: boolean;
+    completedAt?: string | null;
+
+    user?: Pick<UserType, "id" | "fullname" | "email" | "avatar">;
+    lesson?: Pick<LessonType, "id" | "title" | "orderIndex" | "courseId">;
+    course?: Pick<CourseType, "id" | "title" | "thumbnail">;
 
     createdAt?: string;
     updatedAt?: string;

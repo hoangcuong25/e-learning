@@ -49,3 +49,9 @@ export const createCouponDiscountByAdminApi = async (payload: any) => {
   const response = await axiosClient.post("/coupon/admin", payload);
   return response.data;
 };
+
+// 🧩 9. Lấy tất cả coupon của 1 khóa học (Course)
+export const getCourseCouponsApi = async (courseId: number) => {
+  const response = await axiosClient.get(`/coupon/course/${courseId}`);
+  return response.data;
+};

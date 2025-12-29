@@ -93,4 +93,15 @@ export class LessonController {
   remove(@Param("id") id: string) {
     return this.lessonService.remove(+id);
   }
+
+  @Patch("progress/:lessonId")
+  @ApiOperation({
+    summary: "Mark a lesson as completed for the authenticated user",
+  })
+  @ResponseMessage("Lesson progress updated successfully")
+  @ApiBearerAuth()
+  markLessonCompleted(@Param("lessonId") lessonId: string, @Req() req: any) {
+    const userId = req.user?.id;
+    return this.lessonService.markLessonCompleted(+lessonId, userId);
+  }
 }

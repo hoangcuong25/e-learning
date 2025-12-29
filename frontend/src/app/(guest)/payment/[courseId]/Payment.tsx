@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
@@ -12,6 +12,14 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { fetchCourseCoupons } from "@/store/couponSlice";
 
 const Payment = () => {
   const { courseId } = useParams();
@@ -21,14 +29,20 @@ const Payment = () => {
   const { currentCourse, loading } = useSelector(
     (state: RootState) => state.courses
   );
-  const {
-    loading: enrolling,
-    successMessage,
-    error,
-  } = useSelector((state: RootState) => state.enrollment);
+
+  const { loading: enrolling } = useSelector(
+    (state: RootState) => state.enrollment
+  );
+
+  const { courseCoupons } = useSelector((state: RootState) => state.coupon);
+
+  const [selectedCoupon, setSelectedCoupon] = useState<any>(null);
 
   useEffect(() => {
-    if (courseId) dispatch(fetchCourseDetail(Number(courseId)));
+    if (courseId) {
+      dispatch(fetchCourseDetail(Number(courseId)));
+      dispatch(fetchCourseCoupons(Number(courseId)) as any);
+    }
   }, [courseId, dispatch]);
 
   if (loading) return <LoadingScreen />;
@@ -45,11 +59,13 @@ const Payment = () => {
       if (!courseId) return;
 
       const result = await dispatch(
-        createEnrollment({ courseId: Number(courseId) })
+        createEnrollment({
+          courseId: Number(courseId),
+          couponCode: selectedCoupon?.code, // gửi kèm coupon
+        })
       ).unwrap();
 
       toast.success(`Thanh toán thành công! Bạn đã ghi danh vào khóa học.`);
-
       router.push(`/courses/${courseId}`);
     } catch (error: any) {
       toast.error(
@@ -58,7 +74,13 @@ const Payment = () => {
     }
   };
 
-  const total = currentCourse.price || 0;
+  const basePrice = currentCourse.price || 0;
+  const discount = selectedCoupon
+    ? selectedCoupon.discountPercent
+      ? (basePrice * selectedCoupon.discountPercent) / 100
+      : selectedCoupon.discountAmount || 0
+    : 0;
+  const total = Math.max(basePrice - discount, 0);
 
   return (
     <motion.div
@@ -104,15 +126,60 @@ const Payment = () => {
         <div className="flex justify-between text-gray-700 mb-2">
           <span>Giá khóa học</span>
           <span className="font-medium">
-            {total.toLocaleString()} LearnCoin
+            {basePrice.toLocaleString()} LearnCoin
           </span>
         </div>
+
+        {/* COUPON DROPDOWN */}
+        {courseCoupons && courseCoupons.length > 0 && (
+          <div className="my-4">
+            <label className="block text-gray-700 mb-2">Chọn mã giảm giá</label>
+            <Select
+              onValueChange={(value) => {
+                const coupon = courseCoupons.find((c) => c.code === value);
+                setSelectedCoupon(coupon || null);
+              }}
+            >
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Chọn coupon" />
+              </SelectTrigger>
+              <SelectContent>
+                {courseCoupons.map((coupon) => (
+                  <SelectItem key={coupon.code} value={coupon.code}>
+                    {coupon.code} — giảm giá {coupon.percentage} %
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {selectedCoupon && (
+          <div className="flex justify-between text-gray-700 mt-3">
+            <span>Mã áp dụng: {selectedCoupon.code}</span>
+            <span className="text-green-600">
+              - giảm{" "}
+              {Math.round(
+                (currentCourse.price * (selectedCoupon?.percentage || 0)) / 100
+              ).toLocaleString()}{" "}
+              LearnCoin
+            </span>
+          </div>
+        )}
 
         <hr className="my-3 border-blue-100" />
 
         <div className="flex justify-between text-lg font-semibold text-blue-800">
           <span>Tổng cộng</span>
-          <span>{total.toLocaleString()} LearnCoin</span>
+          <span>
+            {(
+              total -
+              Math.round(
+                (currentCourse.price * (selectedCoupon?.percentage || 0)) / 100
+              )
+            ).toLocaleString()}{" "}
+            LearnCoin
+          </span>
         </div>
       </div>
 

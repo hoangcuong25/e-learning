@@ -1,17 +1,34 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import { BookOpen, User, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 import CourseSidebar from "@/components/course/CourseSidebar";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { fetchCourseCoupons } from "@/store/couponSlice";
 
 interface Props {
   initialCourse: any;
+  courseId: number;
 }
 
-const CourseDetail = ({ initialCourse }: Props) => {
+const CourseDetail = ({ initialCourse, courseId }: Props) => {
   const course = initialCourse;
+
+  const dispatch = useDispatch();
+  const {
+    courseCoupons,
+    loading: couponsLoading,
+    error: couponsError,
+  } = useSelector((state: RootState) => state.coupon);
+
+  useEffect(() => {
+    if (courseId) {
+      dispatch(fetchCourseCoupons(Number(course.id)) as any);
+    }
+  }, [courseId, dispatch]);
 
   if (!course)
     return (
@@ -150,11 +167,14 @@ const CourseDetail = ({ initialCourse }: Props) => {
         </div>
       </div>
 
-      {/* SIDEBAR */}
-      <div className="relative">
-        <div className="sticky top-24">
-          <CourseSidebar price={course.price} courseId={course.id} />
-        </div>
+      <div className="sticky top-24">
+        <CourseSidebar
+          price={course.price}
+          courseId={course.id}
+          courseCoupons={courseCoupons}
+          couponsLoading={couponsLoading}
+          couponsError={couponsError}
+        />
       </div>
     </motion.div>
   );

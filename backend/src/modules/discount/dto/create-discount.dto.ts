@@ -17,10 +17,6 @@ export class CreateDiscountDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ example: 30 })
-  @IsNumber()
-  percentage: number;
-
   @ApiProperty({ example: "2025-11-01T00:00:00Z" })
   @IsDateString()
   startsAt: string;

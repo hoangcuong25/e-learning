@@ -217,7 +217,97 @@ export class EnrollmentService {
     if (!enrollment || enrollment.userId !== userId)
       throw new ForbiddenException("Bạn không thể hủy đăng ký này");
 
-    // (Có thể mở rộng logic: chỉ cho hủy nếu khóa học miễn phí hoặc chưa bắt đầu)
     return this.prisma.enrollment.delete({ where: { id } });
+  }
+
+  async getCourseProgress(courseId: number, userId: number) {
+    const courseProgress = await this.prisma.enrollment.findFirst({
+      where: {
+        userId,
+        courseId,
+      },
+      select: {
+        progress: true,
+        completedAt: true,
+      },
+    });
+
+    return courseProgress;
+  }
+
+  async recalculateProgress(userId: number, courseId: number) {
+    // 1. Lấy tổng số bài học (Lesson) trong Khóa học này
+    const totalLessons = await this.prisma.lesson.count({
+      where: {
+        chapter: {
+          courseId: courseId, // Chỉ lấy lesson thuộc course này
+        },
+      },
+    });
+
+    if (totalLessons === 0) {
+      // Nếu không có bài học nào, tiến độ mặc định là 100%
+      await this.updateEnrollmentProgress(userId, courseId, 100, true);
+      return;
+    }
+
+    // 2. Đếm số bài học ĐÃ HOÀN THÀNH (LessonProgress)
+    const completedLessonsCount = await this.prisma.lessonProgress.count({
+      where: {
+        userId: userId,
+        courseId: courseId,
+        isCompleted: true,
+      },
+    });
+
+    // 3. Tính toán Tiến độ (%)
+    let progressPercentage = (completedLessonsCount / totalLessons) * 100;
+
+    // Làm tròn đến 2 chữ số thập phân
+    progressPercentage = parseFloat(progressPercentage.toFixed(2));
+
+    const isCompleted = progressPercentage >= 100;
+
+    // 4. Cập nhật bản ghi Enrollment
+    await this.updateEnrollmentProgress(
+      userId,
+      courseId,
+      progressPercentage,
+      isCompleted
+    );
+
+    return {
+      progress: progressPercentage,
+      completedCount: completedLessonsCount,
+    };
+  }
+
+  private async updateEnrollmentProgress(
+    userId: number,
+    courseId: number,
+    progress: number,
+    isCompleted: boolean
+  ) {
+    const dataToUpdate: any = {
+      progress: progress,
+    };
+
+    if (isCompleted) {
+      dataToUpdate.completedAt = new Date();
+    } else {
+      // Nếu không hoàn thành 100%, đảm bảo completedAt là null (nếu có)
+      dataToUpdate.completedAt = null;
+    }
+
+    return this.prisma.enrollment.update({
+      where: {
+        // Sử dụng unique index của Enrollment
+        userId_courseId: {
+          userId,
+          courseId,
+        },
+      },
+      data: dataToUpdate,
+    });
   }
 }

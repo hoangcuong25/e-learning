@@ -7,11 +7,13 @@ import {
   getInstructorCouponsApi,
   updateCouponApi,
   createCouponDiscountByAdminApi,
+  getCourseCouponsApi,
 } from "@/api/coupon.api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 interface CouponState {
   coupons: any[];
+  courseCoupons: any[];
   instructorCoupons: any[];
   currentCoupon: any | null;
   loading: boolean;
@@ -21,6 +23,7 @@ interface CouponState {
 
 const initialState: CouponState = {
   coupons: [],
+  courseCoupons: [],
   instructorCoupons: [],
   currentCoupon: null,
   loading: false,
@@ -124,6 +127,21 @@ export const applyCoupon = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi khi áp dụng coupon");
+    }
+  }
+);
+
+// 📘 Lấy tất cả coupon của một khóa học
+export const fetchCourseCoupons = createAsyncThunk(
+  "coupon/fetchCourseCoupons",
+  async (courseId: number, { rejectWithValue }) => {
+    try {
+      const response = await getCourseCouponsApi(courseId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Lỗi khi tải coupon của khóa học"
+      );
     }
   }
 );
@@ -244,6 +262,23 @@ const couponSlice = createSlice({
         state.loading = false;
         state.error =
           (action.payload as string) ?? "Không thể tải coupon của giảng viên";
+      })
+
+      // Coupon course
+      .addCase(fetchCourseCoupons.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCourseCoupons.fulfilled, (state, action) => {
+        state.loading = false;
+        state.courseCoupons = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload.data.coupons ?? [];
+      })
+      .addCase(fetchCourseCoupons.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          (action.payload as string) || "Không thể tải coupon của khóa học";
       });
   },
 });

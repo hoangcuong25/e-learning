@@ -1,17 +1,38 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Lock, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+// Định nghĩa lại props để bao gồm thông tin coupon
 interface CourseSidebarProps {
   price: number;
   courseId: number;
+  courseCoupons: any[]; // Giả sử type là any[] cho đơn giản
+  couponsLoading: boolean;
+  couponsError: string | null;
 }
 
-const CourseSidebar = ({ price, courseId }: CourseSidebarProps) => {
+const CourseSidebar = ({
+  price,
+  courseId,
+  courseCoupons,
+  couponsLoading,
+  couponsError,
+}: CourseSidebarProps) => {
   const router = useRouter();
+  const [showAllCoupons, setShowAllCoupons] = useState(false);
+
+  // Lấy danh sách coupon hiển thị (tối đa 3 hoặc tất cả)
+  const displayCoupons = showAllCoupons
+    ? courseCoupons
+    : Array.isArray(courseCoupons)
+    ? courseCoupons.slice(0, 3)
+    : [];
+
+  const hasMoreCoupons =
+    Array.isArray(courseCoupons) && courseCoupons.length > 3;
 
   return (
     <motion.aside
@@ -20,7 +41,6 @@ const CourseSidebar = ({ price, courseId }: CourseSidebarProps) => {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      {/* Giá */}
       <div className="text-center mb-6">
         <motion.p
           className="text-3xl font-bold text-blue-600"
@@ -34,8 +54,6 @@ const CourseSidebar = ({ price, courseId }: CourseSidebarProps) => {
           Thanh toán 1 lần - Truy cập trọn đời
         </p>
       </div>
-
-      {/* Nút hành động */}
       <div className="flex flex-col gap-3">
         <motion.button
           whileHover={{
@@ -64,10 +82,55 @@ const CourseSidebar = ({ price, courseId }: CourseSidebarProps) => {
           Thêm vào giỏ hàng
         </motion.button>
       </div>
-
       <hr className="my-6 border-gray-200" />
+      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+        <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+          🎟️ Coupon khả dụng
+        </h3>
 
-      {/* Thông tin khóa học */}
+        {couponsLoading ? (
+          <p className="text-sm text-yellow-700">Đang tải coupon...</p>
+        ) : couponsError ? (
+          <p className="text-sm text-red-500">{couponsError}</p>
+        ) : !Array.isArray(courseCoupons) || courseCoupons.length === 0 ? (
+          <p className="text-sm text-gray-600">
+            Không có coupon nào cho khóa học này.
+          </p>
+        ) : (
+          <>
+            <ul className="space-y-2">
+              {displayCoupons.map((coupon: any) => (
+                <motion.li
+                  key={coupon.id}
+                  className="p-3 bg-white border rounded-lg flex justify-between items-center"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div>
+                    <p className="font-semibold text-sm">{coupon.code}</p>
+                    <p className="text-xs text-gray-500">
+                      {coupon.description}
+                    </p>
+                  </div>
+                </motion.li>
+              ))}
+            </ul>
+
+            {hasMoreCoupons && (
+              <button
+                onClick={() => setShowAllCoupons(!showAllCoupons)}
+                className="w-full mt-3 text-blue-600 text-sm font-medium hover:text-blue-700 transition"
+              >
+                {showAllCoupons
+                  ? "Thu gọn ▲"
+                  : `Xem thêm ${courseCoupons.length - 3} coupon khác ▼`}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+      <hr className="my-6 border-gray-200" />{" "}
       <motion.div
         className="space-y-3 text-gray-700 text-sm"
         initial={{ opacity: 0, y: 10 }}

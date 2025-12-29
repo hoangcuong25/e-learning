@@ -37,3 +37,9 @@ export const deleteLessonApi = async (id: number) => {
   const response = await axiosClient.delete(`/lesson/${id}`);
   return response.data;
 };
+
+// 🧩 6. Đánh dấu bài học đã hoàn thành
+export const markLessonCompletedApi = async (lessonId: number) => {
+  const response = await axiosClient.patch(`/lesson/progress/${lessonId}`);
+  return response.data;
+};

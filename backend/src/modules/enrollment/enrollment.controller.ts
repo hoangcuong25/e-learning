@@ -62,12 +62,24 @@ export class EnrollmentController {
     return this.enrollmentService.getStudentsInCourse(+courseId, req.user.id);
   }
 
-  // ─── OPTIONAL: CANCEL ENROLLMENT ──────────────────────────────
+  // ─── CANCEL ENROLLMENT ──────────────────────────────
   @Delete(":id")
   @ApiOperation({ summary: "Cancel enrollment" })
   @ApiBearerAuth()
   @ResponseMessage("Cancel enrollment")
   async cancelEnrollment(@Param("id") id: string, @Req() req) {
     return this.enrollmentService.cancelEnrollment(+id, req.user.id);
+  }
+
+  // ─── USER GET COURSE PROGRESS ──────────────────────────────
+  @Get(":courseId/progress")
+  @ApiOperation({
+    summary:
+      "Get the current progress (percentage) of a specific course for the authenticated user",
+  })
+  @ApiBearerAuth()
+  @ResponseMessage("Fetched course progress")
+  async getCourseProgress(@Param("courseId") courseId: string, @Req() req) {
+    return this.enrollmentService.getCourseProgress(+courseId, req.user.id);
   }
 }
