@@ -19,6 +19,7 @@ import { ChapterModule } from "./modules/course/chapter/chapter.module";
 import { CouponModule } from './modules/coupon/coupon.module';
 import { DiscountModule } from './modules/discount/discount.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { EnrollmentModule } from './modules/enrollment/enrollment.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { PaymentModule } from './modules/payment/payment.module';
     CouponModule,
     DiscountModule,
     PaymentModule,
+    EnrollmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

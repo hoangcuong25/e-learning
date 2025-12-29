@@ -86,12 +86,14 @@ model User {
   CourseRating CourseRating[]
   CourseView CourseView[]
 
-  Coupon Coupon[]
-  CouponUsage CouponUsage[]
-  DiscountCampaign DiscountCampaign[]
+  coupon Coupon[]
+  couponUsage CouponUsage[]
+  discountCampaign DiscountCampaign[]
 
-  PaymentTransaction PaymentTransaction[]
-  Transaction Transaction[]
+  paymentTransaction PaymentTransaction[]
+  transaction Transaction[]
+  enrollments Enrollment[]
+  lessonProgresses LessonProgress[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -165,6 +167,8 @@ model Course {
   chapter Chapter[]
   
   coupon Coupon[]
+  enrollments Enrollment[]
+  lessonProgresses LessonProgress[]
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -220,6 +224,8 @@ model Lesson {
 
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+
+  lessonProgresses LessonProgress[]
 }
 
 // ─── JUNCTION: Course ↔ Specialization ──────────────
@@ -301,8 +307,10 @@ model Coupon {
   specializationId Int?  // nếu coupon áp dụng cho specialization
   specialization   Specialization? @relation(fields: [specializationId], references: [id], onDelete: Cascade)
 
-  CouponUsage CouponUsage[]
-  DiscountCampaign DiscountCampaign[]
+  couponUsage CouponUsage[]
+  discountCampaign DiscountCampaign[]
+
+  enrollments Enrollment[]
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -350,7 +358,7 @@ model PaymentTransaction {
   qrCode       String?         // Base64 QR (Sepay trả về)
 
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Transaction Transaction[]
+  transaction Transaction[]
 
   createdAt    DateTime        @default(now())
   completedAt  DateTime?
@@ -370,4 +378,48 @@ model Transaction {
   user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt   DateTime         @default(now())
+}
+
+// ─── ENROLLMENT ──────────────────────────────
+model Enrollment {
+  id          Int        @id @default(autoincrement())
+  
+  userId      Int
+  courseId    Int
+
+  enrolledAt  DateTime   @default(now())
+  completedAt DateTime?  // nếu học xong
+
+  // tiến độ (%) — ví dụ: 0–100
+  progress    Float       @default(0)
+
+  // nếu có coupon áp dụng
+  couponId    Int?
+  coupon      Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
+
+  // Quan hệ
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  // mỗi user chỉ được enroll 1 lần / 1 course
+  @@unique([userId, courseId])
+}
+
+// ─── LESSON PROGRESS ──────────────────────────────
+model LessonProgress {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  lessonId   Int
+  courseId   Int
+
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson     Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId]) // 1 user chỉ có 1 record per lesson
 }

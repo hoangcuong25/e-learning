@@ -48,7 +48,7 @@ const NavbarUser = () => {
   const menuItems = [
     { label: "Trang chủ", path: "/" },
     { label: "Khóa học", path: "/courses" },
-    { label: "Lộ trình học", path: "/my-learning" },
+    { label: "Lộ trình học", path: "/roadmaps" },
     { label: "Liên hệ", path: "/contact-us" },
   ];
 

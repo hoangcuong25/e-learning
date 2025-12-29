@@ -132,12 +132,12 @@ export class CouponService {
         usedCount: 0,
 
         // bắt buộc gắn campaign
-        DiscountCampaign: {
+        discountCampaign: {
           connect: { id: dto.discountCampaignId },
         },
       },
       include: {
-        DiscountCampaign: true,
+        discountCampaign: true,
       },
     });
 
@@ -181,7 +181,7 @@ export class CouponService {
       include: {
         course: true,
         createdBy: true,
-        CouponUsage: {
+        couponUsage: {
           include: {
             user: { select: { id: true, fullname: true, email: true } },
           },
