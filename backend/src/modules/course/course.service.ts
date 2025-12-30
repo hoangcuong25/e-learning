@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -386,13 +387,97 @@ export class CourseService {
 
   // 🧩 Đánh giá khóa học
   async rateCourse(id: number, rating: number, userId: number) {
-    const course = await this.prisma.course.findUnique({ where: { id } });
-    if (!course) throw new NotFoundException("Không tìm thấy khóa học.");
-
-    const newRating = await this.prisma.courseRating.create({
-      data: { courseId: id, userId, rating },
+    // 1. Kiểm tra khóa học có tồn tại không
+    const course = await this.prisma.course.findUnique({
+      where: { id },
     });
-    return { message: "Đánh giá khóa học thành công.", data: newRating };
+
+    if (!course) {
+      throw new NotFoundException("Không tìm thấy khóa học.");
+    }
+
+    // Đảm bảo rating hợp lệ (1-5)
+    if (rating < 1 || rating > 5) {
+      throw new BadRequestException(
+        "Giá trị đánh giá phải nằm trong khoảng từ 1 đến 5."
+      );
+    }
+
+    // Khai báo biến để trả về
+    let data: any;
+    let message: string;
+
+    const result = await this.prisma.$transaction(async (prisma) => {
+      // 2. Kiểm tra xem user này đã rating khóa học này chưa
+      const existingRating = await prisma.courseRating.findUnique({
+        where: {
+          userId_courseId: {
+            userId: userId,
+            courseId: id,
+          },
+        },
+      });
+
+      let currentTotalRating = course.totalRating;
+      let currentSumOfRatings = course.averageRating * course.totalRating;
+
+      if (existingRating) {
+        // User đã rate: Cập nhật rating
+        const oldRatingValue = existingRating.rating;
+
+        if (oldRatingValue === rating) {
+          // Tránh cập nhật nếu rating không đổi
+          message = "Đánh giá không thay đổi.";
+          data = existingRating;
+          // Return sớm khỏi transaction nếu không có thay đổi
+          return { message, data };
+        }
+
+        data = await prisma.courseRating.update({
+          where: { id: existingRating.id },
+          data: { rating: rating },
+        });
+        message = "Cập nhật đánh giá khóa học thành công.";
+
+        // Cập nhật Tổng điểm: Trừ điểm cũ và cộng điểm mới
+        currentSumOfRatings = currentSumOfRatings - oldRatingValue + rating;
+      } else {
+        // User chưa rate: Tạo rating mới
+        data = await prisma.courseRating.create({
+          data: { courseId: id, userId, rating },
+        });
+        message = "Đánh giá khóa học thành công.";
+
+        // Cập nhật Tổng điểm và Tổng số lượt đánh giá
+        currentSumOfRatings += rating;
+        currentTotalRating += 1;
+      }
+
+      // 3. Tính toán lại averageRating và totalRating
+
+      const newAverageRating =
+        currentTotalRating > 0 ? currentSumOfRatings / currentTotalRating : 0;
+
+      // Cập nhật thông tin khóa học
+      const updatedCourse = await prisma.course.update({
+        where: { id },
+        data: {
+          // Làm tròn đến 2 chữ số thập phân trước khi lưu
+          averageRating: parseFloat(newAverageRating.toFixed(2)),
+          totalRating: currentTotalRating, // Cập nhật totalRating
+        },
+      });
+
+      return {
+        message: message,
+        data: {
+          rating: data,
+          courseInfo: updatedCourse,
+        },
+      };
+    });
+
+    return result;
   }
 
   // 🧩 Tăng lượt xem khóa học

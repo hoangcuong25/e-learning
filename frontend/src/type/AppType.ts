@@ -90,9 +90,13 @@ declare global {
     type: string;
     price: number;
     isPublished: boolean;
+    totalRating: number;
+    averageRating: number;
+    courseRating: any[];
 
     _count?: {
       chapter: number; // Số lượng Chapters
+      courseView: number;
     };
 
     instructorId: number;

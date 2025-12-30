@@ -159,6 +159,9 @@
     isPublished  Boolean    @default(false)
     viewCount    Int        @default(0)
     duration     Int        @default(0) // Tổng thời lượng (phút)
+    averageRating   Float      @default(0)   // trung bình
+    totalRating     Int        @default(0)   // số lượt rating
+
 
     // Relations
     instructorId Int

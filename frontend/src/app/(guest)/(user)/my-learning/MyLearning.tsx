@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import Image from "next/image";
 import Link from "next/link";
 import { fetchMyEnrollments } from "@/store/enrollmentsSlice";
-import { BookOpen, Layers } from "lucide-react"; // Import Layers icon
+import { BookOpen, Layers, Eye, Star } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
-
-// ... (Các phần formatDuration, LoadingScreen, Error Handling không thay đổi) ...
+import { rateCourseApi } from "@/api/courses.api";
+import { toast } from "sonner";
+import { RateDialog } from "@/components/course/RateDialog";
 
 export default function MyLearningPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -17,21 +18,21 @@ export default function MyLearningPage() {
     (state: RootState) => state.enrollment
   );
 
-  // Tải danh sách khóa học đã đăng ký khi component được mount
+  const [isRating, setIsRating] = useState(false);
+
+  const [openRateDialog, setOpenRateDialog] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+
   useEffect(() => {
     dispatch(fetchMyEnrollments());
   }, [dispatch]);
 
-  // Hàm chuyển đổi thời lượng (phút) thành giờ/phút
   const formatDuration = (minutes: number): string => {
-    // ... (code formatDuration) ...
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
 
     let result = "";
-    if (hours > 0) {
-      result += `${hours} giờ`;
-    }
+    if (hours > 0) result += `${hours} giờ`;
     if (remainingMinutes > 0 || hours === 0) {
       if (hours > 0) result += " ";
       result += `${remainingMinutes} phút`;
@@ -39,9 +40,37 @@ export default function MyLearningPage() {
     return result.trim() || "0 phút";
   };
 
-  if (loading && myEnrollments.length === 0) {
-    return <LoadingScreen />;
-  }
+  const handleRateCourse = async (rating: number) => {
+    if (!selectedCourseId) {
+      toast.error("Không tìm thấy khóa học để đánh giá.");
+      return;
+    }
+
+    if (isNaN(rating) || rating < 1 || rating > 5) {
+      toast.error("Đánh giá không hợp lệ. Vui lòng nhập số từ 1 đến 5.");
+      return;
+    }
+
+    setIsRating(true);
+
+    try {
+      const response = await rateCourseApi(selectedCourseId, rating);
+
+      toast.success(response.data.message || "Đánh giá khóa học thành công!");
+
+      // Cập nhật lại danh sách enrollments
+      dispatch(fetchMyEnrollments());
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message || "Đã xảy ra lỗi khi đánh giá.";
+      toast.error(errorMessage);
+    } finally {
+      setIsRating(false);
+      setSelectedCourseId(null); // reset after done
+    }
+  };
+
+  if (loading && myEnrollments.length === 0) return <LoadingScreen />;
 
   if (error) {
     return (
@@ -75,22 +104,27 @@ export default function MyLearningPage() {
     <div className="p-8 bg-white shadow-md rounded-2xl border border-gray-100 animate-fadeInUp">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">
         <div className="flex gap-5 items-center">
-          <BookOpen className="w-10 h-10   text-blue-500" />
+          <BookOpen className="w-10 h-10 text-blue-500" />
           <p>Khóa học của tôi</p> ({myEnrollments.length})
         </div>
       </h1>
       <div className="grid grid-cols-1 gap-6">
-        {myEnrollments &&
-          myEnrollments.map((enrollment) => (
+        {myEnrollments.map((enrollment) => {
+          const course = enrollment.course;
+
+          const ratingCount = course?.totalRating ?? 0;
+          const averageRating = (course?.averageRating ?? 0).toFixed(1);
+          const viewCount = course?._count?.courseView ?? 0;
+
+          return (
             <div
               key={enrollment.id}
               className="flex flex-col sm:flex-row bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition duration-300"
             >
-              {/* Thumbnail và Link */}
               <div className="sm:w-1/3 w-full relative aspect-video sm:aspect-auto">
                 <Image
-                  src={enrollment.course?.thumbnail || "/default-course.png"}
-                  alt={enrollment.course?.title ?? "Thumbnail"}
+                  src={course?.thumbnail || "/default-course.png"}
+                  alt={course?.title ?? "Thumbnail"}
                   fill
                   sizes="(max-width: 640px) 100vw, 33vw"
                   className="object-cover"
@@ -101,47 +135,56 @@ export default function MyLearningPage() {
               <div className="sm:w-2/3 p-4 sm:p-6 flex flex-col justify-between">
                 <div>
                   <Link
-                    href={`/learn/${enrollment.course?.id}`}
+                    href={`/learn/${course?.id}`}
                     className="text-xl font-bold text-gray-800 hover:text-blue-600 transition duration-200"
                   >
-                    {enrollment.course?.title}
+                    {course?.title}
                   </Link>
 
-                  {/* Giảng viên & Số chương */}
+                  {/* Giảng viên & Chương */}
                   <div className="flex items-center gap-4 text-sm mt-1">
                     <p className="text-gray-500">
                       GV:{" "}
                       <span className="font-medium">
-                        {enrollment.course?.instructor?.fullname}
+                        {course?.instructor?.fullname}
                       </span>
                     </p>
-                    {/*  HIỂN THỊ SỐ CHAPTER */}
                     <div className="flex items-center text-gray-600 font-medium">
                       <Layers className="w-4 h-4 mr-1 text-yellow-500" />
-                      <span>
-                        {(enrollment.course?._count?.chapter as number) ?? 0}{" "}
-                        chương
-                      </span>
+                      <span>{course?._count?.chapter ?? 0} chương</span>
                     </div>
                   </div>
 
-                  {/* PECIALIZATION */}
-                  {enrollment.course?.specializations &&
-                    enrollment.course.specializations.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {enrollment.course.specializations.map((cs, index) => (
-                          <span
-                            key={`${enrollment?.course?.id}-${cs.specialization.id}-${index}`}
-                            className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full"
-                          >
-                            {cs.specialization.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                  {/* Specializations */}
+                  {(course?.specializations?.length ?? 0) > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {course?.specializations?.map((cs, index) => (
+                        <span
+                          key={`${course.id}-${cs.specialization.id}-${index}`}
+                          className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full"
+                        >
+                          {cs.specialization.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Views & Ratings */}
+                  <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-4 h-4" />
+                      <span>{viewCount} lượt xem</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 text-yellow-400" />
+                      <span>
+                        {averageRating} ({ratingCount} đánh giá)
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Progress Bar */}
+                {/* Progress */}
                 <div className="mt-4">
                   <div className="flex justify-between items-center text-sm mb-1">
                     <span className="font-medium text-gray-700">
@@ -155,29 +198,56 @@ export default function MyLearningPage() {
                     <div
                       className="bg-blue-600 h-2.5 rounded-full"
                       style={{ width: `${enrollment.progress}%` }}
-                    ></div>
+                    />
                   </div>
                 </div>
 
-                {/* Stats & Button */}
-                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    <span className="mr-3">
-                      🕒 {formatDuration(enrollment.course?.duration ?? 0)}
+                {course && course?.courseRating?.length > 0 && (
+                  <div className="mt-3 flex items-center text-sm text-green-600 font-medium">
+                    <Star className="w-4 h-4 text-yellow-400 mr-1" />
+                    Bạn đã đánh giá:{" "}
+                    <span className="ml-1 font-semibold">
+                      {course?.courseRating[0].rating} ⭐
                     </span>
                   </div>
-                  <Link
-                    href={`/learn/${enrollment.course?.id}`}
-                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition duration-200"
-                  >
-                    {enrollment.progress === 100 ? "Xem lại" : "Tiếp tục học"}
-                  </Link>
+                )}
+
+                {/* Stats & Buttons */}
+                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center flex-wrap gap-2">
+                  <div className="text-sm text-gray-500 flex items-center gap-3">
+                    <span>🕒 {formatDuration(course?.duration ?? 0)}</span>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    <Link
+                      href={`/learn/${course?.id}`}
+                      className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition duration-200"
+                    >
+                      {enrollment.progress === 100 ? "Xem lại" : "Tiếp tục học"}
+                    </Link>
+                    <button
+                      type="button"
+                      className="px-4 py-2 bg-yellow-400 text-white text-sm font-medium rounded-lg hover:bg-yellow-500 transition duration-200"
+                      onClick={() => {
+                        setSelectedCourseId(Number(course?.id));
+                        setOpenRateDialog(true);
+                      }}
+                    >
+                      Đánh giá
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          ))}
+          );
+        })}
+
+        <RateDialog
+          open={openRateDialog}
+          setOpen={setOpenRateDialog}
+          onSubmit={handleRateCourse}
+        />
       </div>
-      {/* Animation Styles */}
+
       <style jsx>{`
         @keyframes fadeInUp {
           0% {

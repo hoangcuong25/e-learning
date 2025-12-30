@@ -21,7 +21,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      transform: true, // ✅ cho phép tự động ép kiểu string -> number
+      transform: true, // cho phép tự động ép kiểu string -> number
       transformOptions: { enableImplicitConversion: true },
     })
   );
