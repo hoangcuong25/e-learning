@@ -55,6 +55,17 @@
     REWARD
   }
 
+  // ─── NOTIFICATION TYPE (ENUM) ─────────────────────────
+enum NotificationType {
+  GENERAL             // Thông báo chung, marketing
+  WALLET              // Nạp tiền, rút tiền, admin điều chỉnh
+  ENROLLMENT          // Đăng ký khóa học mới
+  APPLICATION_STATUS  // Trạng thái đơn đăng ký (instructor)
+  COURSE_STATUS       // Trạng thái khóa học (instructor: approved, rejected)
+  NEW_RATING          // Có đánh giá mới (instructor)
+  ADMIN               // Thông báo đặc biệt từ admin
+}
+
   // ─── USER ──────────────────────────────
   model User {
     id        Int       @id @default(autoincrement())
@@ -81,6 +92,8 @@
 
     // Relations
     instructorApplications InstructorApplication[]
+
+    notifications Notification[]
     
     courses                Course[]
     CourseRating CourseRating[]
@@ -101,6 +114,28 @@
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+}
+
+// ─── NOTIFICATION ─────────────────────────
+model Notification {
+  id     Int      @id @default(autoincrement())
+  
+  userId Int
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  actorId Int?  
+
+  type    NotificationType @default(GENERAL)
+  title   String           @db.VarChar(255)
+  body    String           @db.Text
+  link    String?
+
+  isRead  Boolean  @default(false)
+  readAt  DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
 }
 
   // ─── INSTRUCTOR APPLICATION ──────────────────────────────

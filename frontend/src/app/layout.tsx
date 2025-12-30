@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import { store } from "@/store";
 import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import SocketInitializer from "@/components/SocketInitializer";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -29,6 +30,7 @@ export default function RootLayout({
       // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Provider store={store}>
+          <SocketInitializer />
           <GoogleOAuthProvider
             clientId={process.env.NEXT_PUBLIC_AUTH_CLIENT_ID ?? ""}
           >

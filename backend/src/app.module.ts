@@ -21,6 +21,7 @@ import { DiscountModule } from './modules/discount/discount.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { EnrollmentModule } from './modules/enrollment/enrollment.module';
 import { CartModule } from './modules/cart/cart.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { CartModule } from './modules/cart/cart.module';
     PaymentModule,
     EnrollmentModule,
     CartModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

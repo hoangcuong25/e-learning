@@ -9,6 +9,7 @@ import couponReducer from "./couponSlice";
 import discountReducer from "./discount.slice";
 import enrollmentReducer from "./enrollmentsSlice";
 import cartReducer from "./cartSlice";
+import notificationReducer from "./notificationsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     discount: discountReducer,
     enrollment: enrollmentReducer,
     cart: cartReducer,
+    notification: notificationReducer,
   },
 });
 

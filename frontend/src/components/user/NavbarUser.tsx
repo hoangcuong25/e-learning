@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Menu, User, Bell } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import logo from "@public/logo.png";
@@ -18,6 +18,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { fetchUser, logoutUser } from "@/store/userSlice";
 import { toast } from "sonner";
 import LoadingScreen from "../LoadingScreen";
+import { fetchUnreadCount } from "@/store/notificationsSlice";
+import NotificationBell from "./NotificationBell";
 
 const NavbarUser = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,12 +29,14 @@ const NavbarUser = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    if (token) dispatch(fetchUser());
+    if (token) {
+      dispatch(fetchUser());
+      dispatch(fetchUnreadCount());
+    }
   }, [dispatch]);
 
   const handleLogout = async () => {
     dispatch(logoutUser());
-
     router.push("/login");
     toast.success("Đăng xuất thành công");
   };
@@ -154,9 +158,8 @@ const NavbarUser = () => {
             })}
           </nav>
 
-          {/* User Actions */}
+          {/* User Actions - Mobile */}
           <div className="mt-6 flex flex-col gap-3">
-            {/* 🔹 Giảng dạy */}
             <motion.div whileHover={{ scale: 1.05 }}>
               <div
                 onClick={handleClickInstructor}
@@ -168,19 +171,15 @@ const NavbarUser = () => {
               </div>
             </motion.div>
 
-            {/* 🔹 Thông báo */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2 px-3 py-2 bg-blue-100/50 border border-blue-200 rounded-full hover:bg-blue-100 transition duration-200"
-            >
-              <Bell className="w-5 h-5 text-blue-600" />
-              <span className="text-blue-600 text-sm font-medium cursor-pointer">
-                Thông báo
-              </span>
-              <span className="ml-auto flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
-                3
-              </span>
-            </motion.button>
+            {/* 🔹 Notification Bell (Mobile) */}
+            {user && (
+              <div className="flex items-center gap-2 px-2 py-1">
+                <NotificationBell />
+                <span className="text-sm text-gray-600 font-medium">
+                  Thông báo
+                </span>
+              </div>
+            )}
 
             {/* 🔹 User info */}
             {user ? (
@@ -230,19 +229,12 @@ const NavbarUser = () => {
           </div>
         </motion.div>
 
-        {/* 🔹 Thông báo */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          className="relative flex items-center gap-2 px-3 py-1.5 bg-blue-100/50 border border-blue-200 rounded-full hover:bg-blue-100 transition duration-200"
-        >
-          <Bell className="w-5 h-5 text-blue-600" />
-          <span className="text-blue-600 text-sm font-medium cursor-pointer">
-            Thông báo
-          </span>
-          <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
-            3
-          </span>
-        </motion.button>
+        {/* 🔹 Notification Bell (Desktop) - Đã thay thế */}
+        {user && (
+          <motion.div whileHover={{ scale: 1.1 }}>
+            <NotificationBell />
+          </motion.div>
+        )}
 
         {/* 🔹 User dropdown */}
         {user ? (
@@ -263,12 +255,12 @@ const NavbarUser = () => {
             {/* Dropdown */}
             <div
               className="
-    invisible opacity-0 translate-y-1
-    group-hover:visible group-hover:opacity-100 group-hover:translate-y-0
-    transition-all duration-200 ease-out
-    absolute right-0 mt-2 w-72 z-50
-    rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-md shadow-2xl
-  "
+                invisible opacity-0 translate-y-1
+                group-hover:visible group-hover:opacity-100 group-hover:translate-y-0
+                transition-all duration-200 ease-out
+                absolute right-0 mt-2 w-72 z-50
+                rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-md shadow-2xl
+              "
             >
               {/* Header user info */}
               <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
