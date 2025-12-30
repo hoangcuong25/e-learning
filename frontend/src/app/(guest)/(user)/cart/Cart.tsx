@@ -1,48 +1,55 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { Trash2, CheckCircle, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { fetchCart, removeFromCart } from "@/store/cartSlice";
+import LoadingScreen from "@/components/LoadingScreen";
+import { useRouter } from "next/navigation";
 
 export default function MyCartPage() {
-  const [cart, setCart] = useState([
-    {
-      id: 1,
-      title: "Khóa học Next.js 15 toàn tập",
-      instructor: "Nguyễn Văn A",
-      price: 499000,
-      thumbnail: "/images/course-1.jpg",
-    },
-    {
-      id: 2,
-      title: "Lập trình Backend với NestJS",
-      instructor: "Trần Văn B",
-      price: 599000,
-      thumbnail: "/images/course-2.jpg",
-    },
-  ]);
+  const dispatch = useDispatch<AppDispatch>();
+  const { items, loading } = useSelector((state: RootState) => state.cart);
+  const router = useRouter();
 
-  const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(0);
+  // Chỉ chọn 1 course
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
 
-  const handleRemove = (id: number) => {
-    setCart(cart.filter((item) => item.id !== id));
-  };
+  // Gọi API lấy giỏ hàng khi load trang
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch]);
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
-  const total = subtotal - discount;
-
-  const handleApplyCoupon = () => {
-    if (coupon === "GIAM10") {
-      setDiscount(subtotal * 0.1);
-    } else {
-      setDiscount(0);
-      alert("❌ Mã giảm giá không hợp lệ");
+  const handleRemove = (courseId: number) => {
+    dispatch(removeFromCart(courseId));
+    if (selectedCourseId === courseId) {
+      setSelectedCourseId(null);
     }
   };
+
+  const handleSelectCourse = (courseId: number) => {
+    setSelectedCourseId(courseId);
+  };
+
+  const subtotal = items
+    .filter((item) => item.courseId === selectedCourseId)
+    .reduce((sum, item) => sum + (item.course?.price || 0), 0);
+
+  const handleCheckout = () => {
+    if (!selectedCourseId) {
+      alert("Vui lòng chọn một khóa học để thanh toán!");
+      return;
+    }
+    router.push(`/payment/${selectedCourseId}`);
+  };
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="max-w-6xl mx-auto py-10 px-4">
@@ -50,7 +57,7 @@ export default function MyCartPage() {
         🛒 Giỏ hàng của tôi
       </h1>
 
-      {cart.length === 0 ? (
+      {items.length === 0 ? (
         <p className="text-gray-600 text-center">
           Giỏ hàng của bạn đang trống.
         </p>
@@ -58,16 +65,24 @@ export default function MyCartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Danh sách khóa học */}
           <div className="lg:col-span-2 space-y-4">
-            {cart.map((item) => (
+            {items.map((item) => (
               <Card
                 key={item.id}
-                className="hover:shadow-lg transition border-blue-100"
+                className="hover:shadow-lg transition border-blue-100 cursor-pointer"
               >
                 <CardContent className="flex items-center gap-4 p-4">
+                  <input
+                    type="radio"
+                    name="selectedCourse"
+                    checked={selectedCourseId === item.courseId}
+                    onChange={() => handleSelectCourse(item.courseId)}
+                    className="w-5 h-5"
+                  />
+
                   <div className="relative w-36 h-24 rounded-lg overflow-hidden border border-blue-100">
                     <Image
-                      src={item.thumbnail}
-                      alt={item.title}
+                      src={item.course?.thumbnail || "/images/default.jpg"}
+                      alt={item.course?.title || ""}
                       fill
                       className="object-cover"
                     />
@@ -75,18 +90,20 @@ export default function MyCartPage() {
 
                   <div className="flex-1">
                     <h2 className="font-semibold text-lg text-blue-800">
-                      {item.title}
+                      {item.course?.title}
                     </h2>
-                    <p className="text-sm text-gray-600">{item.instructor}</p>
+                    <p className="text-sm text-gray-600">
+                      {(item.course?.instructor as any) || "Giảng viên ẩn danh"}
+                    </p>
                     <p className="text-blue-600 font-bold mt-1">
-                      {item.price.toLocaleString()} LC
+                      {item.course?.price?.toLocaleString()} LC
                     </p>
                   </div>
 
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleRemove(item.id)}
+                    onClick={() => handleRemove(item.courseId)}
                     className="hover:bg-blue-50"
                   >
                     <Trash2 className="w-5 h-5 text-red-500" />
@@ -96,55 +113,51 @@ export default function MyCartPage() {
             ))}
           </div>
 
-          {/* Thanh toán */}
-          <div>
-            <Card className="border-blue-200 shadow-md">
-              <CardContent className="p-6 space-y-4">
-                <h3 className="text-xl font-semibold text-blue-700">
-                  💳 Tóm tắt đơn hàng
-                </h3>
+          {/* Sidebar bên phải */}
+          <Card className="p-4 rounded-xl border border-blue-100 bg-white shadow-sm mt-6">
+            <ul className="space-y-2 text-sm text-gray-700">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                <span>Truy cập không giới hạn</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                <span>Tài liệu và video chất lượng cao</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                <span>Cập nhật khóa học miễn phí</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Lock className="w-4 h-4 text-green-500" />
+                <span>Bảo mật thanh toán an toàn</span>
+              </div>
+            </ul>
 
-                <div className="flex justify-between text-gray-700">
-                  <span>Tạm tính</span>
-                  <span>{subtotal.toLocaleString()} LC</span>
-                </div>
+            <p className="mt-4 text-center text-sm text-blue-600 font-medium">
+              Chọn một khóa học để thanh toán!
+            </p>
 
-                <div className="flex justify-between text-gray-700">
-                  <span>Giảm giá</span>
-                  <span className="text-red-500">
-                    -{discount.toLocaleString()} LC
-                  </span>
-                </div>
+            <div className="mt-4 text-center space-y-1">
+              <p className="text-gray-700 text-sm">
+                Tạm tính: {subtotal.toLocaleString()} LC
+              </p>
+              <p className="text-blue-700 font-semibold text-lg">
+                Tổng cộng: {subtotal.toLocaleString()} LC
+              </p>
+            </div>
 
-                <hr className="border-blue-100" />
+            <p className="mt-4 text-center text-xs text-gray-400">
+              Nhớ kiểm tra lại khóa học trước khi thanh toán 😉
+            </p>
 
-                <div className="flex justify-between text-lg font-semibold text-blue-800">
-                  <span>Tổng cộng</span>
-                  <span>{total.toLocaleString()} LC</span>
-                </div>
-
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Nhập mã giảm giá (VD: GIAM10)"
-                    value={coupon}
-                    onChange={(e) => setCoupon(e.target.value)}
-                    className="border-blue-200 focus-visible:ring-blue-400"
-                  />
-                  <Button
-                    variant="secondary"
-                    onClick={handleApplyCoupon}
-                    className="bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
-                  >
-                    Áp dụng
-                  </Button>
-                </div>
-
-                <Button className="w-full text-lg bg-blue-600 hover:bg-blue-700 text-white transition">
-                  Thanh toán
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+            <Button
+              onClick={handleCheckout}
+              className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white transition"
+            >
+              Thanh toán
+            </Button>
+          </Card>
         </div>
       )}
     </div>

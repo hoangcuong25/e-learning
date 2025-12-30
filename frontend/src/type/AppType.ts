@@ -280,4 +280,10 @@ declare global {
     createdAt?: string;
     updatedAt?: string;
   };
+  type CartItemType = {
+    id: number;
+    courseId: number;
+    course: CourseType;
+    quantity?: number;
+  };
 }

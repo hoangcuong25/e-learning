@@ -92,12 +92,16 @@
 
     paymentTransaction PaymentTransaction[]
     transaction Transaction[]
+
     enrollments Enrollment[]
     lessonProgresses LessonProgress[]
 
+    carts Cart[]
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-  }
+
+}
 
   // ─── INSTRUCTOR APPLICATION ──────────────────────────────
   model InstructorApplication {
@@ -169,10 +173,12 @@
     coupon Coupon[]
     enrollments Enrollment[]
     lessonProgresses LessonProgress[]
+ 
+    cartItems CartItem[]
 
     createdAt    DateTime   @default(now())
     updatedAt    DateTime   @updatedAt
-  }
+}
 
   // ─── COURSE VIEW ──────────────────────────────
   model CourseView {
@@ -422,3 +428,32 @@
 
     @@unique([userId, lessonId]) // 1 user chỉ có 1 record per lesson
   }
+
+  // ─── CART ──────────────────────────────
+  model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int         @unique
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Các item trong giỏ
+  items     CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  courseId  Int
+
+  // Quan hệ
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  quantity  Int      @default(1)
+  addedAt   DateTime @default(now())
+
+  // Không cho phép thêm trùng cùng 1 khóa học
+  @@unique([cartId, courseId])
+}

@@ -20,6 +20,7 @@ import { CouponModule } from './modules/coupon/coupon.module';
 import { DiscountModule } from './modules/discount/discount.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { EnrollmentModule } from './modules/enrollment/enrollment.module';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { EnrollmentModule } from './modules/enrollment/enrollment.module';
     DiscountModule,
     PaymentModule,
     EnrollmentModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -278,7 +278,10 @@ const Learn = () => {
                   {currentLesson.quizzes.map((quiz: any, index: number) => (
                     <div
                       key={quiz.id}
-                      className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+                      className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 hover:bg-gray-100 hover:border-blue-200 transition cursor-pointer"
+                      onClick={() =>
+                        router.push(`/learn/${courseId}/quiz/${quiz.id}`)
+                      }
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-medium">

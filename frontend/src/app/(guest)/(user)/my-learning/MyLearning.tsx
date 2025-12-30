@@ -129,9 +129,9 @@ export default function MyLearningPage() {
                   {enrollment.course?.specializations &&
                     enrollment.course.specializations.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-3">
-                        {enrollment.course.specializations.map((cs) => (
+                        {enrollment.course.specializations.map((cs, index) => (
                           <span
-                            key={cs.specialization.id}
+                            key={`${enrollment?.course?.id}-${cs.specialization.id}-${index}`}
                             className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full"
                           >
                             {cs.specialization.name}

@@ -4,12 +4,16 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Lock, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { AppDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
+import { addToCart } from "@/store/cartSlice";
 
 // Định nghĩa lại props để bao gồm thông tin coupon
 interface CourseSidebarProps {
   price: number;
   courseId: number;
-  courseCoupons: any[]; // Giả sử type là any[] cho đơn giản
+  courseCoupons: any[];
   couponsLoading: boolean;
   couponsError: string | null;
 }
@@ -24,6 +28,9 @@ const CourseSidebar = ({
   const router = useRouter();
   const [showAllCoupons, setShowAllCoupons] = useState(false);
 
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.cart);
+
   // Lấy danh sách coupon hiển thị (tối đa 3 hoặc tất cả)
   const displayCoupons = showAllCoupons
     ? courseCoupons
@@ -33,6 +40,15 @@ const CourseSidebar = ({
 
   const hasMoreCoupons =
     Array.isArray(courseCoupons) && courseCoupons.length > 3;
+
+  const handleAddToCart = async () => {
+    try {
+      const result = await dispatch(addToCart(courseId)).unwrap();
+      toast.success("Đã thêm vào giỏ hàng");
+    } catch (error: any) {
+      toast.error(error || "Không thể thêm vào giỏ hàng");
+    }
+  };
 
   return (
     <motion.aside
@@ -71,12 +87,14 @@ const CourseSidebar = ({
         <motion.button
           whileHover={{
             scale: 1.06,
-            backgroundColor: "#EFF6FF", // blue-50
+            backgroundColor: "#EFF6FF",
             boxShadow: "0 6px 15px rgba(59, 130, 246, 0.2)",
           }}
           whileTap={{ scale: 0.94 }}
           transition={{ type: "spring", stiffness: 500, damping: 25 }}
           className="w-full border border-blue-600 text-blue-600 font-medium py-3 rounded-xl transition flex items-center justify-center gap-2"
+          disabled={loading}
+          onClick={() => handleAddToCart()}
         >
           <ShoppingCart className="w-4 h-4" />
           Thêm vào giỏ hàng
