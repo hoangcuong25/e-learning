@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchCourseDetailWithAuth } from "@/store/slice/coursesSlice";
+import {
+  fetchCourseDetailWithAuth,
+  fetchCourseRatings,
+} from "@/store/slice/coursesSlice";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -12,7 +15,6 @@ import {
   ChevronRight,
   PlayCircle,
   BookOpenCheck,
-  ArrowDownCircle,
 } from "lucide-react";
 import SidebarLessons from "@/components/learn/SidebarLessons";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -29,63 +31,57 @@ const Learn = () => {
     (state: RootState) => state.courses
   );
 
+  const [activeTab, setActiveTab] = useState<"overview" | "qna" | "review">(
+    "overview"
+  );
+
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleVideoEnded = async () => {
     if (!currentLesson?.id) return;
 
-    // Gửi yêu cầu cập nhật tiến độ
     await markLessonCompletedApi(currentLesson.id);
-
-    // Cập nhật local state và tải lại chi tiết khóa học để cập nhật progress bar/sidebar
     dispatch(fetchCourseDetailWithAuth(Number(courseId)));
   };
 
   useEffect(() => {
-    // Chỉ chạy khi courseId tồn tại
     if (!courseId) return;
 
     const viewedKey = `viewed_course_${courseId}`;
     let timer: NodeJS.Timeout | null = null;
 
-    // 1. Kiểm tra xem đã tăng view trong session này chưa
-    if (sessionStorage.getItem(viewedKey)) {
-      console.log("View already counted for this course in this session.");
-      return; // Nếu đã tăng rồi thì không làm gì nữa
-    }
+    if (sessionStorage.getItem(viewedKey)) return;
 
-    // 2. Nếu chưa tăng view, thiết lập timer 30 giây
-    console.log("Setting 60s timer to increment course view...");
     timer = setTimeout(() => {
-      console.log(
-        "60s passed. Incrementing course view and setting session flag."
-      );
-
-      // 3. Gọi API và lưu cờ vào sessionStorage
       increaseCourseViewApi(Number(courseId));
       sessionStorage.setItem(viewedKey, "true");
-    }, 60000); // 60000 milliseconds = 60 giây
+    }, 60000);
 
-    // 4. Cleanup Function: Xóa timer khi component unmount hoặc courseId thay đổi
     return () => {
-      console.log("Cleanup: Clearing 30s timer.");
       if (timer) clearTimeout(timer);
-      timer = null;
     };
   }, [courseId]);
 
-  // 🧩 Lấy dữ liệu khóa học (có chapter, lessons, enrollment, ...)
   useEffect(() => {
     if (courseId) {
       dispatch(fetchCourseDetailWithAuth(Number(courseId)));
+
+      if (activeTab === "review") {
+        dispatch(
+          fetchCourseRatings({
+            courseId: Number(courseId),
+            params: { page: 1, limit: 10 },
+          })
+        );
+      }
     }
-  }, [courseId, dispatch]);
+  }, [courseId, activeTab]);
 
   const lessons =
     currentCourse?.chapter?.flatMap((ch) =>
-      ch?.lessons?.map((l) => ({
+      (ch?.lessons ?? []).map((l) => ({
         ...l,
-        chapter: { id: ch.id, title: ch.title },
+        chapter: ch,
       }))
     ) || [];
 
@@ -139,20 +135,16 @@ const Learn = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 mt-4">
-      {/* 🔹 Sidebar Lessons */}
+    <div className="flex min-h-screen bg-gray-50 mt-4">
+      {/* Sidebar Lessons */}
       <SidebarLessons
-        lessons={(lessons ?? []).filter(
-          (lesson): lesson is LessonType => !!lesson
-        )}
+        lessons={lessons}
         currentLessonId={currentLesson?.id ?? null}
-        onSelectLesson={(lesson) => {
-          setCurrentLesson(lesson);
-        }}
+        onSelectLesson={(lesson) => setCurrentLesson(lesson)}
         completedLessonIds={completedLessonIds}
       />
 
-      {/* Main content */}
+      {/* Main Content */}
       <main className="flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between border-b bg-white px-6 py-3 shadow-sm">
@@ -173,13 +165,13 @@ const Learn = () => {
         </div>
 
         {/* Video + Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 p-6">
           <div className="max-w-5xl mx-auto space-y-8">
-            {/* Video Player */}
+            {/* Video */}
             <div className="aspect-video bg-black rounded-xl overflow-hidden shadow-lg border border-gray-200">
               {currentLesson.videoUrl ? (
                 <video
-                  key={currentLesson.videoUrl} // Thêm key để React tái tạo video element khi chuyển bài học
+                  key={currentLesson.videoUrl}
                   ref={videoRef}
                   src={currentLesson.videoUrl}
                   controls
@@ -191,9 +183,7 @@ const Learn = () => {
                       ?.replace("/upload/", "/upload/so_auto,q_auto,w_600/")
                       .replace(".mp4", ".jpg") || undefined
                   }
-                >
-                  Trình duyệt của bạn không hỗ trợ phát video.
-                </video>
+                />
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-400">
                   <PlayCircle className="w-14 h-14" />
@@ -201,16 +191,14 @@ const Learn = () => {
               )}
             </div>
 
-            {/* Navigation Buttons */}
+            {/* Navigation */}
             <div className="flex justify-between items-center mt-4 flex-wrap gap-3">
               <Button
                 variant="outline"
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
-                className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
               >
-                <ChevronLeft size={16} />
-                <span>Bài trước</span>
+                <ChevronLeft size={16} /> Bài trước
               </Button>
 
               <div className="flex items-center gap-3">
@@ -220,7 +208,7 @@ const Learn = () => {
                   className="flex items-center gap-2 text-blue-600 border-blue-600 hover:bg-blue-50"
                 >
                   <BookOpenCheck size={18} />
-                  <span className="font-medium">Chuyển đến Bài kiểm tra</span>
+                  Chuyển đến Bài kiểm tra
                 </Button>
 
                 <Button
@@ -229,17 +217,21 @@ const Learn = () => {
                   disabled={currentIndex === lessons.length - 1}
                   className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                 >
-                  <span>Bài tiếp theo</span>
-                  <ChevronRight size={16} />
+                  Bài tiếp theo <ChevronRight size={16} />
                 </Button>
               </div>
             </div>
 
+            {/* Tabs */}
             <LessonContentTabs
               currentLesson={currentLesson}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              totalRating={currentCourse?.totalRating}
+              averageRating={currentCourse?.averageRating}
             />
 
-            {/* Quiz Section */}
+            {/* Quiz */}
             <div
               id="quiz-section"
               className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mt-8"

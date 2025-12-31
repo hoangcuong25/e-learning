@@ -74,3 +74,13 @@ export const increaseCourseViewApi = async (courseId: number) => {
   const response = await axiosClient.post(`/course/${courseId}/view`);
   return response.data;
 };
+
+export const getRatingsByCourseApi = async (
+  courseId: number,
+  params: PaginationParams 
+) => {
+  const response = await axiosClient.get(`/course/${courseId}/ratings`, {
+    params,
+  });
+  return response.data;
+};

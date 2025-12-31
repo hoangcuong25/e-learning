@@ -485,6 +485,43 @@ export class CourseService {
     return result;
   }
 
+  async getRatingsByCourse(
+    courseId: number,
+    paginationDto: { page?: number; limit?: number }
+  ) {
+    const { page, limit, skip, take } = buildPaginationParams(paginationDto);
+    const courseExists = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      select: { id: true },
+    });
+
+    if (!courseExists) {
+      throw new NotFoundException("Course not found");
+    }
+    const [ratings, total] = await this.prisma.$transaction([
+      this.prisma.courseRating.findMany({
+        where: { courseId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullname: true,
+              avatar: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+      }),
+      this.prisma.courseRating.count({
+        where: { courseId },
+      }),
+    ]);
+
+    return buildPaginationResponse(ratings, total, page, limit);
+  }
+
   // 🧩 Tăng lượt xem khóa học
   async increaseView(courseId: number, userId: number) {
     const course = await this.prisma.course.findUnique({

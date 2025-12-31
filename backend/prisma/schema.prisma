@@ -111,9 +111,11 @@ enum NotificationType {
 
     carts Cart[]
 
+    lessonQuestions LessonQuestion[]
+    lessonAnswers LessonAnswer[]
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-
 }
 
 // ─── NOTIFICATION ─────────────────────────
@@ -270,6 +272,50 @@ model Notification {
     updatedAt   DateTime   @updatedAt
 
     lessonProgresses LessonProgress[]
+  
+    lessonQuestions LessonQuestion[]
+}
+
+  // ─── LESSON QUESTION ──────────────────────────────
+  model LessonQuestion {
+    id        Int       @id @default(autoincrement())
+    content   String    @db.Text
+
+    // Người hỏi
+    userId    Int
+    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    // Thuộc bài học nào?
+    lessonId  Int
+    lesson    Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+    answers   LessonAnswer[]
+
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+
+    @@index([lessonId])
+  }
+
+  model LessonAnswer {
+    id          Int               @id @default(autoincrement())
+    content     String            @db.Text
+
+    // Người trả lời
+    userId      Int
+    user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    // Thuộc câu hỏi nào?
+    questionId  Int
+    question    LessonQuestion    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+    // Reply
+    parentId    Int?
+    parent      LessonAnswer?     @relation("AnswerReplies", fields: [parentId], references: [id], onDelete: Cascade)
+    replies     LessonAnswer[]    @relation("AnswerReplies")
+
+    createdAt   DateTime          @default(now())
+    updatedAt   DateTime          @updatedAt
   }
 
   // ─── JUNCTION: Course ↔ Specialization ──────────────
