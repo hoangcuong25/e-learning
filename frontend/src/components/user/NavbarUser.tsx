@@ -15,10 +15,10 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useRouter, usePathname } from "next/navigation";
-import { fetchUser, logoutUser } from "@/store/userSlice";
+import { fetchUser, logoutUser } from "@/store/slice/userSlice";
 import { toast } from "sonner";
 import LoadingScreen from "../LoadingScreen";
-import { fetchUnreadCount } from "@/store/notificationsSlice";
+import { fetchUnreadCount } from "@/store/slice/notificationsSlice";
 import NotificationBell from "./NotificationBell";
 
 const NavbarUser = () => {

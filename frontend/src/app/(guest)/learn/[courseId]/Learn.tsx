@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchCourseDetailWithAuth } from "@/store/coursesSlice";
+import { fetchCourseDetailWithAuth } from "@/store/slice/coursesSlice";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -16,8 +16,9 @@ import {
 } from "lucide-react";
 import SidebarLessons from "@/components/learn/SidebarLessons";
 import LoadingScreen from "@/components/LoadingScreen";
-import { increaseCourseViewApi } from "@/api/courses.api";
-import { markLessonCompletedApi } from "@/api/lesson.api";
+import { increaseCourseViewApi } from "@/store/api/courses.api";
+import { markLessonCompletedApi } from "@/store/api/lesson.api";
+import LessonContentTabs from "@/components/learn/LessonContentTabs";
 
 const Learn = () => {
   const router = useRouter();
@@ -218,8 +219,8 @@ const Learn = () => {
                   onClick={handleJumpToQuiz}
                   className="flex items-center gap-2 text-blue-600 border-blue-600 hover:bg-blue-50"
                 >
-                  <ArrowDownCircle size={18} />
-                  <span>Jump to Quizzes</span>
+                  <BookOpenCheck size={18} />
+                  <span className="font-medium">Chuyển đến Bài kiểm tra</span>
                 </Button>
 
                 <Button
@@ -234,32 +235,9 @@ const Learn = () => {
               </div>
             </div>
 
-            {/* Lesson Info */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              {currentLesson.chapter && (
-                <div className="mb-4 text-sm text-gray-500">
-                  <span className="font-medium text-gray-700">
-                    Thuộc chương:
-                  </span>{" "}
-                  <span className="text-gray-600">
-                    {currentLesson.chapter.title}
-                  </span>
-                </div>
-              )}
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                {currentLesson.title}
-              </h2>
-              {currentLesson.content ? (
-                <div
-                  className="prose max-w-none text-gray-700 leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: currentLesson.content,
-                  }}
-                />
-              ) : (
-                <p className="text-gray-500">Chưa có mô tả cho bài học này.</p>
-              )}
-            </div>
+            <LessonContentTabs
+              currentLesson={currentLesson}
+            />
 
             {/* Quiz Section */}
             <div

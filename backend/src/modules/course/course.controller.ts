@@ -115,9 +115,10 @@ export class CourseController {
   rateCourse(
     @Param("id") id: string,
     @Body("rating") rating: number,
+    @Body("text") text: string,
     @Req() req
   ) {
-    return this.courseService.rateCourse(+id, rating, req.user.id);
+    return this.courseService.rateCourse(+id, rating, text, req.user.id);
   }
 
   @Post(":id/view")

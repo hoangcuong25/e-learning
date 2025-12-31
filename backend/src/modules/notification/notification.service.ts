@@ -16,10 +16,11 @@ export class NotificationService {
       data,
     });
 
-    this.notificationGateway.sendNotificationToUser(
-      notification.userId.toString(),
-      notification
-    );
+    const user = await this.prisma.user.findUnique({
+      where: { id: notification.userId },
+    });
+
+    this.notificationGateway.sendNotificationToUser(user.email, notification);
 
     return notification;
   }

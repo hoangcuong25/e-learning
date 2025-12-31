@@ -7,12 +7,12 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormData, loginSchema } from "@/hook/zod-schema/UserSchema";
-import { LoginApi } from "@/api/auth.api";
+import { LoginApi } from "@/store/api/auth.api";
 import { useRouter } from "next/navigation";
 import GoogleLoginForm from "@/components/GoogleLoginForm";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchUser } from "@/store/userSlice";
+import { fetchUser } from "@/store/slice/userSlice";
 import banner from "@public/elearning-banner.png";
 import { toast } from "sonner";
 

@@ -1,15 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "./userSlice";
-import instructorReducer from "./instructorSlice";
-import specializationReducer from "./specializationSlice";
-import coursesReducer from "./coursesSlice";
-import lessonsReducer from "./lessonsSlice";
-import quizReducer from "./quizSlice";
-import couponReducer from "./couponSlice";
-import discountReducer from "./discount.slice";
-import enrollmentReducer from "./enrollmentsSlice";
-import cartReducer from "./cartSlice";
-import notificationReducer from "./notificationsSlice";
+import userReducer from "./slice/userSlice";
+import instructorReducer from "./slice/instructorSlice";
+import specializationReducer from "./slice/specializationSlice";
+import coursesReducer from "./slice/coursesSlice";
+import lessonsReducer from "./slice/lessonsSlice";
+import quizReducer from "./slice/quizSlice";
+import couponReducer from "./slice/couponSlice";
+import discountReducer from "./slice/discount.slice";
+import enrollmentReducer from "./slice/enrollmentsSlice";
+import cartReducer from "./slice/cartSlice";
+import notificationReducer from "./slice/notificationsSlice";
 
 export const store = configureStore({
   reducer: {

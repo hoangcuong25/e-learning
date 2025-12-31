@@ -14,7 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Loader2 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
-import { deleteCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
+import {
+  deleteCourse,
+  fetchCoursesByInstructor,
+} from "@/store/slice/coursesSlice";
 import { toast } from "sonner";
 
 interface DeleteCourseDialogProps {

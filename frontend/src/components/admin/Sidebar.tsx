@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
-import { logoutUser, fetchUser } from "@/store/userSlice";
+import { logoutUser, fetchUser } from "@/store/slice/userSlice";
 import { toast } from "sonner";
 
 const SidebarAdmin = () => {

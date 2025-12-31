@@ -5,10 +5,14 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "src/core/prisma/prisma.service";
+import { NotificationService } from "../notification/notification.service";
 
 @Injectable()
 export class EnrollmentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService
+  ) {}
 
   // ─── ĐĂNG KÝ KHÓA HỌC ──────────────────────────────
   async enrollCourse(courseId: number, userId: number, couponCode?: string) {
@@ -100,7 +104,7 @@ export class EnrollmentService {
     }
 
     // Trừ tiền, lưu lịch sử giao dịch + tạo bản ghi enrollment
-    return await this.prisma.$transaction(async (tx) => {
+    const newEnrollment = await this.prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: userId },
         data: { walletBalance: { decrement: finalPrice } },
@@ -133,6 +137,14 @@ export class EnrollmentService {
           progress: 0,
         },
       });
+    });
+
+    await this.notificationService.createNotification({
+      userId: userId,
+      title: "Đăng ký khóa học thành công!",
+      body: `Bạn đã mua và đăng ký thành công khóa học **${course.title}** với giá ${finalPrice.toLocaleString()} VND.`,
+      type: "ENROLLMENT", // Dùng ENUM NotificationType đã định nghĩa
+      link: `/course/${courseId}`,
     });
   }
 

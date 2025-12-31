@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import CourseSidebar from "@/components/course/CourseSidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { fetchCourseCoupons } from "@/store/couponSlice";
+import { fetchCourseCoupons } from "@/store/slice/couponSlice";
 
 interface Props {
   initialCourse: any;

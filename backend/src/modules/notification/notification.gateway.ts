@@ -7,49 +7,59 @@ import {
 import { Server, Socket } from "socket.io";
 import { Notification } from "@prisma/client";
 import { UseGuards } from "@nestjs/common";
-import { WsJwtAuthGuard } from "../auth/passport/ws-jwt-auth.guard";
+import { JwtService } from "@nestjs/jwt";
+import { SocketAuthMiddleware } from "../auth/middleware/ws-auth.middleware";
 
 interface AuthenticatedSocket extends Socket {
   user: {
-    id: number;
+    email: string;
   };
 }
 
 @WebSocketGateway({
   namespace: "notifications",
-  cors: { origin: "*" },
-  guards: [WsJwtAuthGuard],
+  cors: { origin: "*", credentials: true },
 })
 export class NotificationGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
+  constructor(private readonly jwtService: JwtService) {}
+
+  /**
+   * Áp dụng Middleware xác thực Socket.IO
+   */
+  afterInit(server: Server) {
+    server.use(SocketAuthMiddleware(this.jwtService));
+    console.log("Notification Gateway Initialized with Auth Middleware");
+  }
+
   /**
    * Phương thức được gọi sau khi client kết nối thành công và đã được xác thực
    */
   handleConnection(client: AuthenticatedSocket) {
-    // Tự động cho client tham gia phòng (Rooms) ngay sau khi kết nối
-    // Không cần client phải gửi sự kiện 'subscribe' thủ công nữa
-    const userId = client.user.id.toString(); // Lấy ID đã được gắn từ Guard
-
-    if (userId) {
-      client.join(userId);
-      console.log(`Client ${client.id} connected & joined room: ${userId}`);
-    } else {
-      // Trường hợp hiếm gặp nếu Guard có lỗi
+    // Middleware đã kiểm tra Auth. Phần này chỉ cần kiểm tra user được gắn
+    if (!client.user || !client.user.email) {
+      // Trường hợp này chỉ xảy ra nếu Middleware gặp lỗi không ném exception
       client.disconnect(true);
-      console.log(`Client ${client.id} failed to retrieve userId.`);
+      console.log(
+        `Client ${client.id} failed authentication or user info retrieval.`
+      );
+      return;
     }
+
+    console.log(client.user);
+    const email = client.user.email.toString(); // Lấy email đã được gắn từ Middleware
+
+    client.join(email);
+
+    console.log(`Client ${client.id} connected & joined room: ${email}`);
   }
 
   /**
    * Hàm này được gọi bởi NotificationService để đẩy thông báo
-   * @param userId - ID của người dùng (tên phòng)
-   * @param payload - Thông báo đầy đủ từ Prisma
    */
-  sendNotificationToUser(userId: string, payload: Notification) {
-    // Tối ưu: Đảm bảo userId là string vì Socket.IO room names là string
-    const roomName = userId.toString();
-    this.server.to(roomName).emit("newNotification", payload);
+  sendNotificationToUser(email: string, payload: Notification) {
+    this.server.to(email).emit("newNotification", payload);
   }
 }

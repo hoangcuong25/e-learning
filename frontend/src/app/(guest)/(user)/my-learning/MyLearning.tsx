@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import Image from "next/image";
 import Link from "next/link";
-import { fetchMyEnrollments } from "@/store/enrollmentsSlice";
+import { fetchMyEnrollments } from "@/store/slice/enrollmentsSlice";
 import { BookOpen, Layers, Eye, Star } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
-import { rateCourseApi } from "@/api/courses.api";
+import { rateCourseApi } from "@/store/api/courses.api";
 import { toast } from "sonner";
 import { RateDialog } from "@/components/course/RateDialog";
 
@@ -40,7 +40,7 @@ export default function MyLearningPage() {
     return result.trim() || "0 phút";
   };
 
-  const handleRateCourse = async (rating: number) => {
+  const handleRateCourse = async (rating: number, text: string) => {
     if (!selectedCourseId) {
       toast.error("Không tìm thấy khóa học để đánh giá.");
       return;
@@ -54,7 +54,7 @@ export default function MyLearningPage() {
     setIsRating(true);
 
     try {
-      const response = await rateCourseApi(selectedCourseId, rating);
+      const response = await rateCourseApi(selectedCourseId, rating, text);
 
       toast.success(response.data.message || "Đánh giá khóa học thành công!");
 

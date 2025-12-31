@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchQuizById } from "@/store/quizSlice";
+import { fetchQuizById } from "@/store/slice/quizSlice";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 

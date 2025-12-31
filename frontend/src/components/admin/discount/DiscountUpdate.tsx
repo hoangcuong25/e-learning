@@ -3,7 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
-import { updateDiscount, fetchDiscountById } from "@/store/discount.slice";
+import {
+  updateDiscount,
+  fetchDiscountById,
+} from "@/store/slice/discount.slice";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {

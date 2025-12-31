@@ -19,10 +19,13 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { createCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
+import {
+  createCourse,
+  fetchCoursesByInstructor,
+} from "@/store/slice/coursesSlice";
 import { CourseFormData, courseSchema } from "@/hook/zod-schema/CourseSchema";
 import LoadingScreen from "@/components/LoadingScreen";
-import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice";
+import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
 import RichTextEditor from "@/components/RichTextEditor";
 
 export default function CourseCreate() {

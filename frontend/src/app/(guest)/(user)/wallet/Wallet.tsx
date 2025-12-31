@@ -13,7 +13,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { createDepositApi, getMyTransactionsApi } from "@/api/payment.api";
+import {
+  createDepositApi,
+  getMyTransactionsApi,
+} from "@/store/api/payment.api";
 
 export default function WalletPage() {
   const { user } = useSelector((state: RootState) => state.user);

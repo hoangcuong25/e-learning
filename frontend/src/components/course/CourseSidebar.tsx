@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { AppDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { addToCart } from "@/store/cartSlice";
+import { addToCart } from "@/store/slice/cartSlice";
 
 // Định nghĩa lại props để bao gồm thông tin coupon
 interface CourseSidebarProps {

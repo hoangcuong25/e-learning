@@ -25,7 +25,7 @@ import {
   fetchDiscountById,
   deleteDiscount,
   toggleDiscountStatus,
-} from "@/store/discount.slice";
+} from "@/store/slice/discount.slice";
 import { toast } from "sonner";
 import LoadingScreen from "@/components/LoadingScreen";
 import {

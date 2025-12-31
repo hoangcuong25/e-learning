@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { deleteLesson } from "@/store/lessonsSlice";
+import { deleteLesson } from "@/store/slice/lessonsSlice";
 import { toast } from "sonner";
-import { fetchCourseById } from "@/store/coursesSlice";
+import { fetchCourseById } from "@/store/slice/coursesSlice";
 
 const DeleteLessonDialog = ({
   lessonId,

@@ -3,7 +3,10 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
-import { createDiscount, fetchAllDiscounts } from "@/store/discount.slice";
+import {
+  createDiscount,
+  fetchAllDiscounts,
+} from "@/store/slice/discount.slice";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";

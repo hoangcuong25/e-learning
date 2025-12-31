@@ -13,9 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { updateCoupon } from "@/store/couponSlice";
-import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice";
-import { fetchCoursesByInstructor } from "@/store/coursesSlice";
+import { updateCoupon } from "@/store/slice/couponSlice";
+import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
+import { fetchCoursesByInstructor } from "@/store/slice/coursesSlice";
 
 interface UpdateCouponFormProps {
   coupon: any; // hoặc bạn có thể định nghĩa kiểu rõ hơn

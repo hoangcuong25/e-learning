@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchUser, logoutUser } from "@/store/userSlice";
+import { fetchUser, logoutUser } from "@/store/slice/userSlice";
 import { toast } from "sonner";
 import Image from "next/image";
 import logo from "@public/logo.png";

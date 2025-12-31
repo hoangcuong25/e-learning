@@ -6,8 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { AppDispatch, RootState } from "@/store";
-import { fetchCourseDetail } from "@/store/coursesSlice";
-import { createEnrollment } from "@/store/enrollmentsSlice";
+import { fetchCourseDetail } from "@/store/slice/coursesSlice";
+import { createEnrollment } from "@/store/slice/enrollmentsSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowLeft } from "lucide-react";
@@ -19,7 +19,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { fetchCourseCoupons } from "@/store/couponSlice";
+import { fetchCourseCoupons } from "@/store/slice/couponSlice";
 
 const Payment = () => {
   const { courseId } = useParams();

@@ -11,7 +11,7 @@ import {
   fetchNotifications,
   markAllAsRead,
   markAsRead,
-} from "@/store/notificationsSlice";
+} from "@/store/slice/notificationsSlice";
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);

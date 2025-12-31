@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchCart, removeFromCart } from "@/store/cartSlice";
+import { fetchCart, removeFromCart } from "@/store/slice/cartSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useRouter } from "next/navigation";
 
