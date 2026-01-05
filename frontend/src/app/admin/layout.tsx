@@ -1,4 +1,5 @@
 import SidebarAdmin from "@/components/admin/Sidebar";
+import AdminNavbar from "@/components/admin/AdminNavbar";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -33,7 +34,10 @@ export default function AdminLayout({
       <SidebarAdmin />
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <div className="flex-1 flex flex-col">
+        <AdminNavbar />
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      </div>
     </div>
   );
 }

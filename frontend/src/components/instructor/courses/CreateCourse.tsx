@@ -36,12 +36,6 @@ export default function CourseCreate() {
   const { instructorSpecializaions, loading: specializationLoading } =
     useSelector((state: RootState) => state.specialization);
 
-  useEffect(() => {
-    if (user) {
-      dispatch(fetchSpecializationsByInstructorId(Number(user.id)));
-    }
-  }, [dispatch, user]);
-
   const [open, setOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);

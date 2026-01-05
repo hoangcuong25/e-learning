@@ -43,6 +43,14 @@ export class CourseController {
     return this.courseService.create(dto, req.user.id, thumbnail);
   }
 
+  @Get("popular")
+  @Public()
+  @ApiOperation({ summary: "Get popular courses" })
+  @ResponseMessage("Get popular courses")
+  getPopularCourses() {
+    return this.courseService.getPopularCourses();
+  }
+
   @Get()
   @Public()
   @ApiOperation({ summary: "Get all courses with pagination and filter" })

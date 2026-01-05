@@ -67,7 +67,7 @@ export default function MyCartPage() {
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => (
               <Card
-                key={item.id}
+                key={item.courseId}
                 className="hover:shadow-lg transition border-blue-100 cursor-pointer"
               >
                 <CardContent className="flex items-center gap-4 p-4">

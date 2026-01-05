@@ -16,16 +16,20 @@ import { OptionModule } from "./modules/quiz/option/option.module";
 import { QuizModule } from "./modules/quiz/quiz.module";
 import { RedisModule } from "./core/redis/redis.module";
 import { ChapterModule } from "./modules/course/chapter/chapter.module";
-import { CouponModule } from './modules/coupon/coupon.module';
-import { DiscountModule } from './modules/discount/discount.module';
-import { PaymentModule } from './modules/payment/payment.module';
-import { EnrollmentModule } from './modules/enrollment/enrollment.module';
-import { CartModule } from './modules/cart/cart.module';
-import { NotificationModule } from './modules/notification/notification.module';
+import { CouponModule } from "./modules/coupon/coupon.module";
+import { DiscountModule } from "./modules/discount/discount.module";
+import { PaymentModule } from "./modules/payment/payment.module";
+import { EnrollmentModule } from "./modules/enrollment/enrollment.module";
+import { CartModule } from "./modules/cart/cart.module";
+import { NotificationModule } from "./modules/notification/notification.module";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import { THROTTLER_CONFIG } from "./core/rate-limit/rate-limit";
+import { APP_GUARD } from "@nestjs/core";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot(THROTTLER_CONFIG),
     PrismaModule,
     MailModule,
     CloudinaryModule,
@@ -48,6 +52,12 @@ import { NotificationModule } from './modules/notification/notification.module';
     NotificationModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

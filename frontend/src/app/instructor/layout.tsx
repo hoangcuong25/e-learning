@@ -1,4 +1,5 @@
 import InstructorSidebar from "@/components/instructor/InstructorSidebar";
+import InstructorNavbar from "@/components/instructor/InstructorNavbar";
 import type { Metadata } from "next";
 
 // Metadata áp dụng cho toàn bộ khu vực giảng viên
@@ -39,9 +40,12 @@ export default function InstructorLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-gray-100">
       <InstructorSidebar />
-      <main className="flex-1 bg-gray-50 min-h-screen p-6">{children}</main>
+      <div className="flex-1 flex flex-col">
+        <InstructorNavbar />
+        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
+      </div>
     </div>
   );
 }

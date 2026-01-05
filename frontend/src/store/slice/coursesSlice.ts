@@ -9,6 +9,7 @@ import {
   getCourseDetailApi,
   getCourseDetailWithAuthApi,
   getRatingsByCourseApi,
+  getPopularCoursesApi,
 } from "@/store/api/courses.api";
 
 // 🧱 State
@@ -17,6 +18,7 @@ interface CourseState {
   currentCourse: CourseType | null;
   courseRatings: any | null;
   instructorCourses: CourseType[];
+  popularCourses: CourseType[];
   loading: boolean;
   error: string | null;
   successMessage: string | null;
@@ -27,6 +29,7 @@ const initialState: CourseState = {
   currentCourse: null,
   courseRatings: null,
   instructorCourses: [],
+  popularCourses: [],
   loading: false,
   error: null,
   successMessage: null,
@@ -123,6 +126,20 @@ export const fetchCourseRatings = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data || "Lỗi khi tải danh sách đánh giá"
+      );
+    }
+  }
+);
+
+export const fetchPopularCourses = createAsyncThunk(
+  "course/fetchPopular",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getPopularCoursesApi();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Lỗi khi tải danh sách khóa học phổ biến"
       );
     }
   }
@@ -278,6 +295,22 @@ const coursesSlice = createSlice({
           action.error.message ??
           "Lỗi khi tải đánh giá khóa học";
         state.courseRatings = null;
+      })
+
+      .addCase(fetchPopularCourses.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPopularCourses.fulfilled, (state, action) => {
+        state.loading = false;
+        state.popularCourses = action.payload || [];
+      })
+      .addCase(fetchPopularCourses.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          (action.payload as string) ??
+          action.error.message ??
+          "Lỗi khi tải khóa học phổ biến";
       });
   },
 });

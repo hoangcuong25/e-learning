@@ -83,7 +83,9 @@ const CourseCard = ({ course }: Props) => {
       {/* Giá & Nút hành động */}
       <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
         <p className="text-blue-600 font-bold">
-          {course.price?.toLocaleString()} LC
+          {course.price === 0
+            ? "Miễn phí"
+            : course.price?.toLocaleString() + " LC"}
         </p>
         <Button
           size="sm"

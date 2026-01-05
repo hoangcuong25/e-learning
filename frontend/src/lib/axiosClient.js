@@ -55,7 +55,6 @@ axiosClient.interceptors.response.use(
           return axiosClient(originalRequest);
         }
       } catch (refreshError) {
-        console.error("Token refresh failed");
         localStorage.removeItem("access_token");
         return Promise.reject(refreshError);
       }

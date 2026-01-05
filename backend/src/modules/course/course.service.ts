@@ -291,8 +291,11 @@ export class CourseService {
     if (updateCourseDto.title) updateData.title = updateCourseDto.title;
     if (updateCourseDto.description)
       updateData.description = updateCourseDto.description;
-    if (updateCourseDto.isPublished !== undefined)
-      updateData.isPublished = updateCourseDto.isPublished;
+    if (updateCourseDto.isPublished !== undefined) {
+      const isPublished =
+        String(updateCourseDto.isPublished) === "true" ? true : false;
+      updateData.isPublished = isPublished;
+    }
     if (updateCourseDto.type) updateData.type = updateCourseDto.type;
 
     // Nếu là khóa học miễn phí → giá = 0
@@ -380,6 +383,19 @@ export class CourseService {
               select: { id: true, title: true },
             },
           },
+        },
+      },
+    });
+  }
+
+  async getPopularCourses(limit: number = 6) {
+    return this.prisma.course.findMany({
+      where: { isPublished: true },
+      orderBy: { viewCount: "desc" },
+      take: limit,
+      include: {
+        instructor: {
+          select: { fullname: true, avatar: true },
         },
       },
     });

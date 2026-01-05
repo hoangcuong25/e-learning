@@ -496,6 +496,8 @@ model Notification {
 
     // mỗi user chỉ được enroll 1 lần / 1 course
     @@unique([userId, courseId])
+    @@index([userId])
+    @@index([courseId])
   }
 
   // ─── LESSON PROGRESS ──────────────────────────────

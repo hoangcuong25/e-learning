@@ -21,22 +21,6 @@ const steps = [
   },
 ];
 
-function AutoStartTour() {
-  const { setIsOpen } = useTour();
-
-  useEffect(() => {
-    // const hasSeenTour = localStorage.getItem("hasSeenCouponTour");
-    // if (!hasSeenTour) {
-    //   setIsOpen(true);
-    //   localStorage.setItem("hasSeenCouponTour", "true");
-    // }
-
-    setIsOpen(true);
-  }, [setIsOpen]);
-
-  return null;
-}
-
 function RestartTourButton() {
   const { setIsOpen } = useTour();
   return (
@@ -55,7 +39,6 @@ function RestartTourButton() {
 export default function CouponOnboarding() {
   return (
     <TourProvider steps={steps}>
-      <AutoStartTour />
       <RestartTourButton />
     </TourProvider>
   );
