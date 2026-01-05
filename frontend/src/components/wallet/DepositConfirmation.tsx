@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { createDepositApi } from "@/store/api/payment.api";
 import usePaymentSocket from "@/hook/socket/usePaymentSocket";
 import { fetchUser } from "@/store/slice/userSlice";
+import Image from "next/image";
 
 interface DepositWatcherProps {
   depositInfo: any;
@@ -61,9 +62,11 @@ const DepositWatcher: React.FC<DepositWatcherProps> = ({
       <p className="text-gray-700 mb-3">
         Quét mã QR dưới đây bằng app ngân hàng để nạp tiền:
       </p>
-      <img
+      <Image
         src={depositInfo.qrCode}
         alt="QR Code"
+        width={200}
+        height={200}
         className="mx-auto w-48 h-48 border rounded-lg shadow-sm"
       />
       <div className="mt-4 bg-gray-50 p-3 rounded-lg text-sm text-left">

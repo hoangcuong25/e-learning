@@ -20,7 +20,8 @@ export class CreateLessonDto {
   content?: string;
 
   @IsOptional()
-  video?: string;
+  @IsString()
+  videoUrl?: string;
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()

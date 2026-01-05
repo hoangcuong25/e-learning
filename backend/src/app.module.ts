@@ -17,7 +17,6 @@ import { QuizModule } from "./modules/quiz/quiz.module";
 import { RedisModule } from "./core/redis/redis.module";
 import { ChapterModule } from "./modules/course/chapter/chapter.module";
 import { CouponModule } from "./modules/coupon/coupon.module";
-import { DiscountModule } from "./modules/discount/discount.module";
 import { PaymentModule } from "./modules/payment/payment.module";
 import { EnrollmentModule } from "./modules/enrollment/enrollment.module";
 import { CartModule } from "./modules/cart/cart.module";
@@ -25,6 +24,7 @@ import { NotificationModule } from "./modules/notification/notification.module";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { THROTTLER_CONFIG } from "./core/rate-limit/rate-limit";
 import { APP_GUARD } from "@nestjs/core";
+import { DiscountCampaignModule } from "./modules/discount-campaign/discount-campaign.module";
 
 @Module({
   imports: [
@@ -45,7 +45,7 @@ import { APP_GUARD } from "@nestjs/core";
     OptionModule,
     ChapterModule,
     CouponModule,
-    DiscountModule,
+    DiscountCampaignModule,
     PaymentModule,
     EnrollmentModule,
     CartModule,

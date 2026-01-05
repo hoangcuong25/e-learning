@@ -47,8 +47,8 @@ export default async function CoursesPage({
 
   return (
     <CoursesClient
-      initialCourses={data.data.data}
-      totalPages={data.data.pagination.totalPages}
+      initialCourses={data?.data?.data}
+      totalPages={data?.data?.pagination?.totalPages}
       initialParams={{ page, limit, search, sortBy, order, specialization }}
     />
   );

@@ -6,6 +6,7 @@ import { SpecializationModule } from "../specialization/specialization.module";
 import { ChapterModule } from "./chapter/chapter.module";
 import { LessonDiscussionModule } from "./lesson-discussion/lesson-discussion.module";
 import { LessonDiscussionGateway } from "./lesson-discussion/lesson-discussion.gateway";
+import { CourseRatingModule } from './course-rating/course-rating.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { LessonDiscussionGateway } from "./lesson-discussion/lesson-discussion.g
     SpecializationModule,
     ChapterModule,
     LessonDiscussionModule,
+    CourseRatingModule,
   ],
   controllers: [CourseController],
   providers: [CourseService, LessonDiscussionGateway],

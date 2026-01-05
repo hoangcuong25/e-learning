@@ -116,31 +116,6 @@ export class CourseController {
     return this.courseService.remove(+id, req.user.id);
   }
 
-  @Post(":id/rating")
-  @ApiOperation({ summary: "Rate a course by ID" })
-  @ResponseMessage("Rate course")
-  @ApiBearerAuth()
-  rateCourse(
-    @Param("id") id: string,
-    @Body("rating") rating: number,
-    @Body("text") text: string,
-    @Req() req
-  ) {
-    return this.courseService.rateCourse(+id, rating, text, req.user.id);
-  }
-
-  @Get(":id/ratings")
-  @Public()
-  @ApiOperation({ summary: "Get course ratings by course ID" })
-  @ResponseMessage("Get course ratings")
-  async getRatings(
-    @Param("id") id: string,
-    @Query("page") page: number = 1,
-    @Query("limit") limit: number = 10
-  ) {
-    return this.courseService.getRatingsByCourse(+id, { page, limit });
-  }
-
   @Post(":id/view")
   @ApiOperation({ summary: "Increase course view count" })
   @ResponseMessage("Increase course view")

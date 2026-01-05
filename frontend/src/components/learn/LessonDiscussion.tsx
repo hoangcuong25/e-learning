@@ -14,7 +14,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// Loại bỏ import DropdownMenu
 import {
   MessageCircle,
   MoreVertical,
@@ -41,10 +40,6 @@ interface DeleteQuestionAlertProps {
   onDeleteSuccess: () => void;
 }
 
-/**
- * Component hiển thị AlertDialog để xác nhận xóa câu hỏi.
- * Không dùng DropdownMenu.
- */
 const DeleteQuestionAlert: React.FC<DeleteQuestionAlertProps> = ({
   questionId,
   onDeleteSuccess,
@@ -53,10 +48,7 @@ const DeleteQuestionAlert: React.FC<DeleteQuestionAlertProps> = ({
 
   const handleDeleteQuestion = async () => {
     try {
-      // Gọi deleteMyQuestion
       await dispatch(deleteMyQuestion(questionId)).unwrap();
-      // Refetch lại danh sách câu hỏi để cập nhật UI
-      // Lưu ý: Có thể tối ưu bằng cách xóa câu hỏi khỏi state Redux cục bộ thay vì fetch lại toàn bộ.
       await dispatch(fetchQuestions(questionId)).unwrap();
       onDeleteSuccess();
       toast.success("Đã xóa câu hỏi thành công!");

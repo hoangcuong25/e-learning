@@ -44,7 +44,7 @@ export const fetchLessonById = createAsyncThunk(
 // 🧩 Thunk: Tạo mới bài học
 export const createLesson = createAsyncThunk(
   "lessons/create",
-  async (payload: FormData) => {
+  async (payload: any) => {
     const response = await createLessonApi(payload);
     return response;
   }

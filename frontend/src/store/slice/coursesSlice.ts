@@ -8,7 +8,6 @@ import {
   getCoursesByInstructorApi,
   getCourseDetailApi,
   getCourseDetailWithAuthApi,
-  getRatingsByCourseApi,
   getPopularCoursesApi,
 } from "@/store/api/courses.api";
 
@@ -16,7 +15,6 @@ import {
 interface CourseState {
   courses: CourseType[];
   currentCourse: CourseType | null;
-  courseRatings: any | null;
   instructorCourses: CourseType[];
   popularCourses: CourseType[];
   loading: boolean;
@@ -27,7 +25,6 @@ interface CourseState {
 const initialState: CourseState = {
   courses: [],
   currentCourse: null,
-  courseRatings: null,
   instructorCourses: [],
   popularCourses: [],
   loading: false,
@@ -111,26 +108,6 @@ export const deleteCourse = createAsyncThunk(
   }
 );
 
-export const fetchCourseRatings = createAsyncThunk(
-  "course/fetchRatings",
-  async (
-    data: { courseId: number; params?: PaginationParams },
-    { rejectWithValue }
-  ) => {
-    try {
-      const response = await getRatingsByCourseApi(
-        data.courseId,
-        data.params || {}
-      );
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Lỗi khi tải danh sách đánh giá"
-      );
-    }
-  }
-);
-
 export const fetchPopularCourses = createAsyncThunk(
   "course/fetchPopular",
   async (_, { rejectWithValue }) => {
@@ -153,10 +130,6 @@ const coursesSlice = createSlice({
     clearCourseState: (state) => {
       state.error = null;
       state.successMessage = null;
-    },
-
-    clearCourseRatings: (state) => {
-      state.courseRatings = null;
     },
   },
   extraReducers: (builder) => {
@@ -278,23 +251,6 @@ const coursesSlice = createSlice({
       .addCase(deleteCourse.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Lỗi khi xóa khóa học";
-      })
-
-      .addCase(fetchCourseRatings.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchCourseRatings.fulfilled, (state, action) => {
-        state.loading = false;
-        state.courseRatings = action.payload.data.data;
-      })
-      .addCase(fetchCourseRatings.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          (action.payload as string) ??
-          action.error.message ??
-          "Lỗi khi tải đánh giá khóa học";
-        state.courseRatings = null;
       })
 
       .addCase(fetchPopularCourses.pending, (state) => {
