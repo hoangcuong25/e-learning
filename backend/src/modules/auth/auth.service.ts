@@ -122,10 +122,6 @@ export class AuthService {
       decoded.id
     );
 
-    console.log("Token lưu trong DB:", storedToken);
-    console.log("Token gửi lên:", refreshToken);
-    console.log("So sánh:", storedToken === refreshToken);
-
     if (storedToken.refreshToken !== refreshToken)
       throw new UnauthorizedException("Refresh token không hợp lệ");
 

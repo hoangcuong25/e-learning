@@ -23,7 +23,6 @@ export class LessonDiscussionController {
   constructor(private readonly service: LessonDiscussionService) {}
 
   @Post(":lessonId/questions")
-  @Roles("STUDENT", "INSTRUCTOR")
   @ApiOperation({ summary: "Create a question in a lesson" })
   @ResponseMessage("Create question")
   @ApiBearerAuth()
@@ -44,7 +43,6 @@ export class LessonDiscussionController {
   }
 
   @Post("questions/:questionId/answers")
-  @Roles("STUDENT", "INSTRUCTOR")
   @ApiOperation({ summary: "Answer a question" })
   @ResponseMessage("Create answer")
   @ApiBearerAuth()
@@ -57,7 +55,6 @@ export class LessonDiscussionController {
   }
 
   @Post("answers/:answerId/replies")
-  @Roles("STUDENT", "INSTRUCTOR")
   @ApiOperation({ summary: "Reply to an answer" })
   @ResponseMessage("Create reply")
   @ApiBearerAuth()
@@ -85,5 +82,20 @@ export class LessonDiscussionController {
   @ApiBearerAuth()
   deleteAnswer(@Param("id") id: string) {
     return this.service.deleteAnswer(+id);
+  }
+  @Delete("my-questions/:id")
+  @ApiOperation({ summary: "Delete my question" })
+  @ResponseMessage("Delete question")
+  @ApiBearerAuth()
+  deleteMyQuestion(@Param("id") id: string, @Req() req) {
+    return this.service.deleteMyQuestion(+id, req.user.id);
+  }
+
+  @Delete("my-answers/:id")
+  @ApiOperation({ summary: "Delete my answer or reply" })
+  @ResponseMessage("Delete answer")
+  @ApiBearerAuth()
+  deleteMyAnswer(@Param("id") id: string, @Req() req) {
+    return this.service.deleteMyAnswer(+id, req.user.id);
   }
 }

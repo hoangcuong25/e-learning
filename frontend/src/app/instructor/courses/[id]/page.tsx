@@ -263,20 +263,6 @@ const CourseDetailPage = () => {
 
                             {/* Các nút hành động */}
                             <div className="flex items-center gap-2">
-                              {/* Nút xem chi tiết */}
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-blue-600 border-blue-600 hover:text-blue-700 hover:border-blue-600"
-                                onClick={() =>
-                                  router.push(
-                                    `/instructor/courses/${currentCourse.id}/lesson/${lesson.id}`
-                                  )
-                                }
-                              >
-                                <BookOpen size={14} className="mr-1" />
-                                Chi tiết
-                              </Button>
 
                               {/* Nút xem video */}
                               {lesson.videoUrl ? (

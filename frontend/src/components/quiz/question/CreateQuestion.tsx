@@ -138,8 +138,6 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
     }
   };
 
-  console.log(createdQuestionId);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

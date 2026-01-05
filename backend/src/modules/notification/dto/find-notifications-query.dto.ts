@@ -1,12 +1,17 @@
-import { IsBoolean, IsInt, IsOptional, Max, Min } from "class-validator";
+import {
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from "class-validator";
 import { Type } from "class-transformer";
 
 export class FindNotificationsQueryDto {
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page?: number = 1;
+  @IsString()
+  cursor?: string;
 
   @IsOptional()
   @Type(() => Number)

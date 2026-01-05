@@ -64,6 +64,7 @@ enum NotificationType {
   COURSE_STATUS       // Trạng thái khóa học (instructor: approved, rejected)
   NEW_RATING          // Có đánh giá mới (instructor)
   ADMIN               // Thông báo đặc biệt từ admin
+  LESSON_DISCUSSION   // Thảo luận bài học
 }
 
   // ─── USER ──────────────────────────────

@@ -1,8 +1,9 @@
 "use client";
 
-import useSocket from "@/hook/socket/useSocket";
+import useNotificationSocket from "@/hook/socket/useNotificationSocket"
+
 const SocketInitializer = () => {
-  useSocket();
+  useNotificationSocket();
 
   return null;
 };

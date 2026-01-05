@@ -10,6 +10,8 @@ import { AppDispatch, RootState } from "@/store";
 import { fetchMyEnrollments } from "@/store/slice/enrollmentsSlice";
 import { useParams } from "next/navigation";
 import { fetchCourseRatings } from "@/store/slice/coursesSlice";
+import LessonDiscussion from "./LessonDiscussion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface LessonContentTabsProps {
   currentLesson: any;
@@ -148,14 +150,11 @@ const LessonContentTabs: React.FC<LessonContentTabsProps> = ({
               Hỏi đáp (Q&A)
             </div>
 
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 mb-6">
               Bạn có thắc mắc gì về bài học này không? Hãy đăng câu hỏi của bạn!
             </p>
 
-            <div className="p-4 border rounded-lg bg-gray-50 text-gray-500 mt-4">
-              [Form đăng câu hỏi và danh sách các câu hỏi/trả lời sẽ được hiển
-              thị ở đây]
-            </div>
+            <LessonDiscussion lessonId={currentLesson.id} />
           </div>
         )}
 
@@ -258,9 +257,12 @@ const LessonContentTabs: React.FC<LessonContentTabsProps> = ({
                   >
                     <div className="flex items-center gap-3 mb-2">
                       {/* Avatar */}
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                        {rating.user.fullname ? rating.user.fullname[0] : "U"}
-                      </div>
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src={rating.user.avatar} />
+                        <AvatarFallback>
+                          {rating.user.fullname ? rating.user.fullname[0] : "U"}
+                        </AvatarFallback>
+                      </Avatar>
 
                       <div>
                         <div className="font-semibold text-gray-800">
