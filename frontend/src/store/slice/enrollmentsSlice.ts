@@ -5,6 +5,7 @@ import {
   getMyEnrollmentsApi,
   createEnrollmentApi,
   cancelEnrollmentApi,
+  refundEnrollmentApi,
 } from "@/store/api/enrollments.api";
 
 // 🧱 Kiểu state
@@ -83,6 +84,19 @@ export const cancelEnrollment = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi khi hủy đăng ký");
+    }
+  }
+);
+
+// 💸 Hoàn tiền enrollment
+export const refundEnrollment = createAsyncThunk(
+  "enrollment/refund",
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const response = await refundEnrollmentApi(id);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Lỗi khi hoàn tiền");
     }
   }
 );
@@ -180,6 +194,22 @@ const enrollmentsSlice = createSlice({
           typeof action.payload === "string"
             ? action.payload
             : "Lỗi khi hủy đăng ký";
+      })
+
+      // 💸 Refund
+      .addCase(refundEnrollment.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(refundEnrollment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message ?? "Hoàn tiền thành công";
+        const refundedId = action.meta.arg;
+        state.myEnrollments = state.myEnrollments.filter(
+          (e) => e.id !== refundedId
+        );
+      })
+      .addCase(refundEnrollment.rejected, (state) => {
+        state.loading = false;
       });
   },
 });

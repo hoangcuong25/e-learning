@@ -1,246 +1,41 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
-import {
-  fetchQuestions,
-  deleteMyQuestion,
-  deleteMyAnswer,
-  createQuestion,
-  createAnswer,
-  createReply,
-} from "@/store/slice/lessonDiscussionSlice";
+import React from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MessageCircle, Reply as ReplyIcon, Send, Loader2 } from "lucide-react";
 import {
-  MessageCircle,
-  MoreVertical,
-  Trash2,
-  Reply as ReplyIcon,
-  Send,
-  Loader2,
-} from "lucide-react";
-import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-
-interface DeleteQuestionAlertProps {
-  questionId: number;
-  onDeleteSuccess: () => void;
-}
-
-const DeleteQuestionAlert: React.FC<DeleteQuestionAlertProps> = ({
-  questionId,
-  onDeleteSuccess,
-}) => {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const handleDeleteQuestion = async () => {
-    try {
-      await dispatch(deleteMyQuestion(questionId)).unwrap();
-      await dispatch(fetchQuestions(questionId)).unwrap();
-      onDeleteSuccess();
-      toast.success("Đã xóa câu hỏi thành công!");
-    } catch (error) {
-      toast.error("Lỗi khi xóa câu hỏi. Vui lòng thử lại.");
-      console.error("Delete Question Error:", error);
-    }
-  };
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        {/* Nút trigger Alert Dialog thay thế cho DropdownMenuTrigger */}
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <MoreVertical size={16} />
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Bạn có chắc chắn muốn xóa?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Hành động này không thể hoàn tác. Câu hỏi sẽ bị xóa vĩnh viễn.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Hủy</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDeleteQuestion} // Gọi hàm xóa khi người dùng xác nhận
-            className="bg-red-600 hover:bg-red-700"
-          >
-            Xóa
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-};
-
-interface DeleteAnswerAlertProps {
-  answerId: number;
-  questionId: number;
-  replyId?: number;
-  onDeleteSuccess: () => void;
-}
-
-const DeleteAnswerAlert: React.FC<DeleteAnswerAlertProps> = ({
-  answerId,
-  questionId,
-  replyId,
-  onDeleteSuccess,
-}) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const isReply = replyId !== undefined;
-
-  const handleDelete = async () => {
-    try {
-      await dispatch(
-        deleteMyAnswer({ id: answerId, questionId, answerId: replyId })
-      ).unwrap();
-      onDeleteSuccess();
-      toast.success(`Đã xóa ${isReply ? "phản hồi" : "câu trả lời"}!`);
-    } catch (error) {
-      toast.error(`Lỗi khi xóa ${isReply ? "phản hồi" : "câu trả lời"}.`);
-      console.error("Delete Answer/Reply Error:", error);
-    }
-  };
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`h-${isReply ? 5 : 6} w-${
-            isReply ? 5 : 6
-          } text-gray-400 hover:text-red-500`}
-        >
-          <Trash2 size={isReply ? 10 : 12} />
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Xóa {isReply ? "phản hồi" : "câu trả lời"}?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Bạn có chắc chắn muốn xóa {isReply ? "phản hồi" : "câu trả lời"} này
-            không?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Hủy</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            Xóa
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-};
+  DeleteQuestionAlert,
+  DeleteAnswerAlert,
+} from "@/components/shared/discussion/DeleteAlerts";
+import { useLessonDiscussion } from "@/hook/useLessonDiscussion";
 
 interface LessonDiscussionProps {
   lessonId: number;
 }
 
 const LessonDiscussion: React.FC<LessonDiscussionProps> = ({ lessonId }) => {
-  const dispatch = useDispatch<AppDispatch>();
   const { questions, loading } = useSelector(
     (state: RootState) => state.lessonDiscussion
   );
   const { user } = useSelector((state: RootState) => state.user);
 
-  const [questionContent, setQuestionContent] = useState("");
-  const [replyContent, setReplyContent] = useState<{ [key: string]: string }>(
-    {}
-  );
-  const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
-
-  const refetchQuestions = () => {
-    dispatch(fetchQuestions(lessonId));
-  };
-
-  useEffect(() => {
-    if (lessonId) {
-      refetchQuestions();
-    }
-  }, [dispatch, lessonId]);
-
-  const handlePostQuestion = async () => {
-    if (!questionContent.trim()) return;
-    try {
-      await dispatch(
-        createQuestion({ lessonId, content: questionContent })
-      ).unwrap();
-      setQuestionContent("");
-      toast.success("Đã đăng câu hỏi thành công!");
-      refetchQuestions();
-    } catch (error) {
-      toast.error("Không thể đăng câu hỏi. Vui lòng thử lại.");
-    }
-  };
-
-  const handlePostAnswer = async (questionId: number) => {
-    const content = replyContent[`q-${questionId}`];
-    if (!content?.trim()) return;
-
-    try {
-      await dispatch(createAnswer({ questionId, content })).unwrap();
-      setReplyContent((prev) => ({ ...prev, [`q-${questionId}`]: "" }));
-      setActiveReplyId(null);
-      toast.success("Đã đăng câu trả lời!");
-      refetchQuestions();
-    } catch (error) {
-      toast.error("Lỗi khi đăng câu trả lời.");
-    }
-  };
-
-  const handlePostReply = async (answerId: number, questionId: number) => {
-    const content = replyContent[`a-${answerId}`];
-    if (!content?.trim()) return;
-
-    try {
-      await dispatch(createReply({ answerId, questionId, content })).unwrap();
-      setReplyContent((prev) => ({ ...prev, [`a-${answerId}`]: "" }));
-      setActiveReplyId(null);
-      toast.success("Đã đăng phản hồi!");
-      refetchQuestions();
-    } catch (error) {
-      toast.error("Lỗi khi đăng phản hồi.");
-    }
-  };
-
-  const toggleReplyForm = (id: string) => {
-    setActiveReplyId(activeReplyId === id ? null : id);
-  };
-
-  const handleContentChange = (id: string, value: string) => {
-    setReplyContent((prev) => ({ ...prev, [id]: value }));
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const {
+    questionContent,
+    setQuestionContent,
+    replyContent,
+    activeReplyId,
+    handlePostQuestion,
+    handlePostAnswer,
+    handlePostReply,
+    toggleReplyForm,
+    handleContentChange,
+    formatDate,
+    refetchQuestions,
+  } = useLessonDiscussion(lessonId);
 
   return (
     <div className="space-y-8">
@@ -260,7 +55,7 @@ const LessonDiscussion: React.FC<LessonDiscussionProps> = ({ lessonId }) => {
               placeholder="Bạn đang thắc mắc điều gì?"
               value={questionContent}
               onChange={(e) => setQuestionContent(e.target.value)}
-              className="min-h-[100px] resize-none focus-visible:ring-blue-500"
+              className="min-h-[100px] w-full resize-none focus-visible:ring-blue-500"
             />
             <div className="flex justify-end">
               <Button
@@ -341,9 +136,12 @@ const LessonDiscussion: React.FC<LessonDiscussionProps> = ({ lessonId }) => {
                           placeholder="Viết câu trả lời..."
                           value={replyContent[`q-${question.id}`] || ""}
                           onChange={(e) =>
-                            handleContentChange(`q-${question.id}`, e.target.value)
+                            handleContentChange(
+                              `q-${question.id}`,
+                              e.target.value
+                            )
                           }
-                          className="min-h-[80px] text-sm"
+                          className="min-h-[80px] w-full text-sm"
                         />
                         <div className="flex justify-end gap-2">
                           <Button
@@ -422,13 +220,15 @@ const LessonDiscussion: React.FC<LessonDiscussionProps> = ({ lessonId }) => {
                                       e.target.value
                                     )
                                   }
-                                  className="min-h-[60px] text-sm"
+                                  className="min-h-[60px] w-full text-sm"
                                 />
                                 <div className="flex justify-end gap-2">
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => toggleReplyForm(`a-${answer.id}`)}
+                                    onClick={() =>
+                                      toggleReplyForm(`a-${answer.id}`)
+                                    }
                                   >
                                     Hủy
                                   </Button>

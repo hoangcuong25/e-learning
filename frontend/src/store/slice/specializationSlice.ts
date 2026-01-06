@@ -6,6 +6,7 @@ import {
   updateSpecializationApi,
   deleteSpecializationApi,
   getSpecializationsByInstructorIdApi,
+  getSpecializationsForAdminApi,
 } from "@/store/api/specialization.api";
 
 // 🧱 State
@@ -13,6 +14,13 @@ interface SpecializationState {
   specializations: SpecializationType[];
   current: SpecializationType | null;
   instructorSpecializaions: SpecializationType[];
+  adminList: SpecializationType[];
+  pagination: {
+    total: number;
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+  } | null;
   loading: boolean;
   error: string | null;
   successMessage: string | null;
@@ -23,6 +31,8 @@ const initialState: SpecializationState = {
   specializations: [],
   current: null,
   instructorSpecializaions: [],
+  adminList: [],
+  pagination: null,
   loading: false,
   error: null,
   successMessage: null,
@@ -51,19 +61,20 @@ export const fetchSpecializationById = createAsyncThunk(
 // ➕ Tạo chuyên ngành mới
 export const createSpecialization = createAsyncThunk(
   "specialization/create",
-  async (payload: { name: string; desc: string }) => {
-    const response = await createSpecializationApi(payload);
-    return response.data;
+  async (payload: { name: string; desc: string }, { rejectWithValue }) => {
+    try {
+      const response = await createSpecializationApi(payload);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Lỗi tạo chuyên ngành");
+    }
   }
 );
 
 // ✏️ Cập nhật chuyên ngành
 export const updateSpecialization = createAsyncThunk(
   "specialization/update",
-  async (payload: {
-    id: number;
-    data: { name?: string; description?: string };
-  }) => {
+  async (payload: { id: number; data: { name?: string; desc?: string } }) => {
     const response = await updateSpecializationApi(payload.id, payload.data);
     return response.data;
   }
@@ -78,7 +89,22 @@ export const deleteSpecialization = createAsyncThunk(
   }
 );
 
-// 👨‍🏫 Lấy danh sách chuyên ngành theo giảng viên
+// Lấy danh sách chuyên ngành cho admin
+export const fetchSpecializationsForAdmin = createAsyncThunk(
+  "specialization/fetchForAdmin",
+  async (params: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    order?: "asc" | "desc";
+    search?: string;
+  }) => {
+    const response = await getSpecializationsForAdminApi(params);
+    return response;
+  }
+);
+
+// Lấy danh sách chuyên ngành theo giảng viên
 export const fetchSpecializationsByInstructorId = createAsyncThunk(
   "specialization/fetchByInstructorId",
   async (instructorId: number) => {
@@ -181,7 +207,24 @@ const specializationSlice = createSlice({
         state.error = action.error.message ?? "Lỗi khi xóa chuyên ngành";
       })
 
-      // 👨‍🏫 Fetch by instructor
+      // Fetch for admin with pagination
+      .addCase(fetchSpecializationsForAdmin.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchSpecializationsForAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.adminList =
+          action.payload.data?.data || action.payload.data || [];
+        state.pagination =
+          action.payload.data?.pagination || action.payload.pagination || null;
+      })
+      .addCase(fetchSpecializationsForAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.error.message ?? "Lỗi khi tải danh sách chuyên ngành";
+      })
+
+      //  Fetch by instructor
       .addCase(fetchSpecializationsByInstructorId.pending, (state) => {
         state.loading = true;
       })

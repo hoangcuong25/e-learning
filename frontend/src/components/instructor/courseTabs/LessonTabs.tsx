@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Video } from "lucide-react";
+import { BookOpen, MessageCircle, Video } from "lucide-react";
 import CreateChapter from "@/components/instructor/courses/chapter/CreateChapter";
 import CreateLesson from "@/components/instructor/courses/lessons/CreateLesson";
 import UpdateLesson from "@/components/instructor/courses/lessons/UpdateLesson";
 import DeleteLessonDialog from "@/components/instructor/courses/lessons/DeleteLessonDialog";
+import LessonDiscussDialog from "./LessonDiscussDialog";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,9 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
   const router = useRouter();
   const [selectedLesson, setSelectedLesson] = useState<any | null>(null);
   const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
+  const [selectedLessonForQuestions, setSelectedLessonForQuestions] = useState<
+    any | null
+  >(null);
 
   const getCloudinaryThumbnail = (videoUrl: string) => {
     if (!videoUrl?.includes("cloudinary")) return null;
@@ -119,6 +123,19 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                                   Không có video
                                 </span>
                               )}
+
+                              {/* Nút xem câu hỏi */}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-orange-600 border-orange-600 hover:border-orange-700 hover:text-orange-700"
+                                onClick={() =>
+                                  setSelectedLessonForQuestions(lesson)
+                                }
+                              >
+                                <MessageCircle size={14} className="mr-1" />
+                                Câu hỏi
+                              </Button>
 
                               {/* Sửa / Xóa */}
                               <UpdateLesson
@@ -253,6 +270,13 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                         </div>
                       </DialogContent>
                     </Dialog>
+
+                    {/* 💬 Dialog hiển thị câu hỏi bài học */}
+                    <LessonDiscussDialog
+                      open={!!selectedLessonForQuestions}
+                      onOpenChange={() => setSelectedLessonForQuestions(null)}
+                      lesson={selectedLessonForQuestions}
+                    />
                   </CardContent>
                 </Card>
               ))}

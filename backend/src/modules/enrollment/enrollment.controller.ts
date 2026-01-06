@@ -71,6 +71,17 @@ export class EnrollmentController {
     return this.enrollmentService.cancelEnrollment(+id, req.user.id);
   }
 
+  // ─── REFUND ENROLLMENT ──────────────────────────────
+  @Post(":id/refund")
+  @ApiOperation({
+    summary: "Refund enrollment (within 1 hour, progress < 20%)",
+  })
+  @ApiBearerAuth()
+  @ResponseMessage("Refund enrollment")
+  async refundEnrollment(@Param("id") id: string, @Req() req) {
+    return this.enrollmentService.refundEnrollment(+id, req.user.id);
+  }
+
   // ─── USER GET COURSE PROGRESS ──────────────────────────────
   @Get(":courseId/progress")
   @ApiOperation({

@@ -11,6 +11,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { createRating } from "@/store/slice/courseRatingSlice";
 import { toast } from "sonner";
 import { RateDialog } from "@/components/course/RateDialog";
+import { CourseMoreActions } from "@/components/course/CourseMoreActions";
 
 export default function MyLearningPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -219,13 +220,14 @@ export default function MyLearningPage() {
                   <div className="text-sm text-gray-500 flex items-center gap-3">
                     <span>🕒 {formatDuration(course?.duration ?? 0)}</span>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2 items-center flex-wrap">
                     <Link
                       href={`/learn/${course?.id}`}
                       className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition duration-200"
                     >
                       {enrollment.progress === 100 ? "Xem lại" : "Tiếp tục học"}
                     </Link>
+
                     <button
                       type="button"
                       className="px-4 py-2 bg-yellow-400 text-white text-sm font-medium rounded-lg hover:bg-yellow-500 transition duration-200"
@@ -236,6 +238,8 @@ export default function MyLearningPage() {
                     >
                       Đánh giá
                     </button>
+
+                    <CourseMoreActions enrollmentId={enrollment.id} />
                   </div>
                 </div>
               </div>

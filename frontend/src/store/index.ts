@@ -12,6 +12,7 @@ import cartReducer from "./slice/cartSlice";
 import notificationReducer from "./slice/notificationsSlice";
 import lessonDiscussionReducer from "./slice/lessonDiscussionSlice";
 import courseRatingReducer from "./slice/courseRatingSlice";
+import instructorAnalyticsReducer from "./slice/instructorAnalyticsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -28,6 +29,7 @@ export const store = configureStore({
     notification: notificationReducer,
     lessonDiscussion: lessonDiscussionReducer,
     courseRating: courseRatingReducer,
+    instructorAnalytics: instructorAnalyticsReducer,
   },
 });
 

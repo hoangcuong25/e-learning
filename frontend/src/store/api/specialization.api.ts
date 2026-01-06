@@ -90,3 +90,23 @@ export const getSpecializationsByInstructorIdApi = async (
     throw error;
   }
 };
+
+/**
+ * 📋 Lấy danh sách chuyên ngành cho admin (có phân trang)
+ */
+export const getSpecializationsForAdminApi = async (params: {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  order?: "asc" | "desc";
+  search?: string;
+}) => {
+  try {
+    const response = await axiosClient.get("/specialization/admin/list", {
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

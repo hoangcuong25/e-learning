@@ -105,12 +105,14 @@ export class EnrollmentService {
 
     // Trừ tiền, lưu lịch sử giao dịch + tạo bản ghi enrollment
     const newEnrollment = await this.prisma.$transaction(async (tx) => {
+      // 1. Trừ tiền từ ví người dùng
       await tx.user.update({
         where: { id: userId },
         data: { walletBalance: { decrement: finalPrice } },
       });
 
-      await tx.transaction.create({
+      // 2. Tạo transaction cho người mua
+      const purchaseTransaction = await tx.transaction.create({
         data: {
           userId,
           amount: -finalPrice,
@@ -119,6 +121,37 @@ export class EnrollmentService {
         },
       });
 
+      // 3. Tính chiết khấu 20% cho giảng viên
+      const instructorEarningAmount = finalPrice * 0.8;
+
+      // 4. Cộng tiền vào ví giảng viên
+      await tx.user.update({
+        where: { id: course.instructorId },
+        data: { walletBalance: { increment: instructorEarningAmount } },
+      });
+
+      // 5. Tạo transaction cho giảng viên
+      const instructorTransaction = await tx.transaction.create({
+        data: {
+          userId: course.instructorId,
+          amount: instructorEarningAmount,
+          type: "COURSE_PURCHASE",
+          note: `Thu nhập từ khóa học #${courseId} (20% phí)`,
+        },
+      });
+
+      // 6. Tạo bản ghi InstructorEarning
+      await tx.instructorEarning.create({
+        data: {
+          instructorId: course.instructorId,
+          courseId,
+          amount: instructorEarningAmount,
+          type: "COURSE_PURCHASE",
+          transactionId: instructorTransaction.id,
+        },
+      });
+
+      // 7. Xử lý coupon nếu có
       if (coupon) {
         await tx.coupon.update({
           where: { id: coupon.id },
@@ -129,6 +162,7 @@ export class EnrollmentService {
         });
       }
 
+      // 8. Tạo enrollment
       return await tx.enrollment.create({
         data: {
           userId,
@@ -143,13 +177,25 @@ export class EnrollmentService {
       userId: userId,
       title: "Đăng ký khóa học thành công!",
       body: `Bạn đã mua và đăng ký thành công khóa học **${course.title}** với giá ${finalPrice.toLocaleString()} VND.`,
-      type: "ENROLLMENT", 
+      type: "ENROLLMENT",
       link: `/learn/${courseId}`,
     });
+
+    // Thông báo cho giảng viên về thu nhập mới
+    const instructorEarningAmount = finalPrice * 0.2;
+    await this.notificationService.createNotification({
+      userId: course.instructorId,
+      title: "Thu nhập mới từ khóa học!",
+      body: `Bạn đã nhận được ${instructorEarningAmount.toLocaleString()} VND (20% phí) từ khóa học **${course.title}**.`,
+      type: "WALLET",
+      link: `/instructor/earnings`,
+    });
+
+    return newEnrollment;
   }
 
   // ─── LẤY DANH SÁCH KHÓA HỌC CỦA TÔI ──────────────────────────────
-  async getMyEnrollments(userId: number) {  
+  async getMyEnrollments(userId: number) {
     return this.prisma.enrollment.findMany({
       where: { userId },
       include: {
@@ -248,6 +294,155 @@ export class EnrollmentService {
       throw new ForbiddenException("Bạn không thể hủy đăng ký này");
 
     return this.prisma.enrollment.delete({ where: { id } });
+  }
+
+  // ─── HOÀN TIỀN KHÓA HỌC ──────────────────────────────
+  async refundEnrollment(enrollmentId: number, userId: number) {
+    // 1. Lấy thông tin enrollment
+    const enrollment = await this.prisma.enrollment.findUnique({
+      where: { id: enrollmentId },
+      include: {
+        course: {
+          include: { instructor: true },
+        },
+      },
+    });
+
+    if (!enrollment) {
+      throw new NotFoundException("Không tìm thấy thông tin đăng ký");
+    }
+
+    if (enrollment.userId !== userId) {
+      throw new ForbiddenException("Bạn không có quyền hoàn tiền đăng ký này");
+    }
+
+    // 2. Kiểm tra khóa học có phải là khóa trả phí không
+    if (enrollment.course.type === "FREE") {
+      throw new BadRequestException(
+        "Không thể hoàn tiền cho khóa học miễn phí"
+      );
+    }
+
+    // 3. Kiểm tra thời gian đăng ký (phải trong vòng 1 tiếng)
+    const now = new Date();
+    const enrolledAt = new Date(enrollment.enrolledAt);
+    const hoursSinceEnrollment =
+      (now.getTime() - enrolledAt.getTime()) / (1000 * 60 * 60);
+
+    if (hoursSinceEnrollment > 1) {
+      throw new BadRequestException(
+        "Chỉ có thể hoàn tiền trong vòng 1 tiếng sau khi đăng ký"
+      );
+    }
+
+    // 4. Kiểm tra tiến độ học (phải dưới 20%)
+    if (enrollment.progress > 20) {
+      throw new BadRequestException(
+        "Không thể hoàn tiền khi tiến độ học vượt quá 20%"
+      );
+    }
+
+    // 5. Tìm transaction gốc để lấy số tiền đã trả
+    const originalTransaction = await this.prisma.transaction.findFirst({
+      where: {
+        userId,
+        type: "COURSE_PURCHASE",
+        note: { contains: `#${enrollment.courseId}` },
+        createdAt: {
+          gte: new Date(enrolledAt.getTime() - 5000), // 5 giây trước khi enroll
+          lte: new Date(enrolledAt.getTime() + 5000), // 5 giây sau khi enroll
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!originalTransaction) {
+      throw new NotFoundException("Không tìm thấy giao dịch mua khóa học gốc");
+    }
+
+    const refundAmount = Math.abs(originalTransaction.amount) * 0.8; // 80%
+
+    // 6. Thực hiện hoàn tiền
+    await this.prisma.$transaction(async (tx) => {
+      // 6.1. Hoàn tiền cho người dùng
+      await tx.user.update({
+        where: { id: userId },
+        data: { walletBalance: { increment: refundAmount } },
+      });
+
+      // 6.2. Tạo transaction hoàn tiền cho người dùng
+      await tx.transaction.create({
+        data: {
+          userId,
+          amount: refundAmount,
+          type: "COURSE_REFUND",
+          note: `Hoàn tiền khóa học #${enrollment.courseId}`,
+        },
+      });
+
+      // 6.3. Trừ tiền từ ví giảng viên
+      await tx.user.update({
+        where: { id: enrollment.course.instructorId },
+        data: { walletBalance: { decrement: refundAmount } },
+      });
+
+      // 6.4. Tạo transaction hoàn tiền cho giảng viên
+      const instructorRefundTransaction = await tx.transaction.create({
+        data: {
+          userId: enrollment.course.instructorId,
+          amount: -refundAmount,
+          type: "COURSE_REFUND",
+          note: `Hoàn tiền khóa học #${enrollment.courseId} (trừ thu nhập)`,
+        },
+      });
+
+      // 6.5. Tạo bản ghi InstructorEarning âm
+      await tx.instructorEarning.create({
+        data: {
+          instructorId: enrollment.course.instructorId,
+          courseId: enrollment.courseId,
+          amount: -refundAmount,
+          type: "COURSE_REFUND",
+          transactionId: instructorRefundTransaction.id,
+        },
+      });
+
+      // 6.6. Xóa enrollment
+      await tx.enrollment.delete({
+        where: { id: enrollmentId },
+      });
+
+      // 6.7. Xóa lesson progress liên quan
+      await tx.lessonProgress.deleteMany({
+        where: {
+          userId,
+          courseId: enrollment.courseId,
+        },
+      });
+    });
+
+    // 7. Gửi thông báo cho người dùng
+    await this.notificationService.createNotification({
+      userId,
+      title: "Hoàn tiền thành công!",
+      body: `Bạn đã được hoàn ${refundAmount.toLocaleString()} VND cho khóa học **${enrollment.course.title}**.`,
+      type: "WALLET",
+      link: `/wallet`,
+    });
+
+    // 8. Gửi thông báo cho giảng viên
+    await this.notificationService.createNotification({
+      userId: enrollment.course.instructorId,
+      title: "Thông báo hoàn tiền",
+      body: `Học viên đã yêu cầu hoàn tiền cho khóa học **${enrollment.course.title}**. Số tiền ${refundAmount.toLocaleString()} VND đã được trừ khỏi ví của bạn.`,
+      type: "WALLET",
+      link: `/instructor/earnings`,
+    });
+
+    return {
+      message: "Hoàn tiền thành công",
+      refundAmount,
+    };
   }
 
   async getCourseProgress(courseId: number, userId: number) {

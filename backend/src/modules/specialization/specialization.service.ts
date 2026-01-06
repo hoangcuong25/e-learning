@@ -7,6 +7,12 @@ import { CreateSpecializationDto } from "./dto/create-specialization.dto";
 import { UpdateSpecializationDto } from "./dto/update-specialization.dto";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { ApplicationStatus } from "@prisma/client";
+import {
+  buildOrderBy,
+  buildPaginationParams,
+  buildPaginationResponse,
+  buildSearchFilter,
+} from "src/core/helpers/pagination.util";
 
 @Injectable()
 export class SpecializationService {
@@ -24,7 +30,7 @@ export class SpecializationService {
     }
 
     const specialization = await this.prisma.specialization.create({
-      data: { name },
+      data: { name, desc },
     });
 
     return {
@@ -86,6 +92,32 @@ export class SpecializationService {
     await this.prisma.specialization.delete({ where: { id } });
 
     return { message: "Xóa chuyên ngành thành công" };
+  }
+
+  async findAllForAdmin(dto: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    order?: "asc" | "desc";
+    search?: string;
+  }) {
+    const { skip, take, page, limit } = buildPaginationParams(dto);
+    const orderBy = buildOrderBy(dto);
+    const searchFilter = buildSearchFilter(dto, ["name", "desc"]);
+
+    const where = searchFilter || {};
+
+    const [data, total] = await Promise.all([
+      this.prisma.specialization.findMany({
+        where,
+        orderBy,
+        skip,
+        take,
+      }),
+      this.prisma.specialization.count({ where }),
+    ]);
+
+    return buildPaginationResponse(data, total, page, limit);
   }
 
   async findByInstructorId(userId: number) {

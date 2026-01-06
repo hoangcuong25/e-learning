@@ -14,6 +14,7 @@ import {
   LogOut,
   Home,
   Tag,
+  Layers,
 } from "lucide-react";
 
 const SidebarAdmin = () => {
@@ -33,7 +34,11 @@ const SidebarAdmin = () => {
       label: "Quản lý chiến dịch",
       icon: Tag,
     },
-    { href: "/admin/revenue", label: "Doanh thu", icon: DollarSign },
+    {
+      href: "/admin/specializations",
+      label: "Chuyên ngành",
+      icon: Layers,
+    },
     { href: "/admin/reports", label: "Báo cáo thống kê", icon: BarChart3 },
   ];
 

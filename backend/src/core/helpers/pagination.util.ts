@@ -1,8 +1,8 @@
 import { Prisma } from "@prisma/client";
 
 export function buildPaginationParams(dto: any) {
-  const page = dto.page ?? 1;
-  const limit = dto.limit ?? 10;
+  const page = parseInt(dto.page) || 1;
+  const limit = parseInt(dto.limit) || 10;
   const skip = (page - 1) * limit;
 
   return { skip, take: limit, page, limit };

@@ -35,3 +35,9 @@ export const cancelEnrollmentApi = async (id: number) => {
   const response = await axiosClient.delete(`/enrollment/${id}`);
   return response.data;
 };
+
+// 💸 6. Hoàn tiền enrollment
+export const refundEnrollmentApi = async (id: number) => {
+  const response = await axiosClient.post(`/enrollment/${id}/refund`);
+  return response.data;
+};

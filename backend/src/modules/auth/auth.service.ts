@@ -47,10 +47,12 @@ export class AuthService {
   createRefreshToken = (payload: any) => {
     const refreshExpire =
       this.configService.get<string>("JWT_REFRESH_EXPIRE") || "7d";
+
     const refresh_token = this.jwtService.sign(payload, {
       secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET"),
-      expiresIn: this.configService.get<string>("JWT_REFRESH_EXPIRE"),
+      expiresIn: refreshExpire as any,
     });
+
     return refresh_token;
   };
 
