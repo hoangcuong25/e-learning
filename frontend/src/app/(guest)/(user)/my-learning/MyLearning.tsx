@@ -239,7 +239,10 @@ export default function MyLearningPage() {
                       Đánh giá
                     </button>
 
-                    <CourseMoreActions enrollmentId={enrollment.id} />
+                    <CourseMoreActions
+                      enrollmentId={enrollment.id}
+                      courseId={Number(course?.id)}
+                    />
                   </div>
                 </div>
               </div>

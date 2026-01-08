@@ -6,7 +6,7 @@ import { AppDispatch } from "@/store";
 import {
   updateDiscount,
   fetchDiscountById,
-} from "@/store/slice/discount.slice";
+} from "@/store/slice/discountCampaign.slice";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {

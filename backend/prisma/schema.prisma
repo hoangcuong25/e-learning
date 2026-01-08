@@ -67,6 +67,12 @@
     LESSON_DISCUSSION   // Thảo luận bài học
   }
 
+  enum CourseReportType {
+    INAPPROPRIATE
+    VIOLENCE
+    OTHER
+  }
+
   // ─── USER ──────────────────────────────
   model User {
     id        Int       @id @default(autoincrement())
@@ -118,13 +124,14 @@
     
     instructorEarnings InstructorEarning[]
     instructorDailyStats InstructorDailyStats[]
+    courseReports CourseReport[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-}
+  }
 
 // ─── NOTIFICATION ─────────────────────────
-model Notification {
+  model Notification {
   id     Int      @id @default(autoincrement())
   
   userId Int
@@ -143,7 +150,7 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@index([userId, isRead])
-}
+  }
 
   // ─── INSTRUCTOR APPLICATION ──────────────────────────────
   model InstructorApplication {
@@ -222,10 +229,11 @@ model Notification {
     cartItems CartItem[]
 
     courseDailyStats CourseDailyStats[]
+    courseReports CourseReport[]
 
     createdAt    DateTime   @default(now())
     updatedAt    DateTime   @updatedAt
-}
+  }
 
   // ─── COURSE VIEW ──────────────────────────────
   model CourseView {
@@ -480,7 +488,7 @@ model Notification {
     instructorEarnings InstructorEarning[]
 
     @@index([userId, createdAt])
-}
+  }
 
   // ─── ENROLLMENT ──────────────────────────────
   model Enrollment {
@@ -539,7 +547,7 @@ model Notification {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
+  }
 
   model CartItem {
     id        Int      @id @default(autoincrement())
@@ -596,4 +604,19 @@ model Notification {
     instructor User @relation(fields: [instructorId], references: [id])
     
     @@unique([instructorId, date])
+  }
+
+  model CourseReport {
+    id          Int                @id @default(autoincrement())
+    userId      Int
+    courseId    Int
+    title       String             @db.VarChar(255)
+    description String?            @db.Text
+    type        CourseReportType  @default(INAPPROPRIATE)
+    
+    user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+    course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    createdAt   DateTime           @default(now())
+    updatedAt   DateTime           @updatedAt
   }

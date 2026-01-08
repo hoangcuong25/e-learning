@@ -23,9 +23,11 @@ export class CronService {
     const startOfDay = dayjs(date).startOf("day").toDate();
     const endOfDay = dayjs(date).endOf("day").toDate();
 
-    this.logger.log(
-      `Updating course daily stats for ${startOfDay.toISOString()}`
-    );
+    // Normalize date to YYYY-MM-DD string for MySQL DATE type
+    const dateOnly = dayjs(date).format("YYYY-MM-DD");
+    const dateForDb = new Date(dateOnly);
+
+    this.logger.log(`Updating course daily stats for ${dateOnly}`);
 
     // 1. Get all courses
     const courses = await this.prisma.course.findMany({
@@ -75,7 +77,7 @@ export class CronService {
         where: {
           courseId_date: {
             courseId: course.id,
-            date: startOfDay,
+            date: dateForDb,
           },
         },
         update: {
@@ -85,7 +87,7 @@ export class CronService {
         },
         create: {
           courseId: course.id,
-          date: startOfDay,
+          date: dateForDb,
           views,
           enrollments,
           revenue,
@@ -97,9 +99,11 @@ export class CronService {
   async updateInstructorDailyStats(date: Date = new Date()) {
     const startOfDay = dayjs(date).startOf("day").toDate();
 
-    this.logger.log(
-      `Updating instructor daily stats for ${startOfDay.toISOString()}`
-    );
+    // Normalize date to YYYY-MM-DD string for MySQL DATE type
+    const dateOnly = dayjs(date).format("YYYY-MM-DD");
+    const dateForDb = new Date(dateOnly);
+
+    this.logger.log(`Updating instructor daily stats for ${dateOnly}`);
 
     // 1. Get all instructors (users with role INSTRUCTOR)
     const instructors = await this.prisma.user.findMany({
@@ -125,7 +129,7 @@ export class CronService {
       const stats = await this.prisma.courseDailyStats.aggregate({
         where: {
           courseId: { in: courseIds },
-          date: startOfDay,
+          date: dateForDb,
         },
         _sum: {
           views: true,
@@ -143,7 +147,7 @@ export class CronService {
         where: {
           instructorId_date: {
             instructorId: instructor.id,
-            date: startOfDay,
+            date: dateForDb,
           },
         },
         update: {
@@ -153,7 +157,7 @@ export class CronService {
         },
         create: {
           instructorId: instructor.id,
-          date: startOfDay,
+          date: dateForDb,
           totalViews,
           totalEnrollments,
           totalRevenue,

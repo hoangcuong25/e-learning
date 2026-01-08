@@ -17,7 +17,7 @@ import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
 import { DiscountCampaignService } from "./discount-campaign.service";
 
 @ApiTags("Discount Campaign")
-@Controller("discount")
+@Controller("discount-campaign")
 export class DiscountCampaignController {
   constructor(
     private readonly discountCampaignService: DiscountCampaignService

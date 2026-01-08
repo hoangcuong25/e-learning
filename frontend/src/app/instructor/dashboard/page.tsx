@@ -76,12 +76,12 @@ export default function InstructorDashboard() {
     // API returns desc date, so reverse for chart (left to right)
     return [...dailyStats].reverse().map((stat) => ({
       date: dayjs(stat.date).format("DD/MM"),
-      revenue: stat.totalRevenue, // Or totalEarnings if available in dailyStats
+      revenue: stat.totalRevenue,
       views: stat.totalViews,
     }));
   }, [dailyStats]);
 
-  // Process recent courses (take top 5 by enrollment or just first 5)
+  // Process recent courses
   const recentCourses = useMemo(() => {
     if (!courseAnalytics) return [];
     return [...courseAnalytics]
@@ -89,8 +89,10 @@ export default function InstructorDashboard() {
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
-      .slice(0, 5);
+      .slice(0, 10);
   }, [courseAnalytics]);
+
+  console.log("Chart Data:", chartData);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -133,34 +135,45 @@ export default function InstructorDashboard() {
         {/* Chart + Recent Courses */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Chart */}
-          <Card className="h-[360px] step-stats">
+          <Card className="h-[400px] step-stats">
             <CardHeader>
               <CardTitle>Doanh thu 30 ngày qua</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height="90%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip
-                    formatter={(value) =>
-                      new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(value as number)
-                    }
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="#2563eb"
-                    strokeWidth={3}
-                    dot={{ r: 4 }}
-                    name="Doanh thu"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="h-[300px] w-full">
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={chartData}
+                      margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip
+                        formatter={(value) =>
+                          new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(value as number)
+                        }
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#2563eb"
+                        strokeWidth={3}
+                        dot={{ r: 4 }}
+                        name="Doanh thu"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-gray-500">
+                    Chưa có dữ liệu thống kê
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -175,7 +188,7 @@ export default function InstructorDashboard() {
                   Chưa có khóa học nào.
                 </p>
               ) : (
-                recentCourses.map((course, index) => (
+                recentCourses.slice(0, 10).map((course, index) => (
                   <div
                     key={course.id || index}
                     className="flex items-center justify-between border-b pb-3 last:border-none"

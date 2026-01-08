@@ -7,7 +7,7 @@ import {
   fetchAllDiscounts,
   toggleDiscountStatus,
   deleteDiscount,
-} from "@/store/slice/discount.slice";
+} from "@/store/slice/discountCampaign.slice";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ import { useRouter } from "next/navigation";
 export default function AdminDiscountCampaignsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { discounts, loading, totalPages } = useSelector(
-    (state: RootState) => state.discount
+    (state: RootState) => state.discountCampaign
   );
 
   const router = useRouter();
