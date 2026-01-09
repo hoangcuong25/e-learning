@@ -9,6 +9,13 @@ import {
   comparePasswordHelper,
   hashPasswordHelper,
 } from "src/core/helpers/util";
+import {
+  buildPaginationParams,
+  buildOrderBy,
+  buildSearchFilter,
+  buildPaginationResponse,
+} from "src/core/helpers/pagination.util";
+import { UserPaginationQueryDto } from "./dto/user-pagination.dto";
 
 @Injectable()
 export class UserService {
@@ -150,8 +157,48 @@ export class UserService {
     return { id: savedUser.id };
   }
 
-  async findAll() {
-    return await this.prisma.user.findMany();
+  async findAll(paginationDto: UserPaginationQueryDto) {
+    const { skip, take, page, limit } = buildPaginationParams(paginationDto);
+    const orderBy = buildOrderBy(paginationDto);
+    const searchFilter = buildSearchFilter(paginationDto, [
+      "fullname",
+      "email",
+    ]);
+
+    const where: any = {
+      ...(searchFilter || {}),
+    };
+
+    if (paginationDto.role) {
+      where.role = paginationDto.role;
+    }
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take,
+        orderBy,
+        select: {
+          id: true,
+          fullname: true,
+          email: true,
+          avatar: true,
+          gender: true,
+          dob: true,
+          address: true,
+          phone: true,
+          isVerified: true,
+          walletBalance: true,
+          createdAt: true,
+          updatedAt: true,
+          role: true,
+        },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return buildPaginationResponse(users, total, page, limit);
   }
 
   async getProfile(userId: number) {

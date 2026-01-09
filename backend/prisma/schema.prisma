@@ -120,14 +120,29 @@
 
     lessonQuestions LessonQuestion[]
     lessonAnswers LessonAnswer[]
-
     
     instructorEarnings InstructorEarning[]
     instructorDailyStats InstructorDailyStats[]
+    instructorProfile InstructorProfile?
+
     courseReports CourseReport[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+  }
+
+  // ─── INSTRUCTOR PROFILE ──────────────────────────────
+  model InstructorProfile {
+    id               Int      @id @default(autoincrement())
+    userId           Int      @unique // Quan hệ 1-1 với User
+    bio              String?  @db.Text    // Tiểu sử chính thức
+    experience       String?  @db.Text    // Kinh nghiệm làm việc/giảng dạy
+
+    // Relations
+    user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt        DateTime @default(now())
+    updatedAt        DateTime @updatedAt
   }
 
 // ─── NOTIFICATION ─────────────────────────
@@ -210,8 +225,6 @@
     duration     Int        @default(0) // Tổng thời lượng (phút)
     averageRating   Float      @default(0)   // trung bình
     totalRating     Int        @default(0)   // số lượt rating
-
-
     // Relations
     instructorId Int
     instructor   User        @relation(fields: [instructorId], references: [id], onDelete: Cascade)
@@ -231,6 +244,8 @@
     courseDailyStats CourseDailyStats[]
     courseReports CourseReport[]
 
+    deletedAt  DateTime?   @db.Timestamp
+
     createdAt    DateTime   @default(now())
     updatedAt    DateTime   @updatedAt
   }
@@ -247,7 +262,6 @@
     user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([courseId, viewedAt])
-    @@unique([courseId, userId, ipAddress])
   }
 
   // ─── CHAPTER ──────────────────────────────

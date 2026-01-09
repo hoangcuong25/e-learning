@@ -34,3 +34,12 @@ export const changePassword = async (data: {
     throw error;
   }
 };
+
+export const getAllUsers = async (params: any) => {
+  try {
+    const response = await axiosClient.get("/user/get-all-user", { params });
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};

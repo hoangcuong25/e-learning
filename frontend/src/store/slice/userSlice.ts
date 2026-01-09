@@ -1,6 +1,5 @@
-// src/store/userSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getUser } from "@/store/api/user.api";
+import { getUser, getAllUsers } from "@/store/api/user.api";
 import { LogoutApi } from "@/store/api/auth.api";
 import { setLoggingOut } from "@/lib/axiosClient";
 import axios from "axios";
@@ -10,12 +9,22 @@ interface UserState {
   user: UserType | null;
   loading: boolean;
   error: string | null;
+  users: {
+    data: UserType[];
+    pagination: {
+      total: number;
+      totalPages: number;
+      currentPage: number;
+      pageSize: number;
+    };
+  } | null;
 }
 
 const initialState: UserState = {
   user: null,
   loading: false,
   error: null,
+  users: null,
 };
 
 // 🪄 Async action: Fetch user
@@ -35,6 +44,15 @@ export const logoutUser = createAsyncThunk("user/logoutUser", async () => {
     setLoggingOut(false); // reset lại để tránh ảnh hưởng request khác
   }
 });
+
+// 👨‍🎓 Async action: Fetch all users (Admin)
+export const fetchAllUsers = createAsyncThunk(
+  "user/fetchAllUsers",
+  async (params: any) => {
+    const response = await getAllUsers(params);
+    return response;
+  }
+);
 
 // 🧩 Slice
 const userSlice = createSlice({
@@ -61,6 +79,19 @@ const userSlice = createSlice({
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
+        state.users = null;
+      })
+      .addCase(fetchAllUsers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.users = action.payload;
+      })
+      .addCase(fetchAllUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message ?? "Error fetching users";
       });
   },
 });

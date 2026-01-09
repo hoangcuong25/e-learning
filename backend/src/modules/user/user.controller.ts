@@ -9,6 +9,7 @@ import {
   Req,
   UseInterceptors,
   UploadedFile,
+  Query,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -21,9 +22,9 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { UserRole } from "@prisma/client";
-import { ApplyInstructorDto } from "../instructor/dto/apply-instructor.dto";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { UserPaginationQueryDto } from "./dto/user-pagination.dto";
 
 @ApiBearerAuth()
 @ApiTags("User")
@@ -46,8 +47,8 @@ export class UserController {
   @ResponseMessage("get all user")
   @ApiResponse({ status: 200, description: "Users retrieved successfully" })
   @Roles("ADMIN")
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() query: UserPaginationQueryDto) {
+    return this.userService.findAll(query);
   }
 
   @Get("@me")

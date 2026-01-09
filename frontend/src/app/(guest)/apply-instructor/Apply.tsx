@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Loader2, Check, ChevronDown, X } from "lucide-react";
+import { Loader2, Check, ChevronDown, X, AlertTriangle } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useEffect, useState } from "react";
@@ -68,6 +68,35 @@ const InstructorApplyPage = () => {
       toast.error(message);
     }
   };
+
+  if (user && !user.isVerified) {
+    return (
+      <div className="max-w-2xl mx-auto py-16 px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-yellow-50 border border-yellow-200 rounded-2xl p-8 text-center"
+        >
+          <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+            <AlertTriangle className="w-8 h-8 text-yellow-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Tài khoản chưa được xác thực
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Vui lòng xác thực tài khoản của bạn để có thể đăng ký trở thành
+            giảng viên.
+          </p>
+          <button
+            onClick={() => router.push("/profile")}
+            className="bg-yellow-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-yellow-700 transition"
+          >
+            Đến trang cá nhân
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto py-16 px-6">

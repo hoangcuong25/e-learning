@@ -93,6 +93,7 @@ declare global {
     totalRating: number;
     averageRating: number;
     courseRating: any[];
+    viewCount: number;
 
     _count?: {
       chapter: number; // Số lượng Chapters

@@ -126,6 +126,9 @@ export class CourseService {
         "description",
       ]) || {};
 
+    // Loại trừ các khóa học đã bị xóa mềm
+    where.deletedAt = null;
+
     // Nếu có specializationId thì filter theo đó
     if (dto.specialization) {
       where.specializations = {
@@ -148,6 +151,11 @@ export class CourseService {
         include: {
           instructor: {
             select: { id: true, fullname: true, email: true },
+          },
+          _count: {
+            select: {
+              chapter: true,
+            },
           },
           specializations: {
             include: {
@@ -175,8 +183,8 @@ export class CourseService {
 
   // 🧩 Lấy khóa học theo ID
   async findCourseById(id: number) {
-    const course = await this.prisma.course.findUnique({
-      where: { id },
+    const course = await this.prisma.course.findFirst({
+      where: { id, deletedAt: null },
       include: {
         instructor: {
           select: { id: true, fullname: true, email: true },
@@ -216,12 +224,34 @@ export class CourseService {
   }
 
   // 🧩 Lấy chi tiết khóa học (bao gồm chương, bài học, chuyên ngành)
-  async findOne(id: number, instructorId: number) {
-    const course = await this.prisma.course.findUnique({
-      where: { id, instructorId },
+  async findOne(id: number, userId: number) {
+    // Query database để lấy role của user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (!user) throw new NotFoundException("Không tìm thấy người dùng.");
+
+    // Nếu là ADMIN thì có thể xem bất kỳ khóa học nào
+    const whereCondition: any = { id, deletedAt: null };
+
+    // Nếu không phải ADMIN thì chỉ được xem khóa học của mình
+    if (user.role !== "ADMIN") {
+      whereCondition.instructorId = userId;
+    }
+
+    const course = await this.prisma.course.findFirst({
+      where: whereCondition,
       include: {
         instructor: {
-          select: { id: true, fullname: true, email: true },
+          select: { id: true, fullname: true, email: true, avatar: true },
+        },
+        _count: {
+          select: {
+            enrollments: true,
+            courseRating: true,
+          },
         },
         chapter: {
           include: {
@@ -232,6 +262,7 @@ export class CourseService {
                 orderIndex: true,
                 videoUrl: true,
                 content: true,
+                duration: true,
                 createdAt: true,
                 updatedAt: true,
                 quizzes: {
@@ -354,20 +385,43 @@ export class CourseService {
     return { message: "Cập nhật khóa học thành công.", data: updated };
   }
 
-  // 🧩 Xóa khóa học
+  // 🧩 Xóa khóa học (Soft Delete)
   async remove(id: number, userId: number) {
-    const existing = await this.prisma.course.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException("Không tìm thấy khóa học.");
+    // Lấy thông tin khóa học
+    const existing = await this.prisma.course.findUnique({
+      where: { id, deletedAt: null },
+    });
 
-    return await this.prisma.course.delete({
-      where: { id, instructorId: userId },
+    if (!existing) {
+      throw new NotFoundException(
+        "Không tìm thấy khóa học hoặc khóa học đã bị xóa."
+      );
+    }
+
+    // Query database để lấy role của user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (!user) throw new NotFoundException("Không tìm thấy người dùng.");
+
+    // Nếu không phải ADMIN thì kiểm tra quyền sở hữu
+    if (user.role !== "ADMIN" && existing.instructorId !== userId) {
+      throw new ForbiddenException("Bạn không có quyền xóa khóa học này.");
+    }
+
+    // Soft delete: chỉ cập nhật deletedAt thay vì xóa thật
+    return await this.prisma.course.update({
+      where: { id },
+      data: { deletedAt: new Date() },
     });
   }
 
   // 🧩 Lấy danh sách khóa học của giảng viên
   async getCoursesByInstructor(instructorId: number) {
     return this.prisma.course.findMany({
-      where: { instructorId },
+      where: { instructorId, deletedAt: null },
       orderBy: { createdAt: "desc" },
       include: {
         specializations: {
@@ -390,7 +444,7 @@ export class CourseService {
 
   async getPopularCourses(limit: number = 6) {
     return this.prisma.course.findMany({
-      where: { isPublished: true },
+      where: { isPublished: true, deletedAt: null },
       orderBy: { viewCount: "desc" },
       take: limit,
       include: {
@@ -438,8 +492,8 @@ export class CourseService {
   }
 
   async getCourseDetail(courseId: number, userId?: number) {
-    const course = await this.prisma.course.findUnique({
-      where: { id: courseId },
+    const course = await this.prisma.course.findFirst({
+      where: { id: courseId, deletedAt: null },
       include: {
         instructor: {
           select: { id: true, fullname: true, avatar: true },

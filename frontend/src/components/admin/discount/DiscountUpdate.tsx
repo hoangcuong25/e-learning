@@ -54,7 +54,6 @@ export default function DiscountUpdateDialog({
     defaultValues: {
       title: "",
       description: "",
-      discountPercent: 0,
       startDate: "",
       endDate: "",
     },
@@ -66,7 +65,6 @@ export default function DiscountUpdateDialog({
       reset({
         title: discount.title || "",
         description: discount.description || "",
-        discountPercent: discount.percentage || 0,
         startDate: discount.startsAt
           ? new Date(discount.startsAt).toISOString().split("T")[0]
           : "",
@@ -86,7 +84,6 @@ export default function DiscountUpdateDialog({
           payload: {
             title: data.title,
             description: data.description,
-            percentage: data.discountPercent,
             startsAt: new Date(data.startDate),
             endsAt: new Date(data.endDate),
           },
@@ -148,23 +145,6 @@ export default function DiscountUpdateDialog({
             {errors.description && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.description.message}
-              </p>
-            )}
-          </div>
-
-          {/* Phần trăm */}
-          <div>
-            <Label>Phần trăm giảm (%)</Label>
-            <Input
-              type="number"
-              {...register("discountPercent", { valueAsNumber: true })}
-              placeholder="Ví dụ: 20"
-              min={1}
-              max={100}
-            />
-            {errors.discountPercent && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.discountPercent.message}
               </p>
             )}
           </div>

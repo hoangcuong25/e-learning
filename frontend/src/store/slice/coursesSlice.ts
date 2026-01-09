@@ -17,6 +17,12 @@ interface CourseState {
   currentCourse: CourseType | null;
   instructorCourses: CourseType[];
   popularCourses: CourseType[];
+  pagination: {
+    total: number;
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+  } | null;
   loading: boolean;
   error: string | null;
   successMessage: string | null;
@@ -27,6 +33,7 @@ const initialState: CourseState = {
   currentCourse: null,
   instructorCourses: [],
   popularCourses: [],
+  pagination: null,
   loading: false,
   error: null,
   successMessage: null,
@@ -142,6 +149,7 @@ const coursesSlice = createSlice({
       .addCase(fetchAllCourses.fulfilled, (state, action) => {
         state.loading = false;
         state.courses = action.payload.data || [];
+        state.pagination = action.payload.pagination || null;
       })
       .addCase(fetchAllCourses.rejected, (state, action) => {
         state.loading = false;

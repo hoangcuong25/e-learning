@@ -2,12 +2,15 @@
 
 import React, { useEffect } from "react";
 import Image from "next/image";
-import { BookOpen, User, Tag } from "lucide-react";
+import { BookOpen, Tag, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
 import CourseSidebar from "@/components/course/CourseSidebar";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { RootState, AppDispatch } from "@/store";
 import { fetchCourseCoupons } from "@/store/slice/couponSlice";
+import { fetchInstructorProfile } from "@/store/slice/instructorProfileSlice";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
 
 interface Props {
   initialCourse: any;
@@ -15,20 +18,28 @@ interface Props {
 }
 
 const CourseDetail = ({ initialCourse, courseId }: Props) => {
+  const router = useRouter();
   const course = initialCourse;
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const {
     courseCoupons,
     loading: couponsLoading,
     error: couponsError,
   } = useSelector((state: RootState) => state.coupon);
 
+  const { publicProfile } = useSelector(
+    (state: RootState) => state.instructorProfile
+  );
+
   useEffect(() => {
     if (courseId) {
-      dispatch(fetchCourseCoupons(Number(course.id)) as any);
+      dispatch(fetchCourseCoupons(Number(course.id)));
     }
-  }, [courseId, dispatch]);
+    if (course.instructor?.id) {
+      dispatch(fetchInstructorProfile(Number(course.instructor.id)));
+    }
+  }, [courseId, course.id, course.instructor?.id, dispatch]);
 
   if (!course)
     return (
@@ -60,9 +71,28 @@ const CourseDetail = ({ initialCourse, courseId }: Props) => {
         </h1>
 
         <div className="flex flex-wrap items-center text-gray-600 mb-4 gap-x-6 gap-y-3">
-          <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-blue-500" />
-            <span>{course.instructor?.fullname || "Giảng viên ẩn danh"}</span>
+          <div
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() =>
+              router.push(`/instructor-profile/${publicProfile?.user?.id}`)
+            }
+          >
+            <Avatar className="w-8 h-8">
+              <AvatarImage
+                src={
+                  publicProfile?.user?.avatar || "https://github.com/shadcn.png"
+                }
+                alt={publicProfile?.user?.fullname || "Instructor"}
+              />
+              <AvatarFallback>
+                {(
+                  publicProfile?.user?.fullname?.charAt(0) || "I"
+                ).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="font-medium">
+              {publicProfile?.user?.fullname || "Giảng viên ẩn danh"}
+            </span>
           </div>
           <div className="font-semibold text-blue-500">
             {course.price?.toLocaleString()} LC
@@ -164,6 +194,75 @@ const CourseDetail = ({ initialCourse, courseId }: Props) => {
           ) : (
             <p className="text-gray-500">Chưa có chương nào.</p>
           )}
+        </div>
+
+        {/* Instructor Info Section */}
+        <div className="mt-10 mb-8 p-6 bg-blue-50/50 rounded-2xl border border-blue-100">
+          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <User className="w-5 h-5 text-blue-600" />
+            Thông tin giảng viên
+          </h3>
+
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+            <div
+              className="flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() =>
+                router.push(`/instructor-profile/${publicProfile?.user?.id}`)
+              }
+            >
+              <Avatar className="w-20 h-20 border-4 border-white shadow-sm">
+                <AvatarImage
+                  src={
+                    publicProfile?.user?.avatar ||
+                    "https://github.com/shadcn.png"
+                  }
+                  alt={publicProfile?.user?.fullname || "Instructor"}
+                />
+                <AvatarFallback className="text-xl font-bold bg-blue-100 text-blue-600">
+                  {(
+                    course.instructor?.fullname?.charAt(0) || "I"
+                  ).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+
+            <div className="flex-1">
+              <h4
+                className="text-lg font-bold text-gray-800 cursor-pointer hover:text-blue-600 transition-colors mb-2"
+                onClick={() =>
+                  router.push(`/instructor-profile/${publicProfile?.user?.id}`)
+                }
+              >
+                {publicProfile?.user?.fullname || "Giảng viên"}
+              </h4>
+
+              {publicProfile &&
+              publicProfile.userId === course.instructor?.id ? (
+                <div className="prose prose-sm max-w-none text-gray-600">
+                  <p className="line-clamp-3">
+                    {publicProfile.bio ||
+                      "Giảng viên này chưa cập nhật thông tin giới thiệu."}
+                  </p>
+                  {publicProfile.bio && publicProfile.bio.length > 200 && (
+                    <span
+                      className="text-blue-600 text-sm font-medium cursor-pointer hover:underline mt-1 inline-block"
+                      onClick={() =>
+                        router.push(
+                          `/instructor-profile/${publicProfile?.user?.id}`
+                        )
+                      }
+                    >
+                      Xem thêm
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 italic">
+                  Đang tải thông tin...
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

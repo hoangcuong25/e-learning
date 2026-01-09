@@ -9,6 +9,12 @@ import {
 
 interface ReportState {
   reports: any[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  } | null;
   currentReport: any | null;
   loading: boolean;
   error: string | null;
@@ -17,6 +23,7 @@ interface ReportState {
 
 const initialState: ReportState = {
   reports: [],
+  pagination: null,
   currentReport: null,
   loading: false,
   error: null,
@@ -40,7 +47,9 @@ export const createReport = createAsyncThunk(
 export const fetchAllReports = createAsyncThunk(
   "report/fetchAll",
   async (
-    params: { page?: number; limit?: number; type?: string } | undefined,
+    params:
+      | { page?: number; limit?: number; type?: string; search?: string }
+      | undefined,
     { rejectWithValue }
   ) => {
     try {
@@ -119,9 +128,8 @@ const reportSlice = createSlice({
       })
       .addCase(fetchAllReports.fulfilled, (state, action) => {
         state.loading = false;
-        // Assuming the response structure is { data: [...] } or just [...]
-        // Based on coursesSlice, it seems to be action.payload.data
-        state.reports = action.payload.data || action.payload || [];
+        state.reports = action.payload.data || [];
+        state.pagination = action.payload.meta || null;
       })
       .addCase(fetchAllReports.rejected, (state, action) => {
         state.loading = false;

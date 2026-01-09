@@ -120,7 +120,7 @@ export default function AdminDiscountCampaignsPage() {
                 <thead className="bg-indigo-100 text-indigo-800">
                   <tr>
                     <th className="py-3 px-4 text-left">Tên chiến dịch</th>
-                    <th className="py-3 px-4 text-center">Giảm giá (%)</th>
+
                     <th className="py-3 px-4 text-left">Thời gian</th>
                     <th className="py-3 px-4 text-left">Trạng thái</th>
                     <th className="py-3 px-4 text-left">Coupon</th>
@@ -136,10 +136,6 @@ export default function AdminDiscountCampaignsPage() {
                     >
                       <td className="py-3 px-4 font-medium text-indigo-700">
                         {discount.title}
-                      </td>
-
-                      <td className="py-3 px-4 text-center font-semibold text-blue-600">
-                        {discount.percentage}%
                       </td>
 
                       <td className="py-3 px-4">

@@ -68,7 +68,7 @@ export class CourseController {
   }
 
   @Get(":id/instructor")
-  @Roles("INSTRUCTOR")
+  @Roles("INSTRUCTOR", "ADMIN")
   @ApiOperation({ summary: "Get course detail by ID" })
   @ResponseMessage("Get course detail")
   @ApiBearerAuth()
@@ -108,7 +108,7 @@ export class CourseController {
   }
 
   @Delete("instructor/course/:id")
-  @Roles("INSTRUCTOR")
+  @Roles("INSTRUCTOR", "ADMIN")
   @ApiOperation({ summary: "Delete a course by ID" })
   @ResponseMessage("Delete course")
   @ApiBearerAuth()

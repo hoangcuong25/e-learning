@@ -15,6 +15,7 @@ import {
   Home,
   Tag,
   Layers,
+  Flag,
 } from "lucide-react";
 
 const SidebarAdmin = () => {
@@ -39,7 +40,11 @@ const SidebarAdmin = () => {
       label: "Chuyên ngành",
       icon: Layers,
     },
-    { href: "/admin/reports", label: "Báo cáo thống kê", icon: BarChart3 },
+    {
+      href: "/admin/course-reports",
+      label: "Báo cáo",
+      icon: Flag,
+    },
   ];
 
   return (

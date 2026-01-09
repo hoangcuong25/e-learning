@@ -4,7 +4,6 @@ import { AppService } from "./app.service";
 import { UserModule } from "./modules/user/user.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { ConfigModule } from "@nestjs/config";
-import { InstructorModule } from "./modules/instructor/instructor.module";
 import { SpecializationModule } from "./modules/specialization/specialization.module";
 import { MailModule } from "./core/mailSender/mail.module";
 import { CourseModule } from "./modules/course/course.module";
@@ -25,10 +24,10 @@ import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { THROTTLER_CONFIG } from "./core/rate-limit/rate-limit";
 import { APP_GUARD } from "@nestjs/core";
 import { DiscountCampaignModule } from "./modules/discount-campaign/discount-campaign.module";
-import { InstructorAnalyticsModule } from "./modules/instructor-analytics/instructor-analytics.module";
 import { CronModule } from "./modules/cron/cron.module";
 import { ScheduleModule } from "@nestjs/schedule";
-import { ReportModule } from './modules/course-report/report.module';
+import { ReportModule } from "./modules/course-report/report.module";
+import { InstructorModule } from "./modules/instructor/instructor.module";
 
 @Module({
   imports: [
@@ -54,7 +53,6 @@ import { ReportModule } from './modules/course-report/report.module';
     EnrollmentModule,
     CartModule,
     NotificationModule,
-    InstructorAnalyticsModule,
     CronModule,
     ScheduleModule.forRoot(),
     ReportModule,

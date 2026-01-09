@@ -49,7 +49,7 @@ export default function DiscountDetailPage() {
   const [openDialog, setOpenDialog] = useState(false); // trạng thái mở/đóng dialog
 
   const { currentDiscount, loading, error } = useSelector(
-    (state: RootState) => state.discount
+    (state: RootState) => state.discountCampaign
   );
 
   // Fetch chi tiết discount khi mount

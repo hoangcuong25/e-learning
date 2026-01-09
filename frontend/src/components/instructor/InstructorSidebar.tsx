@@ -11,6 +11,7 @@ import {
   DollarSign,
   Brain,
   TicketPercent,
+  UserCog,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
@@ -34,6 +35,7 @@ const InstructorSidebar = () => {
     },
     { href: "/instructor/students", label: "Học viên", icon: Users },
     { href: "/instructor/earnings", label: "Thu nhập", icon: DollarSign },
+    { href: "/instructor/profile", label: "Hồ sơ giảng viên", icon: UserCog },
   ];
 
   useEffect(() => {

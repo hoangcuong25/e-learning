@@ -1,10 +1,18 @@
-import { Module } from '@nestjs/common';
-import { InstructorService } from './instructor.service';
-import { InstructorController } from './instructor.controller';
+import { Module } from "@nestjs/common";
+import { InstructorApplicationModule } from "./application/instructor-application.module";
+import { InstructorAnalyticsModule } from "./analytics/instructor-analytics.module";
+import { InstructorProfileModule } from "./profile/instructor-profile.module";
 
 @Module({
-  imports: [],
-  controllers: [InstructorController],
-  providers: [InstructorService],
+  imports: [
+    InstructorApplicationModule,
+    InstructorAnalyticsModule,
+    InstructorProfileModule,
+  ],
+  exports: [
+    InstructorApplicationModule,
+    InstructorAnalyticsModule,
+    InstructorProfileModule,
+  ],
 })
 export class InstructorModule {}
