@@ -14,7 +14,7 @@ interface LessonContentTabsProps {
 }
 
 const tabClasses = {
-  base: "px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200",
+  base: "px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium border-b-2 transition-colors duration-200",
   active: "border-blue-600 text-blue-600",
   inactive:
     "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
@@ -30,8 +30,8 @@ const LessonContentTabs: React.FC<LessonContentTabsProps> = ({
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 mt-8">
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 px-6">
-        <nav className="flex space-x-4">
+      <div className="border-b border-gray-200 px-2 md:px-6">
+        <nav className="flex space-x-2 md:space-x-4">
           <button
             onClick={() => setActiveTab("overview")}
             className={`${tabClasses.base} ${
@@ -63,7 +63,7 @@ const LessonContentTabs: React.FC<LessonContentTabsProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         {/* OVERVIEW */}
         {activeTab === "overview" && (
           <div id="overview-tab">

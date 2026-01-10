@@ -58,7 +58,7 @@ const LessonDiscussDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-7xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-4 md:p-6">
         <DialogHeader>
           <DialogTitle>Thảo luận bài học: {lesson?.title}</DialogTitle>
         </DialogHeader>
@@ -66,13 +66,13 @@ const LessonDiscussDialog = ({
         <div className="flex-1 overflow-y-auto pr-2">
           <div className="space-y-8">
             {/* Post Question Form */}
-            <div className="bg-white p-6 rounded-xl border shadow-sm">
+            <div className="bg-white p-4 md:p-6 rounded-xl border shadow-sm">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <MessageCircle className="text-blue-600" size={20} />
                 Đặt câu hỏi mới
               </h3>
-              <div className="flex gap-4">
-                <Avatar className="w-10 h-10">
+              <div className="flex gap-3 md:gap-4">
+                <Avatar className="w-8 h-8 md:w-10 md:h-10">
                   <AvatarImage src={user?.avatar} />
                   <AvatarFallback>{user?.fullname?.[0] || "U"}</AvatarFallback>
                 </Avatar>
@@ -110,11 +110,11 @@ const LessonDiscussDialog = ({
                 questions.map((question) => (
                   <div
                     key={question.id}
-                    className="bg-white p-6 rounded-xl border shadow-sm"
+                    className="bg-white p-4 md:p-6 rounded-xl border shadow-sm"
                   >
                     {/* Question Header */}
-                    <div className="flex gap-4">
-                      <Avatar className="w-10 h-10 border">
+                    <div className="flex gap-3 md:gap-4">
+                      <Avatar className="w-8 h-8 md:w-10 md:h-10 border">
                         <AvatarImage src={question.user.avatar} />
                         <AvatarFallback>
                           {question.user.fullname[0]}
@@ -199,7 +199,7 @@ const LessonDiscussDialog = ({
 
                     {/* Answers List */}
                     {question.answers && question.answers.length > 0 && (
-                      <div className="mt-6 pl-14 space-y-6 border-l-2 border-gray-100 ml-5">
+                      <div className="mt-4 md:mt-6 pl-4 md:pl-14 space-y-4 md:space-y-6 border-l-2 border-gray-100 ml-0 md:ml-5">
                         {question.answers.map((answer) => (
                           <div key={answer.id} className="relative">
                             <div className="flex gap-3">
@@ -288,7 +288,7 @@ const LessonDiscussDialog = ({
                                 {/* Replies List */}
                                 {answer.replies &&
                                   answer.replies.length > 0 && (
-                                    <div className="mt-3 space-y-3 pl-4 border-l-2 border-gray-200">
+                                    <div className="mt-3 space-y-3 pl-2 md:pl-4 border-l-2 border-gray-200">
                                       {answer.replies.map((reply) => (
                                         <div
                                           key={reply.id}

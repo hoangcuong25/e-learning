@@ -99,14 +99,14 @@ const Quizzes = () => {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div className="step-quiz-header">
-          <h1 className="text-3xl font-bold text-gray-800">
-            🎓 Quản lý Quiz của bạn
+          <h1 className="text-3xl font-bold text-gray-800 mb-1">
+            Quản lý Quiz của bạn
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-gray-500">
             Tạo, sửa tiêu đề và quản lý các bài quiz của khóa học bạn giảng dạy.
           </p>
         </div>

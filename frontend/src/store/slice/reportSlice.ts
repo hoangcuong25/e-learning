@@ -8,14 +8,14 @@ import {
 } from "@/store/api/report.api";
 
 interface ReportState {
-  reports: any[];
+  reports: ReportType[];
   pagination: {
     page: number;
     limit: number;
     total: number;
     totalPages: number;
   } | null;
-  currentReport: any | null;
+  currentReport: ReportType | null;
   loading: boolean;
   error: string | null;
   successMessage: string | null;
@@ -36,7 +36,7 @@ export const createReport = createAsyncThunk(
   async (payload: CreateReportPayload, { rejectWithValue }) => {
     try {
       const response = await createReportApi(payload);
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi khi gửi báo cáo");
     }
@@ -48,13 +48,13 @@ export const fetchAllReports = createAsyncThunk(
   "report/fetchAll",
   async (
     params:
-      | { page?: number; limit?: number; type?: string; search?: string }
+      | { page?: number; limit?: number; status?: string; search?: string }
       | undefined,
     { rejectWithValue }
   ) => {
     try {
       const response = await getAllReportsApi(params);
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data || "Lỗi khi tải danh sách báo cáo"
@@ -69,7 +69,7 @@ export const fetchReportDetail = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await getReportDetailApi(id);
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data || "Lỗi khi tải chi tiết báo cáo"
@@ -84,7 +84,7 @@ export const deleteReport = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await deleteReportApi(id);
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi khi xóa báo cáo");
     }
@@ -129,7 +129,7 @@ const reportSlice = createSlice({
       .addCase(fetchAllReports.fulfilled, (state, action) => {
         state.loading = false;
         state.reports = action.payload.data || [];
-        state.pagination = action.payload.meta || null;
+        state.pagination = action.payload.pagination || null;
       })
       .addCase(fetchAllReports.rejected, (state, action) => {
         state.loading = false;

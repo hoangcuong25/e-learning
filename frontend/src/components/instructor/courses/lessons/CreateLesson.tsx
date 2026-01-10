@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, FieldError } from "react-hook-form"; // ✅ Import FieldError
+import { useForm, FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
@@ -20,10 +20,9 @@ import { Label } from "@/components/ui/label";
 import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchCourseById } from "@/store/slice/coursesSlice";
-
 import { lessonSchema, LessonFormData } from "@/hook/zod-schema/LessonSchema";
 import RichTextEditor from "@/components/RichTextEditor";
-import { uploadVideo } from "@/store/api/cloudinary.api";
+import { uploadMedia } from "@/store/api/cloudinary.api";
 
 type ProcessState = "idle" | "uploading" | "creating_lesson";
 
@@ -61,6 +60,7 @@ const CreateLesson = ({
     let toastId: any = null;
     try {
       let videoUrl = "";
+      let videoDuration = 0; // Thời lượng video (giây)
 
       // 1. Kiểm tra video và Upload lên Cloudinary
       if (data.video instanceof FileList && data.video.length > 0) {
@@ -70,8 +70,11 @@ const CreateLesson = ({
         });
 
         const file = data.video[0];
-        const uploaded = await uploadVideo(file);
+        const uploaded = await uploadMedia({ file, type: "video" });
         videoUrl = uploaded.secure_url;
+
+        // Lấy thời lượng video từ Cloudinary response
+        videoDuration = Math.round(uploaded.duration || 0);
 
         toast.dismiss(toastId);
         setProcessState("creating_lesson");
@@ -90,6 +93,7 @@ const CreateLesson = ({
         orderIndex: data.orderIndex ?? 0,
         chapterId,
         videoUrl: videoUrl,
+        duration: videoDuration,
       };
 
       await dispatch(createLesson(payload)).unwrap();

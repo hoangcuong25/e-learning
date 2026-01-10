@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Menu, User } from "lucide-react";
+import { GraduationCap, Menu, User } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import logo from "@public/logo.png";
@@ -9,6 +9,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import Link from "next/link";
@@ -20,6 +21,7 @@ import { toast } from "sonner";
 import LoadingScreen from "../LoadingScreen";
 import { fetchUnreadCount } from "@/store/slice/notificationsSlice";
 import NotificationBell from "./NotificationBell";
+import { VisuallyHidden } from "../ui/visually-hidden";
 
 const NavbarUser = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -52,8 +54,8 @@ const NavbarUser = () => {
   const menuItems = [
     { label: "Trang chủ", path: "/" },
     { label: "Khóa học", path: "/courses" },
-    { label: "Lộ trình học", path: "/roadmaps" },
-    { label: "Liên hệ", path: "/contact-us" },
+    { label: "Cộng đồng", path: "/community" },
+    { label: "Smart Hub", path: "/smart-hub" },
   ];
 
   if (loading) return <LoadingScreen />;
@@ -120,6 +122,9 @@ const NavbarUser = () => {
 
         <SheetContent side="left" className="w-72 px-2.5">
           <SheetHeader className="flex flex-col items-start gap-4 mb-6">
+            <VisuallyHidden>
+              <SheetTitle>Menu</SheetTitle>
+            </VisuallyHidden>
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="flex items-center gap-3 cursor-pointer"
@@ -163,8 +168,9 @@ const NavbarUser = () => {
             <motion.div whileHover={{ scale: 1.05 }}>
               <div
                 onClick={handleClickInstructor}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-blue-300 bg-blue-50 hover:bg-blue-100 transition cursor-pointer"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-blue-300 bg-blue-50 hover:bg-blue-100 transition cursor-pointer md:flex hidden"
               >
+                <GraduationCap className="w-5 h-5 text-blue-700" />
                 <span className="text-sm font-semibold text-blue-700">
                   Giảng dạy trên EduSmart
                 </span>
@@ -175,9 +181,6 @@ const NavbarUser = () => {
             {user && (
               <div className="flex items-center gap-2 px-2 py-1">
                 <NotificationBell />
-                <span className="text-sm text-gray-600 font-medium">
-                  Thông báo
-                </span>
               </div>
             )}
 
@@ -186,6 +189,7 @@ const NavbarUser = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-full hover:bg-blue-100 transition duration-200"
+                onClick={() => router.push("/profile")}
               >
                 <Image
                   src={user.avatar || "/default-avatar.png"}
@@ -221,15 +225,23 @@ const NavbarUser = () => {
         <motion.div whileHover={{ scale: 1.05 }}>
           <div
             onClick={handleClickInstructor}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-blue-300 bg-blue-50 hover:bg-blue-100 transition cursor-pointer"
+            className="
+              flex items-center justify-center gap-2
+              px-2 xl:px-4 py-2
+              rounded-full
+              border border-blue-300
+              bg-blue-50 hover:bg-blue-100
+              transition cursor-pointer
+            "
           >
-            <span className="text-sm font-semibold text-blue-700">
+            <GraduationCap className="w-5 h-5 text-blue-700" />
+            <span className="hidden xl:block text-sm font-semibold text-blue-700">
               Giảng dạy trên EduSmart
             </span>
           </div>
         </motion.div>
 
-        {/* 🔹 Notification Bell (Desktop) - Đã thay thế */}
+        {/* 🔹 Notification Bell (Desktop) */}
         {user && (
           <motion.div whileHover={{ scale: 1.1 }}>
             <NotificationBell />

@@ -150,7 +150,7 @@ export class CourseService {
         orderBy,
         include: {
           instructor: {
-            select: { id: true, fullname: true, email: true },
+            select: { id: true, fullname: true, email: true, avatar: true },
           },
           _count: {
             select: {
@@ -167,7 +167,14 @@ export class CourseService {
           coupon: {
             where: {
               isActive: true,
-              OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+              AND: [
+                {
+                  OR: [{ startsAt: null }, { startsAt: { lte: now } }],
+                },
+                {
+                  OR: [{ endsAt: null }, { endsAt: { gt: now } }],
+                },
+              ],
             },
           },
         },
@@ -187,7 +194,7 @@ export class CourseService {
       where: { id, deletedAt: null },
       include: {
         instructor: {
-          select: { id: true, fullname: true, email: true },
+          select: { id: true, fullname: true, email: true, avatar: true },
         },
         specializations: {
           include: {

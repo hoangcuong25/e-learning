@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import { BookOpen, Tag, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
@@ -20,6 +21,14 @@ interface Props {
 const CourseDetail = ({ initialCourse, courseId }: Props) => {
   const router = useRouter();
   const course = initialCourse;
+  const buySectionRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBuySection = () => {
+    buySectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
 
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -266,7 +275,7 @@ const CourseDetail = ({ initialCourse, courseId }: Props) => {
         </div>
       </div>
 
-      <div className="sticky top-24">
+      <div className="sticky top-24" ref={buySectionRef}>
         <CourseSidebar
           price={course.price}
           courseId={course.id}
@@ -274,6 +283,27 @@ const CourseDetail = ({ initialCourse, courseId }: Props) => {
           couponsLoading={couponsLoading}
           couponsError={couponsError}
         />
+      </div>
+
+      {/* Mobile Sticky Buy Button */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 px-5 py-4 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.1)] lg:hidden flex items-center justify-between animate-in slide-in-from-bottom duration-300">
+        <div className="flex flex-col">
+          <span className="text-xs text-gray-500 font-medium">
+            Giá khóa học
+          </span>
+          <span className="font-bold text-xl text-blue-600">
+            {course.price === 0
+              ? "Miễn phí"
+              : `${course.price?.toLocaleString()} LC`}
+          </span>
+        </div>
+        <Button
+          onClick={scrollToBuySection}
+          size="lg"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 rounded-xl shadow-lg shadow-blue-500/30 active:scale-95 transition-all"
+        >
+          Mua ngay
+        </Button>
       </div>
     </motion.div>
   );

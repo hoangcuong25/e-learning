@@ -25,7 +25,6 @@ import {
 } from "@/store/slice/coursesSlice";
 import { CourseFormData, courseSchema } from "@/hook/zod-schema/CourseSchema";
 import LoadingScreen from "@/components/LoadingScreen";
-import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
 import RichTextEditor from "@/components/RichTextEditor";
 
 export default function CourseCreate() {
@@ -42,6 +41,7 @@ export default function CourseCreate() {
   const [file, setFile] = useState<File | null>(null);
   const [selectedSpecs, setSelectedSpecs] = useState<number[]>([]);
   const [courseType, setCourseType] = useState<"FREE" | "PAID">("FREE");
+  const [selectPublic, setSelectPublic] = useState<string>("true");
 
   const {
     register,
@@ -112,6 +112,7 @@ export default function CourseCreate() {
       );
 
       if (file) formData.append("thumbnail", file);
+      formData.append("isPublished", selectPublic);
 
       await dispatch(createCourse(formData)).unwrap();
       await dispatch(fetchCoursesByInstructor()).unwrap();
@@ -121,6 +122,7 @@ export default function CourseCreate() {
       removePreview();
       setSelectedSpecs([]);
       setCourseType("FREE");
+      setSelectPublic("true");
       setOpen(false);
     } catch {
       toast.error("Không thể tạo khóa học!");
@@ -196,6 +198,29 @@ export default function CourseCreate() {
                   }}
                 />
                 <span>Trả phí</span>
+              </label>
+            </div>
+          </div>
+
+          {/* ─── Trạng thái khóa học ───────────────────── */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-sm">Trạng thái khóa học</label>
+            <div className="flex items-center gap-6">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  checked={selectPublic === "true"}
+                  onChange={() => setSelectPublic("true")}
+                />
+                Công khai
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  checked={selectPublic === "false"}
+                  onChange={() => setSelectPublic("false")}
+                />
+                Bản nháp
               </label>
             </div>
           </div>

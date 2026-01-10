@@ -11,6 +11,7 @@ export const courseSchema = z.object({
   specializationIds: z
     .array(z.number())
     .min(1, "Cần chọn ít nhất 1 chuyên ngành"),
+  isPublished: z.boolean().optional(),
 });
 
 export type CourseFormData = z.infer<typeof courseSchema>;

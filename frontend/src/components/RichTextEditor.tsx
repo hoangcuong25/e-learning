@@ -45,7 +45,7 @@ export default function RichTextEditor({
         types: ["heading", "paragraph"],
       }),
     ],
-    content: value || "<p>Nhập mô tả khóa học...</p>",
+    content: value || "<p>Nhập vào đây...</p>",
     immediatelyRender: false,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {

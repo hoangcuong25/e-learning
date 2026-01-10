@@ -75,7 +75,7 @@ export default function CreateDiscountForm() {
   return (
     <Card className="bg-white rounded-2xl shadow-sm border border-indigo-100 mt-4">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold text-indigo-700">
+        <CardTitle className="text-xl font-semibold text-blue-700">
           Nhập thông tin chiến dịch
         </CardTitle>
       </CardHeader>
@@ -118,7 +118,11 @@ export default function CreateDiscountForm() {
           <div className="flex gap-4">
             <div className="flex-1">
               <Label htmlFor="startDate">Ngày bắt đầu</Label>
-              <Input id="startDate" type="date" {...register("startDate")} />
+              <Input
+                id="startDate"
+                type="datetime-local"
+                {...register("startDate")}
+              />
               {errors.startDate && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.startDate.message}
@@ -127,7 +131,11 @@ export default function CreateDiscountForm() {
             </div>
             <div className="flex-1">
               <Label htmlFor="endDate">Ngày kết thúc</Label>
-              <Input id="endDate" type="date" {...register("endDate")} />
+              <Input
+                id="endDate"
+                type="datetime-local"
+                {...register("endDate")}
+              />
               {errors.endDate && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.endDate.message}

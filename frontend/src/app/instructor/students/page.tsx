@@ -7,6 +7,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { fetchEnrollmentStats } from "@/store/slice/instructorAnalyticsSlice";
 import LoadingScreen from "@/components/LoadingScreen";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Cell,
+} from "recharts";
 
 export default function InstructorStudentsPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -17,6 +27,40 @@ export default function InstructorStudentsPage() {
   useEffect(() => {
     dispatch(fetchEnrollmentStats());
   }, [dispatch]);
+
+  const overviewChartData = [
+    {
+      name: "Học viên",
+      value: enrollmentStats?.totalStudents || 0,
+      color: "#3b82f6",
+    },
+    {
+      name: "Đăng ký",
+      value: enrollmentStats?.totalEnrollments || 0,
+      color: "#22c55e",
+    },
+    {
+      name: "Hoàn thành",
+      value: enrollmentStats?.completedEnrollmentsCount || 0,
+      color: "#8b5cf6",
+    },
+  ];
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white border rounded-xl px-4 py-2 shadow-lg">
+          <p className="font-semibold text-gray-800">
+            {payload[0].payload.name}
+          </p>
+          <p className="text-indigo-600 text-lg font-bold">
+            {payload[0].value}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   const stats = [
     {
@@ -147,6 +191,33 @@ export default function InstructorStudentsPage() {
                   Số khóa học trung bình mỗi học viên đăng ký
                 </p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>📊 Thống kê học viên</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={overviewChartData} barSize={50}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar
+                    dataKey="value"
+                    radius={[12, 12, 0, 0]}
+                    animationDuration={800}
+                  >
+                    {overviewChartData.map((entry, index) => (
+                      <Cell key={index} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>

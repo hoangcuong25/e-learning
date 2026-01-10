@@ -117,14 +117,10 @@ export default function DiscountDetailPage() {
   };
 
   return (
-    <div className="p-8 bg-gradient-to-br from-indigo-50 via-white to-blue-50 rounded-lg shadow-sm min-h-[90vh]">
+    <div className="p-8 bg-gradient-to-br from-blue-50 via-white to-blue-50 rounded-lg shadow-sm min-h-[90vh]">
       {/* Header actions */}
       <div className="flex justify-between items-center mb-8">
-        <Button
-          variant="outline"
-          onClick={() => router.back()}
-          className="text-indigo-700 border-indigo-300 hover:bg-indigo-100"
-        >
+        <Button variant="ghost" onClick={() => router.back()} className="mb-4">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Quay lại
         </Button>
@@ -189,7 +185,7 @@ export default function DiscountDetailPage() {
 
       {/* Main content */}
       <Card className="shadow-lg border-indigo-100 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
+        <CardHeader className="bg-blue-600 text-white">
           <CardTitle className="text-2xl font-semibold flex items-center gap-2">
             <Tag className="w-6 h-6" />
             {title}
@@ -224,6 +220,18 @@ export default function DiscountDetailPage() {
                 </span>
               </div>
 
+              <div className="flex items-center gap-2">
+                {isActive ? (
+                  <span className="inline-flex items-center text-green-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-1" /> Đang hoạt động
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center text-gray-500">
+                    <XCircle className="w-4 h-4 mr-1" /> Không hoạt động
+                  </span>
+                )}
+              </div>
+
               <div className="flex items-center gap-2 text-gray-600">
                 <Calendar className="w-4 h-4 text-blue-500" />
                 <span>
@@ -242,18 +250,6 @@ export default function DiscountDetailPage() {
                     ? new Date(endsAt).toLocaleDateString("vi-VN")
                     : "Chưa có"}
                 </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {isActive ? (
-                  <span className="inline-flex items-center text-green-600 font-medium">
-                    <CheckCircle className="w-4 h-4 mr-1" /> Đang hoạt động
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center text-gray-500">
-                    <XCircle className="w-4 h-4 mr-1" /> Không hoạt động
-                  </span>
-                )}
               </div>
             </div>
 
@@ -295,7 +291,6 @@ export default function DiscountDetailPage() {
           </div>
 
           {/* Danh sách coupon */}
-          {/* Danh sách coupon */}
           <div className="pt-6 border-t">
             <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
               <Tag className="w-5 h-5 text-blue-500" />
@@ -311,22 +306,13 @@ export default function DiscountDetailPage() {
                   >
                     <CardHeader className="p-3 pb-0">
                       <div className="flex justify-between items-center">
-                        <span className="font-semibold text-indigo-700 uppercase">
+                        <span className="font-semibold text-blue-700 uppercase">
                           {coupon.code}
                         </span>
-                        {coupon.isActive ? (
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                            Đang hoạt động
-                          </span>
-                        ) : (
-                          <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                            Tạm tắt
-                          </span>
-                        )}
                       </div>
                     </CardHeader>
 
-                    <CardContent className="p-3 space-y-2 text-sm text-gray-700">
+                    <CardContent className="p-3 pt-0 space-y-2 text-sm text-gray-700">
                       <div className="flex items-center gap-2">
                         <Percent className="w-4 h-4 text-blue-500" />
                         <span>Giảm {coupon.percentage}%</span>
@@ -346,13 +332,24 @@ export default function DiscountDetailPage() {
                         </div>
                       )}
 
-                      {coupon.expiresAt && (
+                      {(coupon.startsAt || coupon.endsAt) && (
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-blue-500" />
-                          <span>
-                            Hết hạn:{" "}
-                            {new Date(coupon.expiresAt).toLocaleDateString(
-                              "vi-VN"
+                          <span className="text-xs">
+                            {coupon.startsAt && (
+                              <span>
+                                {new Date(coupon.startsAt).toLocaleDateString(
+                                  "vi-VN"
+                                )}
+                              </span>
+                            )}
+                            {coupon.startsAt && coupon.endsAt && " - "}
+                            {coupon.endsAt && (
+                              <span>
+                                {new Date(coupon.endsAt).toLocaleDateString(
+                                  "vi-VN"
+                                )}
+                              </span>
                             )}
                           </span>
                         </div>

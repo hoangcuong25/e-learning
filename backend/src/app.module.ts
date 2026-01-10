@@ -26,8 +26,10 @@ import { APP_GUARD } from "@nestjs/core";
 import { DiscountCampaignModule } from "./modules/discount-campaign/discount-campaign.module";
 import { CronModule } from "./modules/cron/cron.module";
 import { ScheduleModule } from "@nestjs/schedule";
-import { ReportModule } from "./modules/course-report/report.module";
+import { ReportModule } from "./modules/report/report.module";
 import { InstructorModule } from "./modules/instructor/instructor.module";
+import { AdminAnalyticsModule } from "./modules/admin-analytics/admin-analytics.module";
+import { CommunityModule } from "./modules/community/community.module";
 
 @Module({
   imports: [
@@ -56,6 +58,8 @@ import { InstructorModule } from "./modules/instructor/instructor.module";
     CronModule,
     ScheduleModule.forRoot(),
     ReportModule,
+    AdminAnalyticsModule,
+    CommunityModule,
   ],
   controllers: [AppController],
   providers: [

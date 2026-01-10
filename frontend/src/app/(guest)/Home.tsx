@@ -303,6 +303,38 @@ const Home = ({ popularCourses }: { popularCourses: CourseType[] }) => {
         viewport={{ once: true }}
         className="max-w-7xl mx-auto px-6 py-20"
       >
+        {/* Stats – Social Proof */}
+        <section className="px-6 mb-0">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              {
+                value: "1M+",
+                label: "Người dùng",
+              },
+              {
+                value: "300K+",
+                label: "Bài viết",
+              },
+              {
+                value: "5M+",
+                label: "Lượt thích",
+              },
+              {
+                value: "2M+",
+                label: "Bình luận",
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl p-6 text-center shadow-sm"
+              >
+                <p className="text-3xl font-bold text-gray-800">{item.value}</p>
+                <p className="text-gray-500">{item.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <div className="bg-blue-50 rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between gap-10 shadow-sm">
           {/* Left Text */}
           <div className="flex-1">
@@ -313,7 +345,7 @@ const Home = ({ popularCourses }: { popularCourses: CourseType[] }) => {
               Hơn{" "}
               <span className="font-semibold text-blue-600">
                 1 triệu học viên
-              </span>
+              </span>{" "}
               đang học tập mỗi ngày trên nền tảng EduSmart. Hãy trở thành một
               phần của cộng đồng năng động, chia sẻ kiến thức và phát triển sự
               nghiệp cùng nhau.

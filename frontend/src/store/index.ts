@@ -15,6 +15,8 @@ import courseRatingReducer from "./slice/courseRatingSlice";
 import instructorAnalyticsReducer from "./slice/instructorAnalyticsSlice";
 import reportReducer from "./slice/reportSlice";
 import instructorProfileReducer from "./slice/instructorProfileSlice";
+import adminAnalyticsReducer from "./slice/adminAnalyticsSlice";
+import postReducer from "./slice/postSlice";
 
 export const store = configureStore({
   reducer: {
@@ -34,6 +36,8 @@ export const store = configureStore({
     instructorAnalytics: instructorAnalyticsReducer,
     report: reportReducer,
     instructorProfile: instructorProfileReducer,
+    adminAnalytics: adminAnalyticsReducer,
+    post: postReducer,
   },
 });
 

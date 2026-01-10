@@ -66,9 +66,9 @@ const Payment = () => {
       ).unwrap();
 
       toast.success(`Thanh toán thành công! Bạn đã ghi danh vào khóa học.`);
-      router.push(`/courses/${courseId}`);
+      router.push(`/my-learning`);
     } catch (error: any) {
-      toast.error(
+      toast.error(  
         error?.message || "Có lỗi xảy ra khi thanh toán, vui lòng thử lại."
       );
     }

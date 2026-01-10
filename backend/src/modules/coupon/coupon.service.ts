@@ -36,17 +36,33 @@ export class CouponService {
       }
     }
 
-    // Kiểm tra expiresAt phải là tương lai
-    if (dto.expiresAt) {
-      const expiresDate = new Date(dto.expiresAt);
-      const now = new Date();
+    // Kiểm tra startsAt và endsAt
+    const now = new Date();
 
-      if (isNaN(expiresDate.getTime())) {
-        throw new BadRequestException("Định dạng ngày hết hạn không hợp lệ");
+    if (dto.startsAt) {
+      const startsDate = new Date(dto.startsAt);
+      if (isNaN(startsDate.getTime())) {
+        throw new BadRequestException("Định dạng ngày bắt đầu không hợp lệ");
+      }
+    }
+
+    if (dto.endsAt) {
+      const endsDate = new Date(dto.endsAt);
+      if (isNaN(endsDate.getTime())) {
+        throw new BadRequestException("Định dạng ngày kết thúc không hợp lệ");
       }
 
-      if (expiresDate <= now) {
-        throw new BadRequestException("Ngày hết hạn phải nằm trong tương lai");
+      if (endsDate <= now) {
+        throw new BadRequestException("Ngày kết thúc phải nằm trong tương lai");
+      }
+    }
+
+    // Kiểm tra startsAt < endsAt
+    if (dto.startsAt && dto.endsAt) {
+      const startsDate = new Date(dto.startsAt);
+      const endsDate = new Date(dto.endsAt);
+      if (startsDate >= endsDate) {
+        throw new BadRequestException("Ngày bắt đầu phải trước ngày kết thúc");
       }
     }
 
@@ -66,7 +82,8 @@ export class CouponService {
         code: generatedCode,
         percentage: dto.percentage ?? 0,
         maxUsage: dto.maxUsage ?? 0,
-        expiresAt: dto.expiresAt ?? null,
+        startsAt: dto.startsAt ? new Date(dto.startsAt) : null,
+        endsAt: dto.endsAt ? new Date(dto.endsAt) : null,
         isActive: dto.isActive ?? true,
         courseId: dto.courseId ?? null,
         specializationId: dto.specializationId ?? null,
@@ -95,15 +112,33 @@ export class CouponService {
       throw new NotFoundException("Chiến dịch giảm giá không tồn tại");
     }
 
-    // Kiểm tra expiresAt
-    if (dto.expiresAt) {
-      const expiresDate = new Date(dto.expiresAt);
-      if (isNaN(expiresDate.getTime())) {
-        throw new BadRequestException("Định dạng ngày hết hạn không hợp lệ");
+    // Kiểm tra startsAt và endsAt
+    const now = new Date();
+
+    if (dto.startsAt) {
+      const startsDate = new Date(dto.startsAt);
+      if (isNaN(startsDate.getTime())) {
+        throw new BadRequestException("Định dạng ngày bắt đầu không hợp lệ");
       }
-      const now = new Date();
-      if (expiresDate <= now) {
-        throw new BadRequestException("Ngày hết hạn phải nằm trong tương lai");
+    }
+
+    if (dto.endsAt) {
+      const endsDate = new Date(dto.endsAt);
+      if (isNaN(endsDate.getTime())) {
+        throw new BadRequestException("Định dạng ngày kết thúc không hợp lệ");
+      }
+
+      if (endsDate <= now) {
+        throw new BadRequestException("Ngày kết thúc phải nằm trong tương lai");
+      }
+    }
+
+    // Kiểm tra startsAt < endsAt
+    if (dto.startsAt && dto.endsAt) {
+      const startsDate = new Date(dto.startsAt);
+      const endsDate = new Date(dto.endsAt);
+      if (startsDate >= endsDate) {
+        throw new BadRequestException("Ngày bắt đầu phải trước ngày kết thúc");
       }
     }
 
@@ -125,7 +160,8 @@ export class CouponService {
         code: generatedCode,
         percentage: dto.percentage ?? 0,
         maxUsage: dto.maxUsage ?? 0,
-        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
+        startsAt: dto.startsAt ? new Date(dto.startsAt) : null,
+        endsAt: dto.endsAt ? new Date(dto.endsAt) : null,
         isActive: dto.isActive ?? true,
         target: dto.target ?? "ALL",
         createdById: adminId,
@@ -211,7 +247,8 @@ export class CouponService {
         code: dto.code ? dto.code.trim().toUpperCase() : coupon.code,
         percentage: dto.percentage ?? coupon.percentage,
         maxUsage: dto.maxUsage ?? coupon.maxUsage,
-        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : coupon.expiresAt,
+        startsAt: dto.startsAt ? new Date(dto.startsAt) : coupon.startsAt,
+        endsAt: dto.endsAt ? new Date(dto.endsAt) : coupon.endsAt,
         isActive:
           typeof dto.isActive === "boolean" ? dto.isActive : coupon.isActive,
         target: dto.target ?? coupon.target,
@@ -260,7 +297,13 @@ export class CouponService {
 
     // Check thời hạn
     const now = new Date();
-    if (coupon.expiresAt && coupon.expiresAt < now)
+
+    // Kiểm tra coupon đã bắt đầu chưa
+    if (coupon.startsAt && coupon.startsAt > now)
+      throw new BadRequestException("Coupon chưa có hiệu lực");
+
+    // Kiểm tra coupon đã hết hạn chưa
+    if (coupon.endsAt && coupon.endsAt < now)
       throw new BadRequestException("Coupon đã hết hạn");
 
     // Check max usage
@@ -348,7 +391,10 @@ export class CouponService {
             ],
           },
           {
-            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+            OR: [{ startsAt: null }, { startsAt: { lte: now } }],
+          },
+          {
+            OR: [{ endsAt: null }, { endsAt: { gt: now } }],
           },
         ],
       },

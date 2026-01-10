@@ -5,7 +5,7 @@ import ChangePassword from "@/components/user/ChangePassword";
 import VerifyAccount from "@/components/user/VerifyAccount";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { GenderEnum, GenderLabel } from "@/constants/Gender";
+import { GenderEnum, GenderLabel } from "@/constants/gender.enum";
 import Image from "next/image";
 
 export default function ProfilePage() {

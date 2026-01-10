@@ -1,6 +1,12 @@
 export {};
 
 declare global {
+  // 🧩 Enums
+  type ReportTargetType = import("@/constants/report.enum").ReportTargetType;
+  type ReportReason = import("@/constants/report.enum").ReportReason;
+  type ReportStatus = import("@/constants/report.enum").ReportStatus;
+  type GenderEnum = import("@/constants/gender.enum").GenderEnum;
+
   type PaginationParams = {
     page?: number;
     limit?: number;
@@ -15,7 +21,7 @@ declare global {
     fullname: string;
     email: string;
     avatar: string;
-    gender: string;
+    gender: GenderEnum;
     dob: string;
     address: string;
     phone: string;
@@ -32,18 +38,11 @@ declare global {
     id: string;
     fullname: string;
     avatar: string;
-    age: string;
-    gender: genderEnum;
+    gender: GenderEnum;
     dob: string;
     address: string;
     phone: string;
   };
-
-  enum genderEnum {
-    MALE = "MALE",
-    FEMALE = "FEMALE",
-    OTHER = "OTHER",
-  }
 
   type InstructorApplicationType = {
     id: number;
@@ -192,7 +191,8 @@ declare global {
     percentage: number; // % giảm giá
     maxUsage?: number | null; // Giới hạn số lần dùng
     usedCount: number; // Số lần đã dùng
-    expiresAt?: string | null; // Hạn sử dụng
+    startsAt?: string | null; // Ngày bắt đầu
+    endsAt?: string | null; // Ngày kết thúc
     isActive: boolean;
     target: CouponTargetEnum;
 
@@ -258,7 +258,7 @@ declare global {
     couponId?: number | null;
     coupon?: Pick<
       CouponType,
-      "id" | "code" | "percentage" | "isActive" | "expiresAt"
+      "id" | "code" | "percentage" | "isActive" | "startsAt" | "endsAt"
     > | null;
 
     // Thông tin quan hệ
@@ -323,5 +323,54 @@ declare global {
     createdAt: string;
     userId: number;
     link?: string;
-};
+  };
+
+  // 🧩 PostType
+  type PostType = {
+    id: number;
+    content: string;
+    media?: { url: string; type: "IMAGE" | "VIDEO" }[];
+    authorId: number;
+    author?: Pick<UserType, "id" | "fullname" | "avatar">;
+    isLiked?: boolean; // Cho frontend check xem user hiện tại đã like chưa
+    createdAt: string;
+    updatedAt: string;
+    comments?: CommentType[];
+    _count?: {
+      likes: number;
+      comments: number;
+      shares: number;
+    };
+  };
+
+  // 🧩 CommentType
+  type CommentType = {
+    id: number;
+    content: string;
+    postId: number;
+    authorId: number;
+    author?: Pick<UserType, "id" | "fullname" | "avatar">;
+    parentId?: number | null; // Nếu là reply
+    replies?: CommentType[];
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  // 🧩 ReportType
+  type ReportType = {
+    id: number;
+    reporterId: number;
+    targetType: ReportTargetType;
+    targetId: number;
+    reason: ReportReason;
+    description?: string;
+    status: ReportStatus;
+    reviewedBy?: number;
+    reviewedAt?: string;
+
+    reporter?: Pick<UserType, "id" | "fullname" | "email" | "avatar">;
+
+    createdAt: string;
+    updatedAt: string;
+  };
 }

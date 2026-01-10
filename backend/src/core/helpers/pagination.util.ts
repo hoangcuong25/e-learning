@@ -1,5 +1,3 @@
-import { Prisma } from "@prisma/client";
-
 export function buildPaginationParams(dto: any) {
   const page = parseInt(dto.page) || 1;
   const limit = parseInt(dto.limit) || 10;

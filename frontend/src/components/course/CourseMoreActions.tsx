@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { MoreVertical, Flag, RotateCcw } from "lucide-react";
+import { ReportReason, ReportReasonTranslation } from "@/constants/report.enum";
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -47,12 +49,6 @@ interface CourseMoreActionsProps {
   courseId: number;
 }
 
-enum CourseReportType {
-  INAPPROPRIATE = "INAPPROPRIATE",
-  VIOLENCE = "VIOLENCE",
-  OTHER = "OTHER",
-}
-
 export function CourseMoreActions({
   enrollmentId,
   courseId,
@@ -64,11 +60,10 @@ export function CourseMoreActions({
   const [openReportDialog, setOpenReportDialog] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Report form state
-  const [reportTitle, setReportTitle] = useState("");
+  // Report State
   const [reportDescription, setReportDescription] = useState("");
   const [reportType, setReportType] = useState<string>(
-    CourseReportType.INAPPROPRIATE
+    ReportReason.INAPPROPRIATE_CONTENT
   );
 
   const handleRefund = async () => {
@@ -85,26 +80,27 @@ export function CourseMoreActions({
   };
 
   const handleReport = async () => {
-    if (!reportTitle.trim()) {
-      toast.error("Vui lòng nhập tiêu đề báo cáo");
+    if (!reportDescription.trim()) {
+      toast.error("Vui lòng nhập mô tả chi tiết");
       return;
     }
 
     setLoading(true);
     try {
+      const payloadDescription = `${reportDescription}`;
+
       await dispatch(
         createReport({
-          courseId,
-          title: reportTitle,
-          description: reportDescription,
-          type: reportType,
+          targetType: "COURSE", // ReportTargetType.COURSE
+          targetId: courseId,
+          reason: reportType,
+          description: payloadDescription,
         })
       ).unwrap();
       toast.success("Gửi báo cáo thành công");
       setOpenReportDialog(false);
-      setReportTitle("");
       setReportDescription("");
-      setReportType(CourseReportType.INAPPROPRIATE);
+      setReportType(ReportReason.INAPPROPRIATE_CONTENT);
     } catch (err: any) {
       toast.error(err?.message || "Lỗi khi gửi báo cáo");
     } finally {
@@ -191,24 +187,13 @@ export function CourseMoreActions({
                   <SelectValue placeholder="Chọn loại báo cáo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={CourseReportType.INAPPROPRIATE}>
-                    Nội dung không phù hợp
-                  </SelectItem>
-                  <SelectItem value={CourseReportType.VIOLENCE}>
-                    Bạo lực
-                  </SelectItem>
-                  <SelectItem value={CourseReportType.OTHER}>Khác</SelectItem>
+                  {Object.values(ReportReason).map((reason) => (
+                    <SelectItem key={reason} value={reason}>
+                      {ReportReasonTranslation[reason]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="title">Tiêu đề</Label>
-              <Input
-                id="title"
-                placeholder="Nhập tiêu đề báo cáo..."
-                value={reportTitle}
-                onChange={(e) => setReportTitle(e.target.value)}
-              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="description">Mô tả chi tiết</Label>

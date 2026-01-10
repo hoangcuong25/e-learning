@@ -41,14 +41,14 @@ const SidebarAdmin = () => {
       icon: Layers,
     },
     {
-      href: "/admin/course-reports",
+      href: "/admin/reports",
       label: "Báo cáo",
       icon: Flag,
     },
   ];
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-blue-600 to-indigo-700 text-white flex flex-col p-6 shadow-xl rounded-2xl">
+    <aside className="w-full h-full bg-gradient-to-b from-blue-600 to-indigo-700 text-white flex flex-col p-6 shadow-xl xl:rounded-2xl xl:w-64">
       {/* Logo */}
       <h1 className="text-2xl font-bold mb-10 text-center tracking-wide">
         EduSmart Admin

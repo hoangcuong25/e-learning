@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/store";
-import { logoutUser } from "@/store/slice/userSlice";
+import { logoutUser, fetchUser } from "@/store/slice/userSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -14,8 +14,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import NotificationBell from "@/components/user/NotificationBell";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
+import InstructorSidebar from "./InstructorSidebar";
 import { useRouter } from "next/navigation";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Menu } from "lucide-react";
 import LoadingScreen from "../LoadingScreen";
 
 const InstructorNavbar = () => {
@@ -28,12 +36,34 @@ const InstructorNavbar = () => {
     router.push("/login");
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      dispatch(fetchUser());
+    }
+  }, [dispatch]);
+
   if (loading) return <LoadingScreen />;
 
   return (
     <div className="h-16 border-b bg-white px-6 flex items-center justify-between sticky top-0 z-10 shadow-sm">
       {/* Left side - Title */}
       <div className="flex items-center gap-4">
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="xl:hidden p-2 hover:bg-gray-100 rounded-lg transition">
+              <Menu className="w-5 h-5 text-gray-600" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 border-r w-72">
+            <VisuallyHidden>
+              <SheetTitle>Instructor Menu</SheetTitle>
+            </VisuallyHidden>
+            <div className="h-full overflow-y-auto">
+              <InstructorSidebar />
+            </div>
+          </SheetContent>
+        </Sheet>
         <h2 className="text-lg font-semibold text-gray-800">
           Bảng điều khiển giảng viên
         </h2>

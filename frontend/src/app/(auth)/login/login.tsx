@@ -15,6 +15,7 @@ import { AppDispatch, RootState } from "@/store";
 import { fetchUser } from "@/store/slice/userSlice";
 import banner from "@public/elearning-banner.png";
 import { toast } from "sonner";
+import logo from "@public/logo.png";
 
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -75,6 +76,19 @@ export default function LoginPage() {
 
         {/* Right form */}
         <div className="w-full md:w-1/2 p-8">
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            <Link href="/" aria-label="Về trang chủ EduSmart">
+              <Image
+                src={logo}
+                alt="EduSmart Logo"
+                width={64}
+                height={64}
+                className="cursor-pointer hover:scale-105 transition-transform"
+                priority
+              />
+            </Link>
+          </div>
           <h2 className="text-3xl font-bold text-center text-blue-600 mb-2">
             Chào mừng đến với EduSmart
           </h2>

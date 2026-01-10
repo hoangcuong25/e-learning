@@ -13,6 +13,7 @@ import {
   ChevronRight,
   PlayCircle,
   BookOpenCheck,
+  List,
 } from "lucide-react";
 import SidebarLessons from "@/components/learn/SidebarLessons";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -133,30 +134,32 @@ const Learn = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 mt-4">
+    <div className="flex flex-col-reverse lg:flex-row min-h-screen bg-gray-50 mt-4">
       {/* Sidebar Lessons */}
-      <SidebarLessons
-        lessons={lessons}
-        currentLessonId={currentLesson?.id ?? null}
-        onSelectLesson={(lesson) => setCurrentLesson(lesson)}
-        completedLessonIds={completedLessonIds}
-      />
+      <div id="lesson-list-sidebar" className="w-full lg:w-auto">
+        <SidebarLessons
+          lessons={lessons}
+          currentLessonId={currentLesson?.id ?? null}
+          onSelectLesson={(lesson) => setCurrentLesson(lesson)}
+          completedLessonIds={completedLessonIds}
+        />
+      </div>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b bg-white px-6 py-3 shadow-sm">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between border-b bg-white px-4 md:px-6 py-3 shadow-sm">
+          <div className="flex items-center gap-3 overflow-hidden">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push(`/courses/${courseId}`)}
-              className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+              onClick={() => router.push("/my-learning")}
+              className="flex items-center gap-1 text-gray-600 hover:text-gray-900 shrink-0"
             >
               <ArrowLeft size={18} />
-              <span>Quay lại khóa học</span>
+              <span className="hidden md:inline">Quay lại khóa học</span>
             </Button>
-            <h1 className="text-lg font-semibold text-gray-800">
+            <h1 className="text-sm md:text-lg font-semibold text-gray-800 truncate">
               {currentCourse?.title || `Khóa học #${courseId}`}
             </h1>
           </div>
@@ -202,11 +205,18 @@ const Learn = () => {
               <div className="flex items-center gap-3">
                 <Button
                   variant="secondary"
-                  onClick={handleJumpToQuiz}
-                  className="flex items-center gap-2 text-blue-600 border-blue-600 hover:bg-blue-50"
+                  onClick={() => {
+                    const lessonList = document.getElementById(
+                      "lesson-list-sidebar"
+                    );
+                    if (lessonList) {
+                      lessonList.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
+                  className="flex items-center gap-2 text-blue-600 border-blue-600 hover:bg-blue-50 lg:hidden"
                 >
-                  <BookOpenCheck size={18} />
-                  Chuyển đến Bài kiểm tra
+                  <List size={18} />
+                  Danh sách bài học
                 </Button>
 
                 <Button

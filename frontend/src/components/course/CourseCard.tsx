@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { BookOpen, User, Tag } from "lucide-react";
+import { BookOpen, Tag, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -36,8 +36,21 @@ const CourseCard = ({ course }: Props) => {
       {/* Giảng viên */}
       {course.instructor?.fullname && (
         <div className="flex items-center text-sm text-gray-500 mb-2">
-          <User className="w-4 h-4 mr-1 text-blue-500" />
-          <span className="line-clamp-1">{course.instructor.fullname}</span>
+          {course.instructor.avatar ? (
+            <div className="relative w-6 h-6 mr-2 shrink-0">
+              <Image
+                src={course.instructor.avatar}
+                alt={course.instructor.fullname}
+                fill
+                className="rounded-full object-cover border border-gray-200"
+              />
+            </div>
+          ) : (
+            <User className="w-4 h-4 mr-1 text-blue-500" />
+          )}
+          <span className="line-clamp-1 font-medium text-gray-700">
+            {course.instructor.fullname}
+          </span>
         </div>
       )}
 

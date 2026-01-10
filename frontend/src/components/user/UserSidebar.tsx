@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { LogOut, ShoppingCart, User, BookOpen, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -47,52 +46,49 @@ const UserSidebar = () => {
   ];
 
   return (
-    <motion.aside
-      initial={{ x: -20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="w-full max-w-xs bg-white rounded-2xl shadow-lg border border-gray-200 p-6"
-    >
+    <div className="w-full lg:max-w-xs bg-transparent lg:bg-white lg:rounded-2xl lg:shadow-lg lg:border lg:border-gray-200 p-0 lg:p-6">
       {/* User info */}
-      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-        <Image
-          src={user?.avatar || "/default-avatar.png"}
-          alt="User avatar"
-          width={48}
-          height={48}
-          className="rounded-full border border-blue-200 object-cover"
-        />
-        <div>
-          <p className="text-sm font-semibold text-gray-800">
+      <div className="flex items-center gap-3 mb-4 lg:mb-6 lg:pb-4 lg:border-b border-gray-100">
+        <div className="relative shrink-0">
+          <Image
+            src={user?.avatar || "/default-avatar.png"}
+            alt="User avatar"
+            width={48}
+            height={48}
+            className="rounded-full border border-blue-200 object-cover w-10 h-10 lg:w-12 lg:h-12"
+          />
+        </div>
+        <div className="overflow-hidden">
+          <p className="text-sm font-semibold text-gray-800 truncate">
             {user?.fullname || "Người dùng"}
           </p>
-          <p className="text-xs text-gray-500">{user?.email}</p>
+          <p className="text-xs text-gray-500 truncate">{user?.email}</p>
         </div>
       </div>
 
       {/* Menu list */}
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-row lg:flex-col gap-2 lg:gap-1 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0">
         {menuItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
+            className="flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-4 lg:py-2.5 text-sm text-gray-700 bg-gray-50 lg:bg-transparent rounded-xl hover:bg-blue-50 hover:text-blue-600 transition whitespace-nowrap flex-shrink-0 border border-gray-100 lg:border-none"
           >
             {item.icon}
-            {item.label}
+            <span>{item.label}</span>
           </Link>
         ))}
 
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition font-medium mt-2"
+          className="flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-4 lg:py-2.5 text-sm text-red-600 bg-red-50 lg:bg-transparent rounded-xl hover:bg-red-50 transition font-medium lg:mt-2 whitespace-nowrap flex-shrink-0 border border-red-100 lg:border-none"
         >
           <LogOut className="w-5 h-5" />
-          Đăng xuất
+          <span>Đăng xuất</span>
         </button>
       </nav>
-    </motion.aside>
+    </div>
   );
 };
 

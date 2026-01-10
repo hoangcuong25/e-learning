@@ -49,12 +49,17 @@ const InstructorCoursesPage = () => {
   if (loading || userLoading) return <LoadingScreen />;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between ">
-        <h1 className="text-2xl font-bold tracking-tight step-course-header">
-          Khóa học của bạn
-        </h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-1 step-course-header">
+            Khóa học của bạn
+          </h1>
+          <p className="text-gray-500">
+            Quản lý và theo dõi các khóa học bạn đang giảng dạy.
+          </p>
+        </div>
 
         <div className="flex gap-4 items-center">
           <div className="step-create-course">

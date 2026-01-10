@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -13,15 +13,10 @@ import {
   TicketPercent,
   UserCog,
 } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
-import { fetchUser } from "@/store/slice/userSlice";
 import Image from "next/image";
 import logo from "@public/logo.png";
 
 const InstructorSidebar = () => {
-  const dispatch = useDispatch<AppDispatch>();
-
   const pathname = usePathname();
 
   const navItems = [
@@ -38,13 +33,8 @@ const InstructorSidebar = () => {
     { href: "/instructor/profile", label: "Hồ sơ giảng viên", icon: UserCog },
   ];
 
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) dispatch(fetchUser());
-  }, [dispatch]);
-
   return (
-    <aside className="w-64 bg-gradient-to-b from-blue-500 to-indigo-600 text-white flex flex-col p-6 shadow-xl rounded-2xl">
+    <aside className="w-full h-full bg-gradient-to-b from-blue-500 to-indigo-600 text-white flex flex-col p-6 shadow-xl xl:rounded-2xl xl:w-64">
       {/* Logo */}
       <div className="flex items-center justify-center gap-2 mb-10">
         <Image src={logo} alt="Logo" width={32} height={32} />

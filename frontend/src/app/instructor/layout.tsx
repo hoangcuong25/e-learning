@@ -41,7 +41,9 @@ export default function InstructorLayout({
 }) {
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <InstructorSidebar />
+      <div className="hidden xl:block">
+        <InstructorSidebar />
+      </div>
       <div className="flex-1 flex flex-col">
         <InstructorNavbar />
         <main className="flex-1 p-6 overflow-y-auto">{children}</main>

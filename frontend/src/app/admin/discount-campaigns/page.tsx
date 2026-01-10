@@ -64,12 +64,17 @@ export default function AdminDiscountCampaignsPage() {
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
+    <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-indigo-700">
-          Quản lý chiến dịch giảm giá
-        </h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Quản lý chiến dịch giảm giá
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Quản lý các chương trình khuyến mãi và giảm giá
+          </p>
+        </div>
 
         <div className="flex items-center gap-3">
           {/* Thanh tìm kiếm (tạm chưa dùng) */}
@@ -86,13 +91,13 @@ export default function AdminDiscountCampaignsPage() {
           {/* Nút mở form tạo */}
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white flex items-center gap-2">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
                 <PlusCircle className="w-5 h-5" /> Tạo Chiến Dịch Mới
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-3xl w-full">
               <DialogHeader>
-                <DialogTitle className="text-lg font-semibold text-indigo-700">
+                <DialogTitle className="text-lg font-semibold text-blue-700">
                   Tạo Chiến Dịch Mới
                 </DialogTitle>
               </DialogHeader>
@@ -117,7 +122,7 @@ export default function AdminDiscountCampaignsPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full border border-gray-200 rounded-lg">
-                <thead className="bg-indigo-100 text-indigo-800">
+                <thead className="bg-gray-50 text-gray-700">
                   <tr>
                     <th className="py-3 px-4 text-left">Tên chiến dịch</th>
 
@@ -132,9 +137,9 @@ export default function AdminDiscountCampaignsPage() {
                   {discounts.map((discount: any) => (
                     <tr
                       key={discount.id}
-                      className="border-t hover:bg-indigo-50 transition"
+                      className="border-t hover:bg-gray-50 transition"
                     >
-                      <td className="py-3 px-4 font-medium text-indigo-700">
+                      <td className="py-3 px-4 font-medium text-gray-900">
                         {discount.title}
                       </td>
 

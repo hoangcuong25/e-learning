@@ -73,6 +73,41 @@
     OTHER
   }
 
+  enum MediaType {
+    IMAGE
+    VIDEO
+  }
+
+  enum PostVisibility {
+    PUBLIC
+    FOLLOWERS
+    PRIVATE
+  }
+
+  enum ReportTargetType {
+  POST
+  POST_COMMENT
+  COURSE
+  USER
+}
+
+enum ReportReason {
+  SPAM
+  INAPPROPRIATE_CONTENT
+  HARASSMENT
+  HATE_SPEECH
+  VIOLENCE
+  NUDITY
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  REJECTED
+  ACTION_TAKEN
+}
+
   // ─── USER ──────────────────────────────
   model User {
     id        Int       @id @default(autoincrement())
@@ -125,11 +160,19 @@
     instructorDailyStats InstructorDailyStats[]
     instructorProfile InstructorProfile?
 
-    courseReports CourseReport[]
+    reports Report[]
+
+    posts       Post[]
+    comments    PostComment[]
+    likes       PostLike[]
+    shares      PostShare[]
+
+    followers   Follow[]  @relation("followers")
+    following   Follow[]  @relation("following")
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-  }
+}
 
   // ─── INSTRUCTOR PROFILE ──────────────────────────────
   model InstructorProfile {
@@ -222,7 +265,7 @@
     type         CourseType @default(FREE)
     isPublished  Boolean    @default(false)
     viewCount    Int        @default(0)
-    duration     Int        @default(0) // Tổng thời lượng (phút)
+    duration     Int        @default(0) // Tổng thời lượng (giây)
     averageRating   Float      @default(0)   // trung bình
     totalRating     Int        @default(0)   // số lượt rating
     // Relations
@@ -242,7 +285,6 @@
     cartItems CartItem[]
 
     courseDailyStats CourseDailyStats[]
-    courseReports CourseReport[]
 
     deletedAt  DateTime?   @db.Timestamp
 
@@ -417,11 +459,13 @@
     percentage  Float     @default(0)
     maxUsage    Int?
     usedCount   Int       @default(0)
-    expiresAt   DateTime?
     isActive    Boolean   @default(true)
     target      CouponTarget  @default(ALL) // ALL, COURSE, SPECIALIZATION
     createdById Int
     createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+    startsAt    DateTime?
+    endsAt      DateTime?
 
     courseId    Int?
     course      Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -620,17 +664,121 @@
     @@unique([instructorId, date])
   }
 
-  model CourseReport {
-    id          Int                @id @default(autoincrement())
-    userId      Int
-    courseId    Int
-    title       String             @db.VarChar(255)
-    description String?            @db.Text
-    type        CourseReportType  @default(INAPPROPRIATE)
-    
-    user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-    course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  model Report {
+    id            Int              @id @default(autoincrement())
 
-    createdAt   DateTime           @default(now())
-    updatedAt   DateTime           @updatedAt
+    reporterId    Int
+    targetType    ReportTargetType
+    targetId      Int
+
+    reason        ReportReason
+    description   String?          @db.Text
+
+    status        ReportStatus     @default(PENDING)
+    reviewedBy    Int?
+    reviewedAt    DateTime?
+
+    reporter      User             @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+    createdAt     DateTime         @default(now())
+
+    @@unique([reporterId, targetType, targetId])
+    @@index([targetType, targetId])
+    @@index([status])
   }
+
+  // ─── COMMUNITY ──────────────────────────────
+  model Post {
+  id          Int       @id @default(autoincrement())
+  content     String
+  visibility  PostVisibility @default(PUBLIC)
+
+  authorId    Int
+  author      User      @relation(fields: [authorId], references: [id])
+
+  media       PostMedia[]
+  likes       PostLike[]
+  comments    PostComment[]
+  shares      PostShare[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([authorId])
+}
+
+model PostMedia {
+  id        Int       @id @default(autoincrement())
+  url       String
+  type      MediaType
+
+  postId    Int
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+}
+
+model PostLike {
+  id        Int      @id @default(autoincrement())
+
+  userId    Int
+  postId    Int
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId]) // không like 2 lần
+}
+
+model PostComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+
+  userId    Int
+  postId    Int
+
+  // Reply logic
+  parentId  Int?
+  parent    PostComment?  @relation("PostCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   PostComment[] @relation("PostCommentReplies")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@index([parentId])
+}
+
+model PostShare {
+  id        Int      @id @default(autoincrement())
+
+  userId    Int
+  postId    Int
+  content   String? // caption khi share
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model Follow {
+  id           Int      @id @default(autoincrement())
+
+  followerId   Int
+  followingId  Int
+
+  follower     User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following    User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}

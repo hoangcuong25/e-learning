@@ -24,7 +24,7 @@ export default function SidebarLessons({
   }, {} as Record<string, LessonType[]>);
 
   return (
-    <aside className="w-72 bg-white border-r shadow-sm p-4 space-y-3 overflow-y-auto">
+    <aside className="w-full lg:w-80 bg-white border-b lg:border-b-0 lg:border-r shadow-sm p-4 space-y-3 overflow-y-auto max-h-[400px] lg:max-h-screen">
       <h2 className="text-lg font-semibold mb-4">Danh sách bài học</h2>
 
       {Object.entries(groupedByChapter).map(

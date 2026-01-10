@@ -14,6 +14,9 @@ import {
   DollarSign,
   CheckCircle,
   Clock,
+  Eye,
+  Star,
+  Users,
 } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import Image from "next/image";
@@ -150,6 +153,54 @@ const CourseDetailPage = () => {
               <p className="font-medium text-gray-800">Trạng thái</p>
               <p className="text-sm text-gray-500">
                 {currentCourse.isPublished ? "Đã xuất bản" : "Bản nháp"}
+              </p>
+            </div>
+          </div>
+
+          {/* 🔹 Lượt xem */}
+          <div className="flex items-center gap-3">
+            <Eye className="text-indigo-600" />
+            <div>
+              <p className="font-medium text-gray-800">Lượt xem</p>
+              <p className="text-sm text-gray-500">
+                {currentCourse.viewCount.toLocaleString()} lượt
+              </p>
+            </div>
+          </div>
+
+          {/* 🔹 Thời lượng */}
+          <div className="flex items-center gap-3">
+            <Clock className="text-orange-600" />
+            <div>
+              <p className="font-medium text-gray-800">Thời lượng</p>
+              <p className="text-sm text-gray-500">
+                {currentCourse.duration > 0
+                  ? `${Math.floor(currentCourse.duration / 60)} phút`
+                  : "Chưa có"}
+              </p>
+            </div>
+          </div>
+
+          {/* 🔹 Đánh giá trung bình */}
+          <div className="flex items-center gap-3">
+            <Star className="text-yellow-500" />
+            <div>
+              <p className="font-medium text-gray-800">Đánh giá</p>
+              <p className="text-sm text-gray-500">
+                {currentCourse.averageRating > 0
+                  ? `${currentCourse.averageRating.toFixed(1)} ⭐`
+                  : "Chưa có đánh giá"}
+              </p>
+            </div>
+          </div>
+
+          {/* 🔹 Số lượt đánh giá */}
+          <div className="flex items-center gap-3">
+            <Users className="text-teal-600" />
+            <div>
+              <p className="font-medium text-gray-800">Lượt đánh giá</p>
+              <p className="text-sm text-gray-500">
+                {currentCourse.totalRating.toLocaleString()} lượt
               </p>
             </div>
           </div>

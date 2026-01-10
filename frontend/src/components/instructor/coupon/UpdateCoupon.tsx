@@ -43,10 +43,11 @@ const UpdateCouponForm: React.FC<UpdateCouponFormProps> = ({
     coupon.percentage?.toString() || ""
   );
   const [maxUsage, setMaxUsage] = useState(coupon.maxUsage?.toString() || "");
-  const [expiresAt, setExpiresAt] = useState(
-    coupon.expiresAt
-      ? new Date(coupon.expiresAt).toISOString().slice(0, 16)
-      : ""
+  const [startsAt, setStartsAt] = useState(
+    coupon.startsAt ? new Date(coupon.startsAt).toISOString().slice(0, 16) : ""
+  );
+  const [endsAt, setEndsAt] = useState(
+    coupon.endsAt ? new Date(coupon.endsAt).toISOString().slice(0, 16) : ""
   );
   const [target, setTarget] = useState(coupon.target || "ALL");
   const [courseId, setCourseId] = useState(coupon.courseId?.toString() || "");
@@ -76,9 +77,8 @@ const UpdateCouponForm: React.FC<UpdateCouponFormProps> = ({
           payload: {
             percentage: Number(percentage),
             maxUsage: maxUsage ? Number(maxUsage) : undefined,
-            expiresAt: expiresAt
-              ? new Date(expiresAt).toISOString()
-              : undefined,
+            startsAt: startsAt ? new Date(startsAt).toISOString() : undefined,
+            endsAt: endsAt ? new Date(endsAt).toISOString() : undefined,
             target,
             courseId: target === "COURSE" ? Number(courseId) : undefined,
             specializationId:
@@ -130,13 +130,26 @@ const UpdateCouponForm: React.FC<UpdateCouponFormProps> = ({
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Ngày hết hạn</label>
-        <Input
-          type="datetime-local"
-          value={expiresAt}
-          onChange={(e) => setExpiresAt(e.target.value)}
-        />
+      {/* Date range */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Ngày bắt đầu</label>
+          <Input
+            type="datetime-local"
+            value={startsAt}
+            onChange={(e) => setStartsAt(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Ngày kết thúc
+          </label>
+          <Input
+            type="datetime-local"
+            value={endsAt}
+            onChange={(e) => setEndsAt(e.target.value)}
+          />
+        </div>
       </div>
 
       <div>

@@ -14,8 +14,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import { LogOut, User } from "lucide-react";
-import LoadingScreen from "../LoadingScreen";
+import { Menu, LogOut, User } from "lucide-react";
+import SidebarAdmin from "./Sidebar";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const AdminNavbar = () => {
   const { user, loading } = useSelector((state: RootState) => state.user);
@@ -37,9 +45,25 @@ const AdminNavbar = () => {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="h-16 border-b bg-white px-6 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-      {/* Left side - Title */}
+    <div className="h-16 border-b bg-white px-4 md:px-6 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+      {/* Left side - Menu & Title */}
       <div className="flex items-center gap-4">
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="xl:hidden p-2 hover:bg-gray-100 rounded-lg transition">
+              <Menu className="w-5 h-5 text-gray-600" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 border-r w-72">
+            <VisuallyHidden>
+              <SheetTitle>Admin Menu</SheetTitle>
+            </VisuallyHidden>
+            <div className="h-full overflow-y-auto">
+              <SidebarAdmin />
+            </div>
+          </SheetContent>
+        </Sheet>
+
         <h2 className="text-lg font-semibold text-gray-800">Admin Dashboard</h2>
       </div>
 

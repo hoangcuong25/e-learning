@@ -1,48 +1,46 @@
 import axiosClient from "@/lib/axiosClient";
 
-export const upload = async (file: any) => {
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await axiosClient.post("/cloudinary/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
 export async function getSignature(folder: string = "videos") {
   const res = await axiosClient.get("cloudinary/signature?folder=" + folder);
 
   return res.data.data;
 }
 
-export async function uploadVideo(file: File) {
-  const { timestamp, signature, apiKey, cloudName, folder } =
-    await getSignature("videos");
+type UploadType = "image" | "video";
+
+interface UploadOptions {
+  file: File;
+  type: UploadType;
+  folder?: string;
+}
+
+export async function uploadMedia({ file, type, folder }: UploadOptions) {
+  const uploadFolder = folder ?? (type === "video" ? "videos" : "images");
+
+  const { timestamp, signature, apiKey, cloudName } = await getSignature(
+    uploadFolder
+  );
 
   const formData = new FormData();
   formData.append("file", file);
   formData.append("api_key", apiKey);
   formData.append("timestamp", timestamp.toString());
   formData.append("signature", signature);
-  formData.append("folder", folder);
+  formData.append("folder", uploadFolder);
 
-  // Gửi trực tiếp lên Cloudinary 
-  const upload = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
+  const resourceType = type === "video" ? "video" : "image";
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
     {
       method: "POST",
       body: formData,
     }
   );
 
-  if (!upload.ok) throw new Error("Failed to upload video");
+  if (!res.ok) {
+    throw new Error(`Upload ${type} failed`);
+  }
 
-  return upload.json();
+  return res.json();
 }
