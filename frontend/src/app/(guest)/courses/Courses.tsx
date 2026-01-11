@@ -6,36 +6,26 @@ import CourseCard from "@/components/course/CourseCard";
 import CoursesFilter from "@/components/course/CoursesFilter";
 import { Pagination } from "@/components/ui/pagination";
 import LoadingScreen from "@/components/LoadingScreen";
-import { getAllCoursesApi } from "@/store/api/courses.api";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { fetchAllCourses } from "@/store/slice/coursesSlice";
+import { AppDispatch } from "@/store";
 
 interface Props {
-  initialCourses: any[];
-  totalPages: number;
   initialParams: PaginationParams;
 }
 
-const CoursesClient = ({
-  initialCourses,
-  totalPages,
-  initialParams,
-}: Props) => {
+const CoursesClient = ({ initialParams }: Props) => {
   const router = useRouter();
-  const [params, setParams] = useState(initialParams);
-  const [courses, setCourses] = useState(initialCourses ?? []);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const { courses, pagination, loading } = useSelector(
+    (state: RootState) => state.courses
+  );
 
-  const isFirst = useRef(true);
+  const [params, setParams] = useState(initialParams);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Bỏ qua lần đầu
-      if (isFirst.current) {
-        isFirst.current = false;
-        return;
-      }
-
-      setLoading(true);
-
       const query = new URLSearchParams({
         page: String(params.page),
         limit: String(params.limit),
@@ -47,18 +37,11 @@ const CoursesClient = ({
 
       router.replace(`?${query.toString()}`, { scroll: false });
 
-      try {
-        const data = await getAllCoursesApi(params);
-        setCourses(data.data.data ?? []);
-      } catch (err) {
-        console.error("Fetch courses error:", err);
-      } finally {
-        setLoading(false);
-      }
+      dispatch(fetchAllCourses(params));
     };
 
     fetchData();
-  }, [params]);
+  }, [params, dispatch]);
   const handleSearch = (search: string) =>
     setParams({ ...params, search, page: 1 });
 
@@ -69,6 +52,8 @@ const CoursesClient = ({
 
   const handleFilterBySpecialization = (specName: string | null) =>
     setParams({ ...params, specialization: specName ?? "", page: 1 });
+
+  console.log(courses);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -96,7 +81,7 @@ const CoursesClient = ({
 
           <div className="flex justify-center mt-10">
             <Pagination
-              total={totalPages}
+              total={pagination?.totalPages || 1}
               page={params.page ?? 1}
               onChange={handlePageChange}
             />

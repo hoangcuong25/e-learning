@@ -162,6 +162,22 @@ export class LessonService {
     let durationChanged = false;
 
     if (dto.videoUrl && dto.videoUrl !== existing.videoUrl) {
+      // Xóa video cũ trên Cloudinary (nếu có)
+      if (existing.videoUrl) {
+        try {
+          // Extract public_id từ URL Cloudinary
+          const urlParts = existing.videoUrl.split("/");
+          const fileNameWithExt = urlParts[urlParts.length - 1];
+          const fileName = fileNameWithExt.split(".")[0];
+          const folder = urlParts[urlParts.length - 2];
+          const publicId = `${folder}/${fileName}`;
+
+          await this.cloudinaryService.deleteFile(publicId, "video");
+        } catch (error) {
+          console.error("Error deleting old video:", error);
+        }
+      }
+
       videoUrl = dto.videoUrl;
       duration = dto.duration;
       durationChanged = true;

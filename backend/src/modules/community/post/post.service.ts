@@ -43,7 +43,7 @@ export class PostService {
     });
   }
 
-  async findAll(query: PostQueryDto) {
+  async findAll(currentUserId: number | null, query: PostQueryDto) {
     const { authorId, visibility } = query;
     const { skip, take, page, limit } = buildPaginationParams(query);
     const orderBy = buildOrderBy(query);
@@ -51,17 +51,10 @@ export class PostService {
     const where: any = {};
 
     const searchFilter = buildSearchFilter(query, ["content"]);
-    if (searchFilter) {
-      Object.assign(where, searchFilter);
-    }
+    if (searchFilter) Object.assign(where, searchFilter);
 
-    if (authorId) {
-      where.authorId = authorId;
-    }
-
-    if (visibility) {
-      where.visibility = visibility;
-    }
+    if (authorId) where.authorId = authorId;
+    if (visibility) where.visibility = visibility;
 
     const [items, total] = await Promise.all([
       this.prisma.post.findMany({
@@ -85,15 +78,31 @@ export class PostService {
               shares: true,
             },
           },
+          ...(currentUserId && {
+            likes: {
+              where: {
+                userId: currentUserId,
+              },
+              select: {
+                id: true,
+              },
+            },
+          }),
         },
       }),
       this.prisma.post.count({ where }),
     ]);
 
-    return buildPaginationResponse(items, total, page, limit);
+    const result = items.map((post) => ({
+      ...post,
+      isLiked: currentUserId ? post.likes?.length > 0 || false : false,
+      likes: undefined, // không trả raw like
+    }));
+
+    return buildPaginationResponse(result, total, page, limit);
   }
 
-  async findOne(id: number, userId: number) {
+  async findOne(id: number, userId: number | null) {
     const post = await this.prisma.post.findUnique({
       where: { id },
       include: {
@@ -119,10 +128,12 @@ export class PostService {
       throw new NotFoundException(`Bài viết có id: ${id} không tồn tại`);
     }
 
-    if (post.visibility === "PRIVATE" && post.authorId !== userId) {
-      throw new ForbiddenException(
-        "Bạn chỉ có thể truy cập bài viết của mình"
-      );
+    // Nếu bài viết PRIVATE và user chưa đăng nhập hoặc không phải author
+    if (
+      post.visibility === "PRIVATE" &&
+      (!userId || post.authorId !== userId)
+    ) {
+      throw new ForbiddenException("Bạn chỉ có thể truy cập bài viết của mình");
     }
 
     return post;

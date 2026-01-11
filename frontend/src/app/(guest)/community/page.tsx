@@ -1,42 +1,57 @@
-import { Users, Heart, MessageCircle, Share2 } from "lucide-react";
 import CommunityGate from "@/components/community/CommunityGate";
 import CommunityFeed from "@/components/community/CommunityFeed";
-import banner from "@public/elearning-banner.png";
-import Image from "next/image";
+import CommunityTabs from "@/components/community/CommunityTabs";
 
 export const metadata = {
   title: "Cộng đồng học tập | EduSmart",
   description:
     "Cộng đồng EduSmart – nơi học viên và giảng viên đăng bài, thảo luận, thích và bình luận như một mạng xã hội học tập.",
+  openGraph: {
+    title: "Cộng đồng học tập | EduSmart",
+    description:
+      "Tham gia cộng đồng EduSmart để trao đổi kiến thức, đặt câu hỏi và kết nối với hàng ngàn học viên khác.",
+    url: "https://edusmart.vn/community",
+    siteName: "EduSmart",
+    images: [
+      {
+        url: "https://res.cloudinary.com/dlb9cguid/image/upload/v1734351000/opengraph-community.png",
+        width: 1200,
+        height: 630,
+        alt: "EduSmart Community",
+      },
+    ],
+    locale: "vi_VN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cộng đồng học tập | EduSmart",
+    description:
+      "Nơi chia sẻ kiến thức và kết nối đam mê học tập. Tham gia ngay!",
+    images: [
+      "https://res.cloudinary.com/dlb9cguid/image/upload/v1734351000/opengraph-community.png",
+    ],
+  },
 };
 
-// 🔹 SSR PAGE
+// 🔹 CSR PAGE
 export default function CommunityPage() {
   return (
     <div className="space-y-16 my-6">
       <CommunityGate />
 
-      {/* Feed Layout */}
       <section className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Sidebar */}
-        <aside className="hidden lg:block lg:col-span-3 space-y-4">
-          <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h3 className="font-semibold text-gray-800 mb-3">Danh mục</h3>
-            <ul className="space-y-2 text-gray-600">
-              <li>#laptrinh</li>
-              <li>#marketing</li>
-              <li>#ai</li>
-              <li>#career</li>
-            </ul>
-          </div>
+        {/* LEFT: Tabs + Search + Create */}
+        <aside className="lg:col-span-3 space-y-4">
+          <CommunityTabs />
         </aside>
 
-        {/* Feed – CLIENT COMPONENT */}
+        {/* CENTER: Feed */}
         <div className="lg:col-span-6 space-y-6">
           <CommunityFeed />
         </div>
 
-        {/* Right Sidebar */}
+        {/* RIGHT: Suggestions */}
         <aside className="hidden lg:block lg:col-span-3 space-y-4">
           <div className="bg-white rounded-2xl p-5 shadow-sm">
             <h3 className="font-semibold text-gray-800 mb-3">Gợi ý theo dõi</h3>

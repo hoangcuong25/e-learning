@@ -27,7 +27,9 @@ export type LoginPayload = {
 
 export const LoginApi = async (payload: LoginPayload) => {
   try {
-    const response = await axiosClient.post("/auth/login", payload,
+    const response = await axiosClient.post(
+      "/auth/login",
+      payload,
       // cast to any to allow custom config property `skipAuthRefresh`
       { skipAuthRefresh: true } as any
     );
@@ -50,7 +52,7 @@ export const LoginWithGoogle = async (googleToken: string) => {
 
 export const LogoutApi = async () => {
   try {
-    await axiosClient.post("/auth/logout");
+    await axiosClient.post("/auth/logout", {});
   } catch (error) {
     throw error;
   }

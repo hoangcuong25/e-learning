@@ -1,14 +1,16 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { ApplyInstructorDto } from "./dto/apply-instructor.dto";
-import { ApplicationStatus, UserRole } from "@prisma/client";
+import { ApplicationStatus, UserRole, NotificationType } from "@prisma/client";
 import { MailerService } from "@nestjs-modules/mailer";
 import { PrismaService } from "src/core/prisma/prisma.service";
+import { NotificationService } from "src/modules/notification/notification.service";
 
 @Injectable()
 export class InstructorService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mailerService: MailerService
+    private readonly mailerService: MailerService,
+    private readonly notificationService: NotificationService
   ) {}
 
   // 🧩 Nộp đơn đăng ký làm giảng viên
@@ -157,6 +159,15 @@ export class InstructorService {
       },
     });
 
+    // Gửi thông báo phê duyệt
+    await this.notificationService.createNotification({
+      userId,
+      type: NotificationType.APPLICATION_STATUS,
+      title: "Đơn đăng ký giảng viên đã được phê duyệt!",
+      body: "Chúc mừng! Đơn đăng ký giảng viên của bạn đã được phê duyệt. Bạn có thể bắt đầu tạo và quản lý khóa học.",
+      link: "/instructor/dashboard",
+    });
+
     return updatedUser;
   }
 
@@ -213,6 +224,15 @@ export class InstructorService {
         ),
         platformName: "EduConnect",
       },
+    });
+
+    // Gửi thông báo từ chối
+    await this.notificationService.createNotification({
+      userId,
+      type: NotificationType.APPLICATION_STATUS,
+      title: "Đơn đăng ký giảng viên đã bị từ chối",
+      body: "Rất tiếc, đơn đăng ký giảng viên của bạn đã bị từ chối. Vui lòng kiểm tra email để biết thêm chi tiết.",
+      link: "/instructor/apply",
     });
   }
 

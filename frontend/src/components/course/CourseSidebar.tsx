@@ -64,7 +64,7 @@ const CourseSidebar = ({
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.25 }}
         >
-          {price.toLocaleString()} LC
+          {price > 0 ? price.toLocaleString() + " LC" : "Miễn phí"}
         </motion.p>
         <p className="text-gray-500 text-sm">
           Thanh toán 1 lần - Truy cập trọn đời

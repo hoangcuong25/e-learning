@@ -93,6 +93,7 @@ declare global {
     averageRating: number;
     courseRating: any[];
     viewCount: number;
+    isEnrolled: boolean;
 
     _count?: {
       chapter: number; // Số lượng Chapters
@@ -348,8 +349,8 @@ declare global {
     id: number;
     content: string;
     postId: number;
-    authorId: number;
-    author?: Pick<UserType, "id" | "fullname" | "avatar">;
+    userId: number;
+    user?: Pick<UserType, "id" | "fullname" | "avatar">;
     parentId?: number | null; // Nếu là reply
     replies?: CommentType[];
     createdAt: string;

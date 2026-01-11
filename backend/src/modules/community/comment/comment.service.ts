@@ -80,16 +80,13 @@ export class CommentService {
             },
           },
           replies: {
-            take: 20,
-            orderBy: { createdAt: "asc" },
             include: {
-              user: {
-                select: {
-                  id: true,
-                  fullname: true,
-                  avatar: true,
+              replies: {
+                include: {
+                  user: true,
                 },
               },
+              user: true,
             },
           },
         },

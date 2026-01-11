@@ -123,6 +123,12 @@ const postSlice = createSlice({
     clearPostState: (state) => {
       state.error = null;
       state.successMessage = null;
+      state.posts = [];
+      state.pagination = null;
+    },
+    setPosts: (state, action) => {
+      state.posts = action.payload.data;
+      state.pagination = action.payload.pagination || null;
     },
   },
   extraReducers: (builder) => {
@@ -252,5 +258,5 @@ const postSlice = createSlice({
   },
 });
 
-export const { clearPostState } = postSlice.actions;
+export const { clearPostState, setPosts } = postSlice.actions;
 export default postSlice.reducer;

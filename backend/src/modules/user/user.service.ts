@@ -218,6 +218,22 @@ export class UserService {
     const updateData: any = { ...updateUserDto };
 
     if (avatar) {
+      // Xóa avatar cũ trên Cloudinary (nếu có)
+      if (user.avatar) {
+        try {
+          // Extract public_id từ URL Cloudinary
+          const urlParts = user.avatar.split("/");
+          const fileNameWithExt = urlParts[urlParts.length - 1];
+          const fileName = fileNameWithExt.split(".")[0];
+          const folder = urlParts[urlParts.length - 2];
+          const publicId = `${folder}/${fileName}`;
+
+          await this.cloudinaryService.deleteFile(publicId, "image");
+        } catch (error) {
+          console.error("Error deleting old avatar:", error);
+        }
+      }
+
       const uploaded = await this.cloudinaryService.uploadFile(avatar);
       updateData.avatar = uploaded.url;
     }

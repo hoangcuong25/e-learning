@@ -21,6 +21,7 @@ import {
 import LoadingScreen from "@/components/LoadingScreen";
 import Image from "next/image";
 import CourseTabs from "@/components/instructor/courseTabs/CourseTabs";
+import { formatDuration } from "@/lib/helpers";
 
 const CourseDetailPage = () => {
   const { id } = useParams();
@@ -151,7 +152,13 @@ const CourseDetailPage = () => {
             />
             <div>
               <p className="font-medium text-gray-800">Trạng thái</p>
-              <p className="text-sm text-gray-500">
+              <p
+                className={`text-sm font-medium mt-0.5 ${
+                  currentCourse.isPublished
+                    ? "text-emerald-600"
+                    : "text-slate-500"
+                }`}
+              >
                 {currentCourse.isPublished ? "Đã xuất bản" : "Bản nháp"}
               </p>
             </div>
@@ -175,7 +182,7 @@ const CourseDetailPage = () => {
               <p className="font-medium text-gray-800">Thời lượng</p>
               <p className="text-sm text-gray-500">
                 {currentCourse.duration > 0
-                  ? `${Math.floor(currentCourse.duration / 60)} phút`
+                  ? formatDuration(currentCourse.duration)
                   : "Chưa có"}
               </p>
             </div>
@@ -208,7 +215,7 @@ const CourseDetailPage = () => {
           {/* 🔹 Mô tả */}
           <div className="sm:col-span-2 lg:col-span-3">
             <p className="font-medium text-gray-800 mb-1">Mô tả</p>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <div className="text-gray-600 text-sm leading-relaxed">
               {currentCourse.description ? (
                 <div
                   className="prose max-w-none"
@@ -219,7 +226,7 @@ const CourseDetailPage = () => {
               ) : (
                 "Chưa có mô tả cho khóa học này."
               )}
-            </p>
+            </div>
           </div>
         </CardContent>
       </Card>

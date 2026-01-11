@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { formatDuration } from "@/lib/helpers";
 
 const AdminCourseDetailPage = () => {
   const params = useParams();
@@ -252,7 +253,7 @@ const AdminCourseDetailPage = () => {
                                   {lesson.duration > 0 && (
                                     <span className="text-xs text-gray-500 flex items-center gap-1">
                                       <Clock className="w-3 h-3" />
-                                      {lesson.duration} phút
+                                      {formatDuration(lesson.duration)}
                                     </span>
                                   )}
                                 </div>
@@ -360,7 +361,7 @@ const AdminCourseDetailPage = () => {
                   <span className="text-sm">Thời lượng</span>
                 </div>
                 <span className="font-semibold">
-                  {course.duration || 0} phút
+                  {formatDuration(course.duration || 0)}
                 </span>
               </div>
             </CardContent>

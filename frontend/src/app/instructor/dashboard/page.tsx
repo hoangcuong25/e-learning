@@ -203,9 +203,13 @@ export default function InstructorDashboard() {
                       </p>
                     </div>
                     <Badge
-                      variant={course.isPublished ? "default" : "secondary"}
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        course.isPublished
+                          ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                          : "bg-slate-100 text-slate-600 border border-slate-200"
+                      }`}
                     >
-                      {course.isPublished ? "Đang hoạt động" : "Bản nháp"}
+                      {course.isPublished ? "Đã xuất bản" : "Bản nháp"}
                     </Badge>
                   </div>
                 ))

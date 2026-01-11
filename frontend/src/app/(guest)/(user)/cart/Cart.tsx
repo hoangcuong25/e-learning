@@ -73,9 +73,9 @@ export default function MyCartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Danh sách khóa học */}
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
+            {items.map((item, index) => (
               <Card
-                key={item.courseId}
+                key={`${item.courseId}-${index}`}
                 className="hover:shadow-lg transition border-blue-100 cursor-pointer"
               >
                 <CardContent className="flex flex-col md:flex-row items-center gap-4 p-4 relative">

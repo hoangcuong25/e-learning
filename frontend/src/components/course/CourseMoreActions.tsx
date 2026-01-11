@@ -165,7 +165,7 @@ export function CourseMoreActions({
             <AlertDialogAction
               onClick={handleRefund}
               disabled={loading}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-yellow-500 hover:bg-yellow-600"
             >
               {loading ? "Đang xử lý..." : "Xác nhận hoàn tiền"}
             </AlertDialogAction>

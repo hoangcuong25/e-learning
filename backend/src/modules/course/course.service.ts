@@ -17,13 +17,15 @@ import {
   buildSearchFilter,
 } from "src/core/helpers/pagination.util";
 import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
+import { RedisService } from "src/core/redis/redis.service";
 
 @Injectable()
 export class CourseService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
-    private readonly specializationService: SpecializationService
+    private readonly specializationService: SpecializationService,
+    private readonly redisService: RedisService
   ) {}
 
   // 🧩 Tạo khóa học mới
@@ -117,7 +119,7 @@ export class CourseService {
   }
 
   // 🧩 Lấy danh sách khóa học (phân trang + tìm kiếm)
-  async findAll(dto: PaginationQueryDto) {
+  async findAll(dto: PaginationQueryDto, userId: number) {
     const { skip, take, page, limit } = buildPaginationParams(dto);
     const orderBy = buildOrderBy(dto);
     const where =
@@ -126,10 +128,8 @@ export class CourseService {
         "description",
       ]) || {};
 
-    // Loại trừ các khóa học đã bị xóa mềm
     where.deletedAt = null;
 
-    // Nếu có specializationId thì filter theo đó
     if (dto.specialization) {
       where.specializations = {
         some: {
@@ -150,13 +150,15 @@ export class CourseService {
         orderBy,
         include: {
           instructor: {
-            select: { id: true, fullname: true, email: true, avatar: true },
+            select: { id: true, fullname: true, avatar: true },
           },
+
           _count: {
             select: {
               chapter: true,
             },
           },
+
           specializations: {
             include: {
               specialization: {
@@ -164,70 +166,97 @@ export class CourseService {
               },
             },
           },
+
+          // check enrollment của user
+          ...(userId && {
+            enrollments: {
+              where: {
+                userId,
+              },
+              select: {
+                id: true,
+                progress: true,
+                enrolledAt: true,
+                completedAt: true,
+              },
+            },
+          }),
+
           coupon: {
             where: {
               isActive: true,
               AND: [
-                {
-                  OR: [{ startsAt: null }, { startsAt: { lte: now } }],
-                },
-                {
-                  OR: [{ endsAt: null }, { endsAt: { gt: now } }],
-                },
+                { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+                { OR: [{ endsAt: null }, { endsAt: { gt: now } }] },
               ],
             },
           },
         },
       }),
+
       this.prisma.course.count({ where }),
     ]);
 
+    // Map ra field isEnrolled
+    const mappedCourses = courses.map((course) => ({
+      ...course,
+      isEnrolled: Boolean(course.enrollments?.length),
+    }));
+
     return {
       message: "Lấy danh sách khóa học thành công.",
-      ...buildPaginationResponse(courses, total, page, limit),
+      ...buildPaginationResponse(mappedCourses, total, page, limit),
     };
   }
 
   // 🧩 Lấy khóa học theo ID
   async findCourseById(id: number) {
-    const course = await this.prisma.course.findFirst({
-      where: { id, deletedAt: null },
-      include: {
-        instructor: {
-          select: { id: true, fullname: true, email: true, avatar: true },
-        },
-        specializations: {
+    const cacheKey = `course:detail:${id}`;
+
+    return this.redisService.getOrSet(
+      cacheKey,
+      async () => {
+        const course = await this.prisma.course.findFirst({
+          where: { id, deletedAt: null },
           include: {
-            specialization: {
-              select: { name: true },
+            instructor: {
+              select: { id: true, fullname: true, email: true, avatar: true },
             },
-          },
-        },
-        chapter: {
-          orderBy: { orderIndex: "asc" },
-          include: {
-            lessons: {
+            specializations: {
+              include: {
+                specialization: {
+                  select: { name: true },
+                },
+              },
+            },
+            chapter: {
               orderBy: { orderIndex: "asc" },
-              select: {
-                id: true,
-                title: true,
-                orderIndex: true,
-                content: true,
-                duration: true,
-                createdAt: true,
-                updatedAt: true,
+              include: {
+                lessons: {
+                  orderBy: { orderIndex: "asc" },
+                  select: {
+                    id: true,
+                    title: true,
+                    orderIndex: true,
+                    content: true,
+                    duration: true,
+                    createdAt: true,
+                    updatedAt: true,
+                  },
+                },
               },
             },
           },
-        },
+        });
+
+        if (!course) {
+          throw new NotFoundException("Không tìm thấy khóa học.");
+        }
+
+        return course;
       },
-    });
-
-    if (!course) {
-      throw new NotFoundException("Không tìm thấy khóa học.");
-    }
-
-    return course;
+      600 // 10 minutes TTL
+    );
   }
 
   // 🧩 Lấy chi tiết khóa học (bao gồm chương, bài học, chuyên ngành)
@@ -321,6 +350,22 @@ export class CourseService {
 
     // Upload ảnh bìa mới (nếu có)
     if (thumbnail) {
+      // Xóa ảnh cũ trên Cloudinary (nếu có)
+      if (existing.thumbnail) {
+        try {
+          // Extract public_id từ URL Cloudinary
+          const urlParts = existing.thumbnail.split("/");
+          const fileNameWithExt = urlParts[urlParts.length - 1];
+          const fileName = fileNameWithExt.split(".")[0];
+          const folder = urlParts[urlParts.length - 2];
+          const publicId = `${folder}/${fileName}`;
+
+          await this.cloudinaryService.deleteFile(publicId, "image");
+        } catch (error) {
+          console.error("Error deleting old thumbnail:", error);
+        }
+      }
+
       const uploaded = await this.cloudinaryService.uploadFile(thumbnail);
       updateData.thumbnail = uploaded.url;
     }
@@ -377,6 +422,10 @@ export class CourseService {
         },
       });
 
+      // Invalidate caches
+      await this.redisService.del(`course:detail:${id}`);
+      await this.redisService.delPattern("course:popular:*");
+
       return { message: "Cập nhật khóa học thành công.", data: updated };
     }
 
@@ -388,6 +437,10 @@ export class CourseService {
         specializations: { include: { specialization: true } },
       },
     });
+
+    // Invalidate caches
+    await this.redisService.del(`course:detail:${id}`);
+    await this.redisService.delPattern("course:popular:*");
 
     return { message: "Cập nhật khóa học thành công.", data: updated };
   }
@@ -419,10 +472,16 @@ export class CourseService {
     }
 
     // Soft delete: chỉ cập nhật deletedAt thay vì xóa thật
-    return await this.prisma.course.update({
+    const result = await this.prisma.course.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
+
+    // Invalidate caches
+    await this.redisService.del(`course:detail:${id}`);
+    await this.redisService.delPattern("course:popular:*");
+
+    return result;
   }
 
   // 🧩 Lấy danh sách khóa học của giảng viên
@@ -450,16 +509,24 @@ export class CourseService {
   }
 
   async getPopularCourses(limit: number = 6) {
-    return this.prisma.course.findMany({
-      where: { isPublished: true, deletedAt: null },
-      orderBy: { viewCount: "desc" },
-      take: limit,
-      include: {
-        instructor: {
-          select: { fullname: true, avatar: true },
-        },
+    const cacheKey = `course:popular:${limit}`;
+
+    return this.redisService.getOrSet(
+      cacheKey,
+      async () => {
+        return this.prisma.course.findMany({
+          where: { isPublished: true, deletedAt: null },
+          orderBy: { viewCount: "desc" },
+          take: limit,
+          include: {
+            instructor: {
+              select: { fullname: true, avatar: true },
+            },
+          },
+        });
       },
-    });
+      900 // 15 minutes TTL
+    );
   }
 
   // 🧩 Tăng lượt xem khóa học

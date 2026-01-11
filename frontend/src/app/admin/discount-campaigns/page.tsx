@@ -95,7 +95,7 @@ export default function AdminDiscountCampaignsPage() {
                 <PlusCircle className="w-5 h-5" /> Tạo Chiến Dịch Mới
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl w-full">
+            <DialogContent className="!max-w-3xl w-full !sm:max-w-3xl">
               <DialogHeader>
                 <DialogTitle className="text-lg font-semibold text-blue-700">
                   Tạo Chiến Dịch Mới

@@ -245,13 +245,13 @@ const CoursesPage = () => {
                           </TableCell>
                           <TableCell>
                             <Badge
-                              className={
+                              className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                 course.isPublished
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-gray-100 text-gray-800"
-                              }
+                                  ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                  : "bg-slate-100 text-slate-600 border border-slate-200"
+                              }`}
                             >
-                              {course.isPublished ? "Đã xuất bản" : "Nháp"}
+                              {course.isPublished ? "Đã xuất bản" : "Bản nháp"}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
@@ -348,13 +348,15 @@ const CoursesPage = () => {
                                   : `${course.price.toLocaleString("vi-VN")} ₫`}
                               </span>
                               <Badge
-                                className={
+                                className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                   course.isPublished
-                                    ? "bg-green-100 text-green-800 text-[10px]"
-                                    : "bg-gray-100 text-gray-800 text-[10px]"
-                                }
+                                    ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                    : "bg-slate-100 text-slate-600 border border-slate-200"
+                                }`}
                               >
-                                {course.isPublished ? "Đã xuất bản" : "Nháp"}
+                                {course.isPublished
+                                  ? "Đã xuất bản"
+                                  : "Bản nháp"}
                               </Badge>
                             </div>
                           </div>

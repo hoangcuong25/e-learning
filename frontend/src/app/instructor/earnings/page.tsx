@@ -25,6 +25,10 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  Gift,
+  PlusCircle,
+  MinusCircle,
+  Settings,
 } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Button } from "@/components/ui/button";
@@ -69,20 +73,48 @@ export default function InstructorEarningsPage() {
       string,
       {
         label: string;
-        variant: "default" | "secondary" | "destructive" | "outline";
+        className: string;
+        icon?: React.ElementType;
       }
     > = {
-      COURSE_PURCHASE: { label: "Mua khóa học", variant: "default" },
-      COURSE_REFUND: { label: "Hoàn tiền", variant: "destructive" },
-      ADMIN_ADJUST: { label: "Điều chỉnh", variant: "secondary" },
-      REWARD: { label: "Thưởng", variant: "outline" },
+      COURSE_PURCHASE: {
+        label: "Mua khóa học",
+        className: "bg-green-100 text-green-700 border border-green-200",
+        icon: PlusCircle,
+      },
+      COURSE_REFUND: {
+        label: "Hoàn tiền",
+        className: "bg-red-100 text-red-700 border border-red-200",
+        icon: MinusCircle,
+      },
+      ADMIN_ADJUST: {
+        label: "Điều chỉnh",
+        className: "bg-blue-100 text-blue-700 border border-blue-200",
+        icon: Settings,
+      },
+      REWARD: {
+        label: "Thưởng",
+        className: "bg-purple-100 text-purple-700 border border-purple-200",
+        icon: Gift,
+      },
     };
 
     const config = typeMap[type] || {
       label: type,
-      variant: "default" as const,
+      className: "bg-gray-100 text-gray-700 border border-gray-200",
     };
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+
+    const Icon = config.icon;
+
+    return (
+      <Badge
+        variant="outline"
+        className={`flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full ${config.className}`}
+      >
+        {Icon && <Icon size={12} />}
+        {config.label}
+      </Badge>
+    );
   };
 
   if (loading && !earnings) {

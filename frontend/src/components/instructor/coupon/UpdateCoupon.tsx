@@ -98,10 +98,6 @@ const UpdateCouponForm: React.FC<UpdateCouponFormProps> = ({
 
   return (
     <form onSubmit={handleUpdate} className="space-y-5 p-4 bg-white rounded-lg">
-      <h2 className="text-lg font-semibold text-gray-800 mb-2">
-        ✏️ Cập nhật Coupon
-      </h2>
-
       <div>
         <label className="block text-sm font-medium mb-1">Mã Coupon</label>
         <Input value={code} disabled className="bg-gray-100" />

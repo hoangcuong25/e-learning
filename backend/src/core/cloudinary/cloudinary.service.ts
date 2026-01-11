@@ -61,4 +61,21 @@ export class CloudinaryService {
       folder,
     };
   }
+
+  // Xóa file từ Cloudinary
+  async deleteFile(
+    publicId: string,
+    resourceType: "image" | "video" = "image"
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      cloudinary.uploader.destroy(
+        publicId,
+        { resource_type: resourceType },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+    });
+  }
 }

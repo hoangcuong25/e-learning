@@ -37,18 +37,8 @@ export default async function CoursesPage({
   const sortBy = params.sortBy || "createdAt";
   const order = params.order || "desc";
 
-  // 🚀 Fetch dữ liệu trên server
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}course?page=${page}&limit=${limit}&search=${search}&specialization=${specialization}&sortBy=${sortBy}&order=${order}`,
-    { cache: "no-store" } // SSR fresh data
-  );
-
-  const data = await res.json();
-
   return (
     <CoursesClient
-      initialCourses={data?.data?.data}
-      totalPages={data?.data?.pagination?.totalPages}
       initialParams={{ page, limit, search, sortBy, order, specialization }}
     />
   );

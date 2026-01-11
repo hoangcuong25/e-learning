@@ -7,6 +7,10 @@
     url      = env("DATABASE_URL")
   }
 
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 2. ENUMS                                                                │
+  // └─────────────────────────────────────────────────────────────────────────┘
+
   enum UserRole {
     USER
     ADMIN
@@ -108,7 +112,10 @@ enum ReportStatus {
   ACTION_TAKEN
 }
 
-  // ─── USER ──────────────────────────────
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 3. USER & AUTHENTICATION MODULE                                        │
+  // └─────────────────────────────────────────────────────────────────────────┘
+
   model User {
     id        Int       @id @default(autoincrement())
     fullname  String    @db.VarChar(50)
@@ -228,7 +235,7 @@ enum ReportStatus {
     updatedAt DateTime @updatedAt
   }
 
-  // ─── SPECIALIZATION ──────────────────────────────
+  // ─── Specialization ───
   model Specialization {
     id       Int     @id @default(autoincrement())
     name     String  @unique @db.VarChar(100)
@@ -244,7 +251,7 @@ enum ReportStatus {
     updatedAt DateTime @updatedAt
   }
 
-  // ─── JUNCTION: InstructorApplication ↔ Specialization ──────────────────────────────
+  // ─── Junction: InstructorApplication ↔ Specialization ───
   model ApplicationSpecialization {
     applicationId    Int
     specializationId Int
@@ -255,7 +262,10 @@ enum ReportStatus {
     @@id([applicationId, specializationId])
   }
 
-  // ─── COURSE ──────────────────────────────
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 5. COURSE MODULE                                                        │
+  // └─────────────────────────────────────────────────────────────────────────┘
+
   model Course {
     id           Int        @id @default(autoincrement())
     title        String     @db.VarChar(150)
@@ -292,7 +302,7 @@ enum ReportStatus {
     updatedAt    DateTime   @updatedAt
   }
 
-  // ─── COURSE VIEW ──────────────────────────────
+  // ─── Course View ───
   model CourseView {
     id        Int      @id @default(autoincrement())
     courseId  Int
@@ -306,7 +316,7 @@ enum ReportStatus {
     @@index([courseId, viewedAt])
   }
 
-  // ─── CHAPTER ──────────────────────────────
+  // ─── Chapter ───
   model Chapter {
     id          Int       @id @default(autoincrement())
     title       String    @db.VarChar(150)
@@ -325,7 +335,7 @@ enum ReportStatus {
     @@unique([courseId, orderIndex]) // mỗi course có thứ tự chapter riêng
   }
 
-  // ─── LESSON ──────────────────────────────
+  // ─── Lesson ───
   model Lesson {
     id          Int       @id @default(autoincrement())
     title       String    @db.VarChar(150)
@@ -348,7 +358,7 @@ enum ReportStatus {
     lessonQuestions LessonQuestion[]
 }
 
-  // ─── LESSON QUESTION ──────────────────────────────
+  // ─── Lesson Question ───
   model LessonQuestion {
     id        Int       @id @default(autoincrement())
     content   String    @db.Text
@@ -390,7 +400,7 @@ enum ReportStatus {
     updatedAt   DateTime          @updatedAt
   }
 
-  // ─── JUNCTION: Course ↔ Specialization ──────────────
+  // ─── Junction: Course ↔ Specialization ───
   model CourseSpecialization {
     courseId         Int
     specializationId Int
@@ -401,7 +411,7 @@ enum ReportStatus {
     @@id([courseId, specializationId])
   }
 
-  // ─── QUIZ ──────────────────────────────
+  // ─── Quiz ───
   model Quiz {
     id        Int       @id @default(autoincrement())
     title     String     @db.VarChar(150)
@@ -413,7 +423,7 @@ enum ReportStatus {
     updatedAt DateTime   @updatedAt
   }
 
-  // ─── QUESTION ──────────────────────────────
+  // ─── Question ───
   model Question {
     id           Int       @id @default(autoincrement())
     questionText String     @db.Text
@@ -425,7 +435,7 @@ enum ReportStatus {
     updatedAt DateTime @updatedAt
   }
 
-  // ─── OPTION ──────────────────────────────
+  // ─── Option ───
   model Option {
     id          Int      @id @default(autoincrement())
     text        String   @db.VarChar(255)
@@ -434,7 +444,7 @@ enum ReportStatus {
     question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   }
 
-  // ─── COURSE RATING ──────────────────────────────
+  // ─── Course Rating ───
   model CourseRating {
     id        Int      @id @default(autoincrement())
     rating    Int      @db.TinyInt // giá trị 1–5
@@ -452,6 +462,10 @@ enum ReportStatus {
 
     @@unique([userId, courseId]) // mỗi user chỉ được rate 1 lần / course
   }
+
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 6. COUPON & DISCOUNT MODULE                                             │
+  // └─────────────────────────────────────────────────────────────────────────┘
 
   model Coupon {
     id          Int       @id @default(autoincrement())
@@ -510,6 +524,10 @@ enum ReportStatus {
     updatedAt DateTime @updatedAt
   }
 
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 7. PAYMENT & TRANSACTION MODULE                                         │
+  // └─────────────────────────────────────────────────────────────────────────┘
+
   model PaymentTransaction {
     id           Int           @id @default(autoincrement())
     userId       Int
@@ -548,7 +566,10 @@ enum ReportStatus {
     @@index([userId, createdAt])
   }
 
-  // ─── ENROLLMENT ──────────────────────────────
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 8. ENROLLMENT & PROGRESS MODULE                                         │
+  // └─────────────────────────────────────────────────────────────────────────┘
+
   model Enrollment {
     id          Int        @id @default(autoincrement())
     
@@ -577,7 +598,7 @@ enum ReportStatus {
     @@index([courseId])
   }
 
-  // ─── LESSON PROGRESS ──────────────────────────────
+  // ─── Lesson Progress ───
   model LessonProgress {
     id         Int       @id @default(autoincrement())
     userId     Int
@@ -594,7 +615,10 @@ enum ReportStatus {
     @@unique([userId, lessonId]) // 1 user chỉ có 1 record per lesson
   }
 
-  // ─── CART ──────────────────────────────
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 9. CART MODULE                                                          │
+  // └─────────────────────────────────────────────────────────────────────────┘
+
   model Cart {
   id        Int        @id @default(autoincrement())
   userId    Int         @unique
@@ -622,6 +646,10 @@ enum ReportStatus {
     // Không cho phép thêm trùng cùng 1 khóa học
     @@unique([cartId, courseId])
   }
+
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 10. INSTRUCTOR EARNINGS & ANALYTICS MODULE                              │
+  // └─────────────────────────────────────────────────────────────────────────┘
 
   model InstructorEarning {
     id              Int      @id @default(autoincrement())
@@ -664,6 +692,10 @@ enum ReportStatus {
     @@unique([instructorId, date])
   }
 
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 11. REPORT MODULE                                                       │
+  // └─────────────────────────────────────────────────────────────────────────┘
+
   model Report {
     id            Int              @id @default(autoincrement())
 
@@ -687,98 +719,101 @@ enum ReportStatus {
     @@index([status])
   }
 
-  // ─── COMMUNITY ──────────────────────────────
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 12. COMMUNITY MODULE                                                    │
+  // └─────────────────────────────────────────────────────────────────────────┘
+
   model Post {
-  id          Int       @id @default(autoincrement())
-  content     String
-  visibility  PostVisibility @default(PUBLIC)
+    id          Int       @id @default(autoincrement())
+    content     String
+    visibility  PostVisibility @default(PUBLIC)
 
-  authorId    Int
-  author      User      @relation(fields: [authorId], references: [id])
+    authorId    Int
+    author      User      @relation(fields: [authorId], references: [id])
 
-  media       PostMedia[]
-  likes       PostLike[]
-  comments    PostComment[]
-  shares      PostShare[]
+    media       PostMedia[]
+    likes       PostLike[]
+    comments    PostComment[]
+    shares      PostShare[]
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
 
-  @@index([authorId])
-}
+    @@index([authorId])
+  }
 
-model PostMedia {
-  id        Int       @id @default(autoincrement())
-  url       String
-  type      MediaType
+  model PostMedia {
+    id        Int       @id @default(autoincrement())
+    url       String
+    type      MediaType
 
-  postId    Int
-  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId    Int
+    post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime  @default(now())
-}
+    createdAt DateTime  @default(now())
+  }
 
-model PostLike {
-  id        Int      @id @default(autoincrement())
+  model PostLike {
+    id        Int      @id @default(autoincrement())
 
-  userId    Int
-  postId    Int
+    userId    Int
+    postId    Int
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+    createdAt DateTime @default(now())
 
-  @@unique([userId, postId]) // không like 2 lần
-}
+    @@unique([userId, postId]) // không like 2 lần
+  }
 
-model PostComment {
-  id        Int      @id @default(autoincrement())
-  content   String
+  model PostComment {
+    id        Int      @id @default(autoincrement())
+    content   String
 
-  userId    Int
-  postId    Int
+    userId    Int
+    postId    Int
 
-  // Reply logic
-  parentId  Int?
-  parent    PostComment?  @relation("PostCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   PostComment[] @relation("PostCommentReplies")
+    // Reply logic
+    parentId  Int?
+    parent    PostComment?  @relation("PostCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+    replies   PostComment[] @relation("PostCommentReplies")
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-  @@index([postId])
-  @@index([parentId])
-}
+    @@index([postId])
+    @@index([parentId])
+  }
 
-model PostShare {
-  id        Int      @id @default(autoincrement())
+  model PostShare {
+    id        Int      @id @default(autoincrement())
 
-  userId    Int
-  postId    Int
-  content   String? // caption khi share
+    userId    Int
+    postId    Int
+    content   String? // caption khi share
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+    createdAt DateTime @default(now())
 
-  @@unique([userId, postId])
-}
+    @@unique([userId, postId])
+  }
 
-model Follow {
-  id           Int      @id @default(autoincrement())
+  model Follow {
+    id           Int      @id @default(autoincrement())
 
-  followerId   Int
-  followingId  Int
+    followerId   Int
+    followingId  Int
 
-  follower     User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
-  following    User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+    follower     User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+    following    User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
 
-  createdAt    DateTime @default(now())
+    createdAt    DateTime @default(now())
 
-  @@unique([followerId, followingId])
-}
+    @@unique([followerId, followingId])
+  }

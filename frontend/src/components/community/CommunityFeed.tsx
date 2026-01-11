@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Heart,
@@ -9,6 +9,7 @@ import {
   MoreHorizontal,
   Flag,
   Copy,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import dayjs from "dayjs";
@@ -19,7 +20,11 @@ dayjs.extend(relativeTime);
 dayjs.locale("vi");
 
 import type { AppDispatch, RootState } from "@/store";
-import { fetchAllPosts, toggleLikePost } from "@/store/slice/postSlice";
+import {
+  fetchAllPosts,
+  toggleLikePost,
+  sharePost,
+} from "@/store/slice/postSlice";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -27,18 +32,79 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import CommentSection from "./CommentSection";
+
+import { useSearchParams } from "next/navigation";
 
 export default function CommunityFeed() {
   const dispatch = useDispatch<AppDispatch>();
+  const searchParams = useSearchParams();
   const { posts, loading } = useSelector((state: RootState) => state.post);
   const { user } = useSelector((state: RootState) => state.user);
+  const [expandedComments, setExpandedComments] = useState<Set<number>>(
+    new Set()
+  );
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [sharePostId, setSharePostId] = useState<number | null>(null);
+  const [shareCaption, setShareCaption] = useState("");
+
+  const view = searchParams.get("view");
 
   useEffect(() => {
+    // My posts
+    if (view === "my_posts" && user) {
+      dispatch(fetchAllPosts({ authorId: user.id }));
+      return;
+    }
+
+    // Default fetch
     dispatch(fetchAllPosts({}));
-  }, [dispatch]);
+  }, [dispatch, view, user]);
 
   const handleLike = (id: number) => {
+    if (!user) {
+      toast.error("Bạn cần đăng nhập để thực hiện hành động này");
+      return;
+    }
     dispatch(toggleLikePost(id));
+  };
+
+  const toggleComments = (postId: number) => {
+    setExpandedComments((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleShare = (postId: number) => {
+    if (!user) {
+      toast.error("Bạn cần đăng nhập để chia sẻ bài viết");
+      return;
+    }
+    setSharePostId(postId);
+    setShareDialogOpen(true);
+  };
+
+  const confirmShare = async () => {
+    if (sharePostId === null) return;
+
+    try {
+      await dispatch(
+        sharePost({ id: sharePostId, content: shareCaption })
+      ).unwrap();
+      await dispatch(fetchAllPosts({})).unwrap();
+      toast.success("Đã chia sẻ bài viết thành công");
+      setShareDialogOpen(false);
+      setShareCaption("");
+      setSharePostId(null);
+    } catch (error) {
+      toast.error("Không thể chia sẻ bài viết");
+    }
   };
 
   if (loading && posts.length === 0) {
@@ -183,18 +249,88 @@ export default function CommunityFeed() {
               <span>{post._count?.likes || 0}</span>
             </button>
 
-            <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:text-blue-600 hover:bg-blue-50 transition-colors">
+            <button
+              onClick={() => toggleComments(post.id)}
+              className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-colors ${
+                expandedComments.has(post.id)
+                  ? "text-blue-600 bg-blue-50"
+                  : "hover:text-blue-600 hover:bg-blue-50"
+              }`}
+            >
               <MessageCircle size={18} />
               <span>{post._count?.comments || 0}</span>
             </button>
 
-            <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:text-blue-600 hover:bg-blue-50 transition-colors">
+            <button
+              onClick={() => handleShare(post.id)}
+              className="flex items-center gap-2 px-2 py-1 rounded-lg hover:text-blue-600 hover:bg-blue-50 transition-colors"
+            >
               <Share2 size={18} />
               <span>Chia sẻ</span>
             </button>
           </div>
+
+          {/* Comment Section */}
+          {expandedComments.has(post.id) && (
+            <CommentSection postId={post.id} isExpanded={true} />
+          )}
         </article>
       ))}
+
+      {/* Share Dialog */}
+      {shareDialogOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-800">
+                Chia sẻ bài viết
+              </h3>
+              <button
+                onClick={() => {
+                  setShareDialogOpen(false);
+                  setShareCaption("");
+                  setSharePostId(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">
+                Thêm lời nhắn (không bắt buộc)
+              </label>
+              <textarea
+                value={shareCaption}
+                onChange={(e) => setShareCaption(e.target.value)}
+                placeholder="Bạn nghĩ gì về bài viết này?"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows={4}
+              />
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShareDialogOpen(false);
+                  setShareCaption("");
+                  setSharePostId(null);
+                }}
+                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={confirmShare}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Chia sẻ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

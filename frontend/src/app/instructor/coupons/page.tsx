@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -230,6 +231,12 @@ const Coupons = () => {
                       </DialogTrigger>
 
                       <DialogContent className="max-w-3xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-xl font-semibold text-gray-800">
+                            ✏️ Cập nhật Coupon
+                          </DialogTitle>
+                        </DialogHeader>
+
                         <UpdateCouponForm
                           coupon={coupon}
                           onSuccess={() => {

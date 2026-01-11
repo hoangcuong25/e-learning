@@ -17,6 +17,7 @@ import reportReducer from "./slice/reportSlice";
 import instructorProfileReducer from "./slice/instructorProfileSlice";
 import adminAnalyticsReducer from "./slice/adminAnalyticsSlice";
 import postReducer from "./slice/postSlice";
+import commentReducer from "./slice/commentSlice";
 
 export const store = configureStore({
   reducer: {
@@ -38,6 +39,7 @@ export const store = configureStore({
     instructorProfile: instructorProfileReducer,
     adminAnalytics: adminAnalyticsReducer,
     post: postReducer,
+    comment: commentReducer,
   },
 });
 

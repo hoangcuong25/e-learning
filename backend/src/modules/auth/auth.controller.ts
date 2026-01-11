@@ -111,7 +111,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: "Users logout successfully" })
   @ResponseMessage("logout")
   @ApiBearerAuth()
-  logout(@Req() req) {
-    return this.authService.logout(req);
+  logout(@Req() req, @Res({ passthrough: true }) res) {
+    return this.authService.logout(req, res);
   }
 }

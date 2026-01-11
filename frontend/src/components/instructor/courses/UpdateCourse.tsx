@@ -12,8 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon, X, ChevronDown, Check, Edit } from "lucide-react";
+import { ImageIcon, X, ChevronDown, Check, Pencil } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
@@ -155,7 +154,7 @@ export default function UpdateCourse({ course }: Props) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="flex items-center gap-1">
-          <Edit className="w-4 h-4" />
+          <Pencil className="w-4 h-4" />
           Sửa
         </Button>
       </DialogTrigger>

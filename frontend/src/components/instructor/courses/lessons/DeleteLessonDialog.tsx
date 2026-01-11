@@ -59,7 +59,17 @@ const DeleteLessonDialog = ({
 
         <AlertDialogFooter>
           <AlertDialogCancel>Hủy</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Xóa</AlertDialogAction>
+          <AlertDialogAction
+            onClick={handleDelete}
+            className="
+              bg-red-600 
+              text-white 
+              hover:bg-red-700 
+              focus:ring-red-500
+            "
+          >
+            Xóa
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

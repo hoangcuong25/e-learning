@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { LogOut, ShoppingCart, User, BookOpen, Wallet } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -14,6 +14,7 @@ const UserSidebar = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { user, loading } = useSelector((state: RootState) => state.user);
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     dispatch(logoutUser());
@@ -68,16 +69,29 @@ const UserSidebar = () => {
 
       {/* Menu list */}
       <nav className="flex flex-row lg:flex-col gap-2 lg:gap-1 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0">
-        {menuItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-4 lg:py-2.5 text-sm text-gray-700 bg-gray-50 lg:bg-transparent rounded-xl hover:bg-blue-50 hover:text-blue-600 transition whitespace-nowrap flex-shrink-0 border border-gray-100 lg:border-none"
-          >
-            {item.icon}
-            <span>{item.label}</span>
-          </Link>
-        ))}
+        {menuItems.map((item) => {
+          const isActive = pathname === item.href;
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`
+                  flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-4 lg:py-2.5
+                  text-sm rounded-xl whitespace-nowrap flex-shrink-0 transition
+                  ${
+                    isActive
+                      ? "bg-blue-100 text-blue-600 font-semibold"
+                      : "text-gray-700 bg-gray-50 lg:bg-transparent hover:bg-blue-50 hover:text-blue-600"
+                  }
+                  border border-gray-100 lg:border-none
+                `}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
 
         {/* Logout */}
         <button

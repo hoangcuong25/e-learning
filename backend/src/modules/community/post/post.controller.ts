@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   Req,
+  UseGuards,
 } from "@nestjs/common";
 import { PostService } from "./post.service";
 import { CreatePostDto } from "./dto/create-post.dto";
@@ -15,6 +16,7 @@ import { UpdatePostDto } from "./dto/update-post.dto";
 import { PostQueryDto } from "./dto/post-query.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ResponseMessage, Public } from "src/core/decorator/customize";
+import { OptionalJwtAuthGuard } from "src/modules/auth/passport/jwt-optional.guard";
 
 @ApiTags("Community - Post")
 @Controller("community/posts")
@@ -31,18 +33,22 @@ export class PostController {
 
   @Get()
   @Public()
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: "Get all posts" })
   @ResponseMessage("Get posts successfully")
-  findAll(@Query() query: PostQueryDto) {
-    return this.postService.findAll(query);
+  findAll(@Query() query: PostQueryDto, @Req() req) {
+    const currentUserId = req.user?.id || null;
+    return this.postService.findAll(currentUserId, query);
   }
 
   @Get(":id")
   @Public()
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: "Get post detail" })
   @ResponseMessage("Get post detail successfully")
   findOne(@Param("id") id: string, @Req() req) {
-    return this.postService.findOne(+id, req.user.id);
+    const userId = req.user?.id || null;
+    return this.postService.findOne(+id, userId);
   }
 
   @Patch(":id")

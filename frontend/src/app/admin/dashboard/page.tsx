@@ -102,7 +102,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-3xl font-bold text-blue-600">
                   {loading ? "..." : overview?.totalCourses ?? 0}
                 </p>
                 <BookOpen className="w-8 h-8 text-indigo-500" />
@@ -119,7 +119,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-3xl font-bold text-blue-600">
                   {loading ? "..." : overview?.totalSpecializations ?? 0}
                 </p>
                 <DollarSign className="w-8 h-8 text-indigo-500" />
@@ -136,7 +136,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-3xl font-bold text-blue-600">
                   {loading ? "..." : overview?.totalUsers ?? 0}
                 </p>
                 <Users className="w-8 h-8 text-indigo-500" />
@@ -153,7 +153,7 @@ const DashboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-3xl font-bold text-blue-600">
                   {loading ? "..." : overview?.totalInstructors ?? 0}
                 </p>
                 <GraduationCap className="w-8 h-8 text-indigo-500" />

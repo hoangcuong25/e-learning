@@ -36,11 +36,13 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
 // 🚪 Async action: Logout
 export const logoutUser = createAsyncThunk("user/logoutUser", async () => {
   setLoggingOut(true); // 🧠 Ngăn interceptor refresh token
-  localStorage.removeItem("access_token");
-  delete axios.defaults.headers.common["Authorization"];
   try {
     await LogoutApi();
+  } catch (error) {
+    console.error("Logout failed:", error);
   } finally {
+    localStorage.removeItem("access_token");
+    delete axios.defaults.headers.common["Authorization"];
     setLoggingOut(false); // reset lại để tránh ảnh hưởng request khác
   }
 });

@@ -26,6 +26,12 @@ const CourseCard = ({ course }: Props) => {
           fill
           className="object-cover rounded-lg"
         />
+
+        {course.isEnrolled && (
+          <span className="absolute top-2 right-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow">
+            Đã mua
+          </span>
+        )}
       </div>
 
       {/* Tiêu đề khóa học */}
@@ -69,7 +75,7 @@ const CourseCard = ({ course }: Props) => {
       )}
 
       {/* Mô tả ngắn */}
-      <p className="text-gray-600 text-sm flex-1 leading-relaxed mb-3">
+      <div className="text-gray-600 text-sm flex-1 leading-relaxed mb-3">
         {course.description ? (
           <div
             className="prose max-w-none text-gray-600 text-sm"
@@ -83,7 +89,7 @@ const CourseCard = ({ course }: Props) => {
         ) : (
           "Chưa có mô tả cho khóa học này."
         )}
-      </p>
+      </div>
 
       {/* Coupon */}
       {course.coupon && course.coupon.length > 0 && (
@@ -98,8 +104,9 @@ const CourseCard = ({ course }: Props) => {
         <p className="text-blue-600 font-bold">
           {course.price === 0
             ? "Miễn phí"
-            : course.price?.toLocaleString() + " LC"}
+            : new Intl.NumberFormat("vi-VN").format(course.price) + " LC"}
         </p>
+
         <Button
           size="sm"
           onClick={handleViewDetail}

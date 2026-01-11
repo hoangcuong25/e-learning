@@ -13,10 +13,14 @@ import {
   buildPaginationResponse,
   buildSearchFilter,
 } from "src/core/helpers/pagination.util";
+import { RedisService } from "src/core/redis/redis.service";
 
 @Injectable()
 export class SpecializationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redisService: RedisService
+  ) {}
 
   async create(createSpecializationDto: CreateSpecializationDto) {
     const { name, desc } = createSpecializationDto;
@@ -33,6 +37,9 @@ export class SpecializationService {
       data: { name, desc },
     });
 
+    // Invalidate cache
+    await this.redisService.del("specialization:list");
+
     return {
       message: "Tạo chuyên ngành thành công",
       data: specialization,
@@ -40,13 +47,21 @@ export class SpecializationService {
   }
 
   async findAll() {
-    const data = await this.prisma.specialization.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-    return {
-      message: "Danh sách chuyên ngành",
-      data,
-    };
+    const cacheKey = "specialization:list";
+
+    return this.redisService.getOrSet(
+      cacheKey,
+      async () => {
+        const data = await this.prisma.specialization.findMany({
+          orderBy: { createdAt: "desc" },
+        });
+        return {
+          message: "Danh sách chuyên ngành",
+          data,
+        };
+      },
+      1800 // 30 minutes TTL
+    );
   }
 
   async findOne(id: number) {
@@ -75,6 +90,9 @@ export class SpecializationService {
       data: updateSpecializationDto,
     });
 
+    // Invalidate cache
+    await this.redisService.del("specialization:list");
+
     return {
       message: "Cập nhật chuyên ngành thành công",
       data: updated,
@@ -90,6 +108,9 @@ export class SpecializationService {
     }
 
     await this.prisma.specialization.delete({ where: { id } });
+
+    // Invalidate cache
+    await this.redisService.del("specialization:list");
 
     return { message: "Xóa chuyên ngành thành công" };
   }

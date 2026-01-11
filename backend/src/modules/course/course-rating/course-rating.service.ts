@@ -11,10 +11,15 @@ import {
   buildPaginationParams,
   buildPaginationResponse,
 } from "src/core/helpers/pagination.util";
+import { NotificationService } from "src/modules/notification/notification.service";
+import { NotificationType } from "@prisma/client";
 
 @Injectable()
 export class RatingService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService
+  ) {}
 
   async create(dto: CreateRatingDto, userId: number) {
     const { courseId, rating, text } = dto;
@@ -43,11 +48,12 @@ export class RatingService {
     if (!text.trim())
       throw new BadRequestException("Rating text cannot be empty");
 
-    const result = await this.prisma.$transaction(async (prisma) => {
-      const existing = await prisma.courseRating.findUnique({
-        where: { userId_courseId: { userId, courseId } },
-      });
+    // Check if rating already exists before transaction
+    const existing = await this.prisma.courseRating.findUnique({
+      where: { userId_courseId: { userId, courseId } },
+    });
 
+    const result = await this.prisma.$transaction(async (prisma) => {
       let ratingRecord;
       if (existing) {
         ratingRecord = await prisma.courseRating.update({
@@ -77,6 +83,19 @@ export class RatingService {
 
       return ratingRecord;
     });
+
+    // Gửi thông báo cho giảng viên nếu là rating mới (không phải update)
+    if (!existing && course.instructorId !== userId) {
+      const ratingStars = "⭐".repeat(rating);
+      await this.notificationService.createNotification({
+        userId: course.instructorId,
+        type: NotificationType.NEW_RATING,
+        title: "Bạn có đánh giá mới!",
+        body: `Khóa học "${course.title}" nhận được đánh giá ${ratingStars} (${rating}/5).`,
+        link: `/instructor/courses/${courseId}`,
+        actorId: userId,
+      });
+    }
 
     return { message: "Rating saved", data: result };
   }
