@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  HOST
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  fullname String    @db.VarChar(50)
+  email    String    @unique
+  password String    @db.VarChar(100)
+  avatar   String    @default("https://res.cloudinary.com/dtaawt3ej/image/upload/v1747292486/q9lmgugyqgrm7q5voatw.jpg")
+  age      Int?
+  gender   Gender?
+  dob      DateTime? @db.Date
+  address  String?
+  role     UserRole  @default(USER)
+  phone    String?
+
+  isVerified             Boolean   @default(false)
+  resetOtp               String?
+  resetOtpExpires        DateTime?
+  verificationOtp        String?
+  verificationOtpExpires DateTime?
+
+  refreshToken        String?   @db.Text
+  refreshTokenExpires DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
