@@ -18,12 +18,8 @@ const GoogleLoginForm = () => {
         // Gửi token về backend để verify và lấy JWT riêng
         const response = await LoginWithGoogle(tokenResponse.access_token);
 
-        console.log("run1");
-
         localStorage.setItem("access_token", response.data.access_token);
         fetchUser();
-
-        console.log("run2");
 
         // Điều hướng theo role
         if (response.data.user.role === "ADMIN") {
@@ -33,8 +29,6 @@ const GoogleLoginForm = () => {
         } else {
           router.push("/");
         }
-
-        console.log("run3");
 
         toast.success("Đăng nhập thành công");
       } catch (error: any) {

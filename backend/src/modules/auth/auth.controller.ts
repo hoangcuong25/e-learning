@@ -82,8 +82,11 @@ export class AuthController {
   @Post("login-google")
   @Public()
   @ResponseMessage("login with google")
-  loginGoogle(@Body() body: { googleToken: string }) {
-    return this.authService.loginGoogle(body.googleToken);
+  loginGoogle(
+    @Body() body: { googleToken: string },
+    @Res({ passthrough: true }) response: Response
+  ) {
+    return this.authService.loginGoogle(body.googleToken, response);
   }
 
   @Post("logout")
