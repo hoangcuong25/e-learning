@@ -159,20 +159,51 @@ export class UserService {
     return await this.findById(userId);
   }
 
-  // async updateProfile(req: { _id: number }, updateUserDto: any, image?: Express.Multer.File) {
-  //   const user = await this.findById(req._id);
-  //   if (!user) throw new BadRequestException('User not found');
+  async updateProfile(
+    userId: number,
+    updateUserDto: any,
+    avatar?: Express.Multer.File
+  ) {
+    // 1. Kiểm tra user tồn tại
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
 
-  //   const updateData = { ...updateUserDto };
+    if (!user) {
+      throw new BadRequestException("User not found");
+    }
 
-  //   if (image) {
-  //     const imageUpload = await this.cloudinaryService.uploadFile(image);
-  //     updateData['image'] = imageUpload.url;
-  //   }
+    // 2. Chuẩn bị data để update
+    const updateData: any = { ...updateUserDto };
 
-  //   await this.userRepository.update(req._id, updateData);
-  //   return 'ok';
-  // }
+    const genderMap: Record<string, "MALE" | "FEMALE" | "OTHER"> = {
+      Nam: "MALE",
+      Nữ: "FEMALE",
+      Khác: "OTHER",
+    };
+
+    if (updateData.gender) {
+      updateData.gender = genderMap[updateData.gender] ?? null;
+    }
+
+    if (avatar) {
+      const avatarUpload = await this.cloudinaryService.uploadFile(avatar);
+      updateData.avatar = avatarUpload.url;
+    }
+
+    // Nếu có dob thì convert sang Date
+    if (updateData.dob) {
+      updateData.dob = new Date(updateData.dob);
+    }
+
+    // 3. Update user với Prisma
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+
+    return "ok";
+  }
 
   // async updatePhone(req: { _id: string }, phone: string) {
   //   await this.userRepository.update(req._id, { phone });

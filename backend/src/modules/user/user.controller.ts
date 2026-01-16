@@ -50,16 +50,16 @@ export class UserController {
     return this.userService.getProfile(req.user.id);
   }
 
-  // @Patch('update-profile')
-  // @ResponseMessage('update profile')
-  // @UseInterceptors(FileInterceptor('image'))
-  // updateProfile(
-  //   @Req() req,
-  //   @Body() updateUserDto: UpdateUserDto,
-  //   @UploadedFile() image: Express.Multer.File
-  // ) {
-  //   return this.userService.updateProfile(req.user, updateUserDto, image)
-  // }
+  @Patch('profile')
+  @ResponseMessage('update profile')
+  @UseInterceptors(FileInterceptor('avatar'))
+  updateProfile(
+    @Req() req,
+    @Body() updateUserDto,
+    @UploadedFile() avatar: Express.Multer.File
+  ) {
+    return this.userService.updateProfile(req.user.id, updateUserDto, avatar)
+  }
 
   // @Patch('update-phone')
   // updatePhone(
