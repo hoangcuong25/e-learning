@@ -34,26 +34,21 @@ export const LoginApi = async (payload: LoginPayload) => {
   }
 };
 
-type LoginWithGooglePayload = {
-    fullname: string;
-    email: string;
-    avatar: string;
-}
-
-export const LoginWithGoogle = async (payload: LoginWithGooglePayload) => {
-    try {
-        const response = await axiosClient.post( "/auth/login-google", payload)
-        return response.data.data
-    } catch (error) {
-        throw error;
-    }
-}
+export const LoginWithGoogle = async (googleToken: string) => {
+  try {
+    const response = await axiosClient.post("/auth/login-google", {
+      googleToken,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const LogoutApi = async () => {
-    try {
-        await axiosClient.post('/auth/logout')
-
-    } catch (error) {
-        throw error;
-    }
-}
+  try {
+    await axiosClient.post("/auth/logout");
+  } catch (error) {
+    throw error;
+  }
+};

@@ -17,11 +17,12 @@ import { CreateAuthDto } from "./dto/create-auth.dto";
 import { Public, ResponseMessage } from "src/decorator/customize";
 import { Response } from "express";
 import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { access } from "fs";
 
-@ApiTags('auth')
+@ApiTags("auth")
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post("login")
   @Public()
@@ -49,7 +50,6 @@ export class AuthController {
   }
 
   @Post("send-email-active")
-  
   @ResponseMessage("send mail active account")
   sendMail(@Req() req) {
     return this.authService.sendEmailActive(req.user);
@@ -79,12 +79,12 @@ export class AuthController {
     );
   }
 
-  // @Post('login-google')
-  // @Public()
-  // @ResponseMessage('login with goole')
-  // loginGoole(@Body() body) {
-  //   return this.authService.loginGoole(body.firstName, body.lastName, body.email, body.image)
-  // }
+  @Post("login-google")
+  @Public()
+  @ResponseMessage("login with google")
+  loginGoogle(@Body() body: { googleToken: string }) {
+    return this.authService.loginGoogle(body.googleToken);
+  }
 
   @Post("logout")
   @ResponseMessage("logout")

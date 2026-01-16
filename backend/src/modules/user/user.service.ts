@@ -15,14 +15,14 @@ export class UserService {
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
     private readonly cloudinaryService: CloudinaryService
-  ) { }
+  ) {}
 
   async clearRefreshTokenInDatabase(userId: number) {
     await this.prisma.user.update({
       where: { id: userId },
       data: {
         refreshToken: null,
-        refreshTokenExpires: null
+        refreshTokenExpires: null,
       },
     });
   }
@@ -74,12 +74,12 @@ export class UserService {
     });
   }
 
-  // async createWithGoogle(userData: Partial<User>) {
-  //   const newUser = this.prisma.user.create({
-  //     data: userData,
-  //   });
-  //   return await newUser;
-  // }
+  async createWithGoogle(userData: any) {
+    const newUser = await this.prisma.user.create({
+      data: userData,
+    });
+    return newUser;
+  }
 
   async getRefreshTokenByUserId(userId: number) {
     return await this.prisma.user.findUnique({
@@ -121,7 +121,13 @@ export class UserService {
   }
 
   async findById(id: number) {
-    return await this.prisma.user.findUnique({ where: { id } });
+    if (!id) {
+      throw new BadRequestException("User id is required");
+    }
+
+    return await this.prisma.user.findUnique({
+      where: { id },
+    });
   }
 
   async handleRegister(registerDto: CreateAuthDto) {

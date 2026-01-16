@@ -14,6 +14,7 @@ import Redis from "ioredis";
 import { MailerService } from "@nestjs-modules/mailer";
 import { v4 as uuidv4 } from "uuid";
 import { console } from "inspector";
+import axios from "axios";
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
     private configService: ConfigService,
     private readonly mailerService: MailerService
     // @InjectRedis() private readonly redis: Redis
-  ) { }
+  ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
@@ -229,63 +230,84 @@ export class AuthService {
     return "ok";
   }
 
-  // async loginGoole(firstName, lastName, email, image) {
-  //   if (!firstName || !lastName || !email || !image) {
-  //     throw new BadRequestException("Please Fill In All Information")
-  //   }
+  async verifyGoogleToken(access_token: string) {
+    const res = await axios.get(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
 
-  //   const user = await this.userService.findByEmail(email)
+    return res.data;
+  }
 
-  //   if (user) {
-  //     const payload = {
-  //       sub: user.email,
-  //       iss: 'from server',
-  //       _id: user.id,
-  //       role: user.role
-  //     };
+  async loginGoogle(googleToken: string) {
+    if (!googleToken) {
+      throw new BadRequestException("Something wrong!");
+    }
 
-  //     const access_token = this.jwtService.sign(payload);
-  //     const refresh_token = this.createRefreshToken(payload);
+    const { email, name, picture, email_verified } =
+      await this.verifyGoogleToken(googleToken);
 
-  //     await this.storeRefreshToken(user.id, refresh_token)
+    if (!email_verified) {
+      throw new BadRequestException("Google email not verified!");
+    }
 
-  //     return {
-  //       access_token,
-  //       refresh_token
-  //     }
-  //   } else {
-  //     const generatedPassword = Math.random().toString(36).slice(-8)
-  //     const hashedPassword = await hashPasswordHelper(generatedPassword)
+    const user = await this.userService.findByEmail(email);
 
-  //     const userData = {
-  //       firstName,
-  //       lastName,
-  //       email,
-  //       phone: "Unknown",
-  //       password: hashedPassword,
-  //       dob: "Unknown",
-  //       image,
-  //       isActive: true
-  //     }
+    if (user) {
+      const payload = {
+        sub: user.email,
+        iss: "from server",
+        _id: user.id,
+        role: user.role,
+      };
 
-  //     const user = await this.userService.createWithGoole(userData)
+      const access_token = this.jwtService.sign(payload);
+      const refresh_token = this.createRefreshToken(payload);
 
-  //     const payload = {
-  //       sub: user.email,
-  //       iss: 'from server',
-  //       _id: user.id,
-  //       role: user.role
-  //     };
+      await this.userService.storeRefreshToken(user.id, refresh_token);
 
-  //     const access_token = this.jwtService.sign(payload);
-  //     const refresh_token = this.createRefreshToken(payload);
+      return {
+        access_token,
+        refresh_token,
+        user,
+      };
+    } else {
+      const generatedPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await hashPasswordHelper(generatedPassword);
 
-  //     await this.storeRefreshToken(user.id, refresh_token)
+      const userData = {
+        fullname: name,
+        email,
+        phone: "Unknown",
+        password: hashedPassword,
+        dob: "Unknown",
+        image: picture,
+        isActive: true,
+      };
 
-  //     return {
-  //       access_token,
-  //       refresh_token
-  //     }
-  //   }
-  // }
+      const user = await this.userService.createWithGoogle(userData);
+
+      const payload = {
+        sub: user.email,
+        iss: "from server",
+        _id: user.id,
+        role: user.role,
+      };
+
+      const access_token = this.jwtService.sign(payload);
+      const refresh_token = this.createRefreshToken(payload);
+
+      await this.userService.storeRefreshToken(user.id, refresh_token);
+
+      return {
+        access_token,
+        refresh_token,
+        user,
+      };
+    }
+  }
 }
