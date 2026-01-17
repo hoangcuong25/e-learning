@@ -97,3 +97,15 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+Cách 1: Dùng Services (dễ nhất)
+
+Nhấn Win + R → gõ services.msc → Enter
+
+Tìm dòng MySQL80 (hoặc MySQL57, MySQL tùy version)
+
+Nhấn chuột phải → chọn Start
+
+Sau đó quay lại MySQL Workbench → bấm Reconnect
+
+💡 Nếu MySQL đã chạy, cột Status sẽ hiển thị “Running”.

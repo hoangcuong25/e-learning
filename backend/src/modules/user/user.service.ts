@@ -165,50 +165,26 @@ export class UserService {
     avatar?: Express.Multer.File
   ) {
     // 1. Kiểm tra user tồn tại
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw new BadRequestException("User not found");
-    }
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new BadRequestException("User not found");
 
     // 2. Chuẩn bị data để update
     const updateData: any = { ...updateUserDto };
 
-    const genderMap: Record<string, "MALE" | "FEMALE" | "OTHER"> = {
-      Nam: "MALE",
-      Nữ: "FEMALE",
-      Khác: "OTHER",
-    };
-
-    if (updateData.gender) {
-      updateData.gender = genderMap[updateData.gender] ?? null;
-    }
-
     if (avatar) {
-      const avatarUpload = await this.cloudinaryService.uploadFile(avatar);
-      updateData.avatar = avatarUpload.url;
+      const uploaded = await this.cloudinaryService.uploadFile(avatar);
+      updateData.avatar = uploaded.url;
     }
 
     // Nếu có dob thì convert sang Date
-    if (updateData.dob) {
-      updateData.dob = new Date(updateData.dob);
-    }
+    updateData.dob = new Date(updateData.dob);
 
     // 3. Update user với Prisma
-    await this.prisma.user.update({
+    return this.prisma.user.update({
       where: { id: userId },
       data: updateData,
     });
-
-    return "ok";
   }
-
-  // async updatePhone(req: { _id: string }, phone: string) {
-  //   await this.userRepository.update(req._id, { phone });
-  //   return 'ok';
-  // }
 
   async updatePassword(userId: number, body: any) {
     const { newPassword1, newPassword2, oldPassword } = body;
@@ -231,10 +207,9 @@ export class UserService {
     });
   }
 
-  // async deleteUser(userId: string) {
-  //   await this.userRepository.delete(userId);
-  //   return 'ok';
-  // }
+  async deleteUser(userId: number) {
+    return await this.prisma.user.delete({ where: { id: userId } });
+  }
 
   async storeRefreshToken(userId: number, refreshToken: string) {
     await this.prisma.user.update({

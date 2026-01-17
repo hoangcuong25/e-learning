@@ -16,7 +16,7 @@ datasource db {
 enum UserRole {
   USER
   ADMIN
-  HOST
+  INSTRUCTOR
 }
 
 enum Gender {
@@ -31,7 +31,6 @@ model User {
   email    String    @unique
   password String    @db.VarChar(100)
   avatar   String    @default("https://res.cloudinary.com/dtaawt3ej/image/upload/v1747292486/q9lmgugyqgrm7q5voatw.jpg")
-  age      Int?
   gender   Gender?
   dob      DateTime? @db.Date
   address  String?

@@ -16,7 +16,7 @@ import { Lock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { changePassword } from "@/api/user.api";
 
-// Component Input mật khẩu có ẩn/hiện
+// Input có toggle ẩn/hiện mật khẩu
 const PasswordInput = ({
   label,
   value,
@@ -30,18 +30,18 @@ const PasswordInput = ({
 
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
+      <Label className="text-gray-700 font-medium">{label}</Label>
       <div className="relative">
         <Input
           type={show ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="pr-10"
+          className="pr-10 border-blue-300 focus:ring-blue-400 focus:border-blue-400 rounded-xl transition-all duration-200"
         />
         <button
           type="button"
           onClick={() => setShow(!show)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors"
         >
           {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         </button>
@@ -77,7 +77,6 @@ const ChangePassword = () => {
         newPassword2: confirmPwd,
       });
       toast.success("Đổi mật khẩu thành công!");
-      // Reset form
       setCurrentPwd("");
       setNewPwd("");
       setConfirmPwd("");
@@ -91,17 +90,20 @@ const ChangePassword = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
+        <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:opacity-90 text-white rounded-xl shadow-md transition-all duration-200 flex items-center gap-2">
           <Lock className="w-4 h-4" />
           Đổi mật khẩu
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+
+      <DialogContent className="max-w-md rounded-2xl bg-gradient-to-br from-blue-50 to-white border border-blue-100 shadow-xl">
         <DialogHeader>
-          <DialogTitle>Đổi mật khẩu</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-blue-700">
+            Đổi mật khẩu 🔒
+          </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleChangePassword} className="space-y-4">
+        <form onSubmit={handleChangePassword} className="space-y-5 mt-2">
           <PasswordInput
             label="Mật khẩu hiện tại"
             value={currentPwd}
@@ -119,7 +121,11 @@ const ChangePassword = () => {
           />
 
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl py-2 transition-all duration-200"
+            >
               {loading ? "Đang xử lý..." : "Xác nhận"}
             </Button>
           </DialogFooter>

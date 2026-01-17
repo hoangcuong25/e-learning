@@ -3,13 +3,11 @@
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useContext } from "react";
-import { AppContext } from "@/context/AppContext";
 import { useGoogleLogin } from "@react-oauth/google";
 import { LoginWithGoogle } from "@/api/auth.api";
+import { fetchUser } from "@/store/user/userSlice";
 
 const GoogleLoginForm = () => {
-  const { fetchUser } = useContext(AppContext);
   const router = useRouter();
 
   const login = useGoogleLogin({

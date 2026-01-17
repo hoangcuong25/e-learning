@@ -18,105 +18,117 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useContext, useEffect, useState } from "react";
-import { AppContext } from "@/context/AppContext";
 import Image from "next/image";
-import { updateUser } from "@/api/user.api";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { GenderEnum, GenderLabel } from "@/constants/Gender";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { fetchUser } from "@/store/user/userSlice";
+import { updateUser } from "@/api/user.api";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ProfileFormValues,
+  profileSchema,
+} from "@/hook/zod-schema/ProfileSchema";
 
 const EditProfile = () => {
-  const { user } = useContext(AppContext);
+  const { user } = useSelector((state: RootState) => state.user);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string>("");
 
-  const [updateInfo, setUpdateInfo] = useState({
-    fullname: "",
-    phone: "",
-    address: "",
-    dob: "",
-    avatar: "",
-    gender: "",
+  const dispatch = useDispatch<AppDispatch>();
+
+  // 🔧 react-hook-form + zod
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      fullname: "",
+      phone: "",
+      address: "",
+      dob: "",
+      gender: "" as GenderEnum,
+    },
   });
 
-  const [preview, setPreview] = useState("");
-
+  // 📷 Upload avatar preview
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setAvatarFile(file);
       const url = URL.createObjectURL(file);
       setPreview(url);
-      setUpdateInfo({ ...updateInfo, avatar: file.name });
     }
   };
 
-  const updateProfile = async (e: React.FormEvent) => {
+  // 📦 Submit form
+  const onSubmit = async (data: ProfileFormValues) => {
     try {
-      e.preventDefault();
-
       const formData = new FormData();
-      formData.append("fullname", updateInfo.fullname);
-      formData.append("phone", updateInfo.phone);
-      formData.append("address", updateInfo.address);
-      formData.append("dob", updateInfo.dob);
-      formData.append("gender", updateInfo.gender);
-      if (preview) {
-        formData.append("avatar", preview);
-      }
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      if (avatarFile) formData.append("avatar", avatarFile);
 
       await updateUser(formData);
-
-      toast.success("Cập nhật hồ sơ thành công");
+      await dispatch(fetchUser());
+      toast.success("Cập nhật hồ sơ thành công 🎉");
     } catch (error) {
-      toast.error("Cập nhật hồ sơ thất bại");
+      console.error(error);
+      toast.error("Cập nhật hồ sơ thất bại!");
     }
   };
 
+  // 🪄 Load dữ liệu user hiện tại
   useEffect(() => {
     if (user) {
-      setUpdateInfo({
-        fullname: user.fullname || "",
-        phone: user.phone || "",
-        address: user.address || "",
-        dob: user.dob ? new Date(user.dob).toISOString().split("T")[0] : "",
-        avatar: user.avatar || "",
-        gender: user.gender || "",
-      });
+      setValue("fullname", user.fullname || "");
+      setValue("phone", user.phone || "");
+      setValue("address", user.address || "");
+      setValue(
+        "dob",
+        user.dob ? new Date(user.dob).toISOString().split("T")[0] : ""
+      );
+      setValue("gender", (user.gender as GenderEnum) || "");
+      setPreview(user.avatar || "");
     }
-  }, [user]);
+  }, [user, setValue]);
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className=" bg-emerald-500 hover:bg-emerald-600">
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-all duration-200">
           Chỉnh sửa hồ sơ
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-blue-100 shadow-lg">
         <DialogHeader>
-          <DialogTitle>Cập nhật thông tin hồ sơ</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-blue-600 text-center">
+            Cập nhật thông tin hồ sơ ✏️
+          </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={updateProfile} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-2">
           {/* Avatar */}
           <div className="space-y-2">
-            <Label htmlFor="avatar">Ảnh đại diện</Label>
-            {preview ? (
+            <Label className="text-blue-700 font-medium">Ảnh đại diện</Label>
+            <div className="flex items-center gap-4">
               <Image
                 src={preview || "/default-avatar.png"}
                 alt="avatar"
-                className="w-20 h-20 rounded-full border-4 border-emerald-500 object-cover"
+                className="w-20 h-20 rounded-full border-4 border-blue-200 object-cover shadow-sm"
                 width={80}
                 height={80}
               />
-            ) : (
-              <>
-                <Image
-                  src={updateInfo.avatar || "/default-avatar.png"}
-                  alt="avatar"
-                  className="w-20 h-20 rounded-full border-4 border-emerald-500 object-cover"
-                  width={80}
-                  height={80}
-                />
+              <div>
                 <input
                   type="file"
                   id="avatar"
@@ -126,110 +138,128 @@ const EditProfile = () => {
                 />
                 <label
                   htmlFor="avatar"
-                  className="cursor-pointer w-28 h-8 flex items-center justify-center border rounded px-2 text-sm"
+                  className="cursor-pointer px-3 py-1.5 text-sm rounded-md bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition-all"
                 >
                   Chọn ảnh
                 </label>
-              </>
-            )}
+              </div>
+            </div>
           </div>
 
           {/* Fullname */}
-          <div className="space-y-2">
-            <Label htmlFor="fullname">Họ và tên</Label>
+          <div className="space-y-1">
+            <Label htmlFor="fullname" className="text-blue-700 font-medium">
+              Họ và tên <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="fullname"
-              type="text"
               placeholder="Nhập họ và tên"
-              value={updateInfo.fullname}
-              onChange={(e) =>
-                setUpdateInfo({ ...updateInfo, fullname: e.target.value })
-              }
+              className="border-blue-300 rounded-lg"
+              {...register("fullname")}
             />
+            {errors.fullname && (
+              <p className="text-sm text-red-500">{errors.fullname.message}</p>
+            )}
           </div>
 
-          {/* Email */}
+          {/* Email (readonly) */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-blue-700 font-medium">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
               disabled
-              className="bg-gray-100"
+              className="bg-gray-100 border-blue-300 text-gray-700 rounded-lg"
               value={user?.email || ""}
             />
           </div>
 
           {/* Phone */}
-          <div className="space-y-2">
-            <Label htmlFor="phone">Số điện thoại</Label>
+          <div className="space-y-1">
+            <Label htmlFor="phone" className="text-blue-700 font-medium">
+              Số điện thoại <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="phone"
-              type="text"
               placeholder="Nhập số điện thoại"
-              value={updateInfo.phone}
-              onChange={(e) =>
-                setUpdateInfo({ ...updateInfo, phone: e.target.value })
-              }
+              className="border-blue-300 rounded-lg"
+              {...register("phone")}
             />
+            {errors.phone && (
+              <p className="text-sm text-red-500">{errors.phone.message}</p>
+            )}
           </div>
 
           {/* Address */}
-          <div className="space-y-2">
-            <Label htmlFor="address">Địa chỉ</Label>
+          <div className="space-y-1">
+            <Label htmlFor="address" className="text-blue-700 font-medium">
+              Địa chỉ <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="address"
-              type="text"
               placeholder="Nhập địa chỉ"
-              value={updateInfo.address}
-              onChange={(e) =>
-                setUpdateInfo({ ...updateInfo, address: e.target.value })
-              }
+              className="border-blue-300 rounded-lg"
+              {...register("address")}
             />
+            {errors.address && (
+              <p className="text-sm text-red-500">{errors.address.message}</p>
+            )}
           </div>
 
           {/* Gender */}
-          <Select
-            value={updateInfo.gender}
-            onValueChange={(val) =>
-              setUpdateInfo({ ...updateInfo, gender: val as GenderEnum })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn giới tính" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={GenderEnum.Male}>
-                {GenderLabel[GenderEnum.Male]}
-              </SelectItem>
-              <SelectItem value={GenderEnum.Female}>
-                {GenderLabel[GenderEnum.Female]}
-              </SelectItem>
-              <SelectItem value={GenderEnum.Other}>
-                {GenderLabel[GenderEnum.Other]}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="space-y-1">
+            <Label className="text-blue-700 font-medium">
+              Giới tính <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              value={watch("gender")}
+              onValueChange={(val) => setValue("gender", val as GenderEnum)}
+            >
+              <SelectTrigger className="border-blue-300 rounded-lg">
+                <SelectValue placeholder="Chọn giới tính" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={GenderEnum.Male}>
+                  {GenderLabel[GenderEnum.Male]}
+                </SelectItem>
+                <SelectItem value={GenderEnum.Female}>
+                  {GenderLabel[GenderEnum.Female]}
+                </SelectItem>
+                <SelectItem value={GenderEnum.Other}>
+                  {GenderLabel[GenderEnum.Other]}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.gender && (
+              <p className="text-sm text-red-500">{errors.gender.message}</p>
+            )}
+          </div>
 
-          {/* Date of Birth */}
-          <div className="space-y-2">
-            <Label htmlFor="dob">Ngày sinh</Label>
+          {/* DOB */}
+          <div className="space-y-1">
+            <Label htmlFor="dob" className="text-blue-700 font-medium">
+              Ngày sinh <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="dob"
               type="date"
-              value={updateInfo.dob}
-              onChange={(e) =>
-                setUpdateInfo({ ...updateInfo, dob: e.target.value })
-              }
+              className="border-blue-300 rounded-lg"
+              {...register("dob")}
             />
+            {errors.dob && (
+              <p className="text-sm text-red-500">{errors.dob.message}</p>
+            )}
           </div>
 
           <DialogFooter>
             <Button
               type="submit"
-              className="bg-emerald-500 hover:bg-emerald-600"
+              disabled={isSubmitting}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg py-2.5 shadow-md transition-all duration-200"
             >
-              Lưu thay đổi
+              {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </DialogFooter>
         </form>

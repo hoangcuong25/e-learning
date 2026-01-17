@@ -6,7 +6,6 @@ declare global {
         fullname: string;
         email: string;
         avatar: string;
-        age: number;
         gender: string;
         dob: string;
         address: string;

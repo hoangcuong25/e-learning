@@ -290,7 +290,6 @@ export class AuthService {
       const userData = {
         fullname: name,
         email,
-        phone: "Unknown",
         password: hashedPassword,
         dob: null,
         avatar: picture,

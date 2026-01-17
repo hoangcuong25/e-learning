@@ -79,9 +79,9 @@ export class UserController {
     return this.userService.updatePassword(req.user.id, body);
   }
 
-  // @Delete('delete-user/:id')
-  // @Roles('admin')
-  // deleteUser(@Param('id') userId: string) {
-  //   return this.userService.deleteUser(userId)
-  // }
+  @Delete("delete-user/:id")
+  @Roles("admin")
+  deleteUser(@Param("id") userId: string) {
+    return this.userService.deleteUser(Number(userId));
+  }
 }
