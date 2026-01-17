@@ -16,16 +16,21 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { Public, ResponseMessage, Roles } from "src/decorator/customize";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CloudinaryService } from "src/cloudinary/cloudinary.service";
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 
 @ApiBearerAuth()
-@ApiTags('user')
+@ApiTags("user")
 @Controller("user")
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly cloudinaryService: CloudinaryService
-  ) { }
+  ) {}
 
   @Post()
   @ResponseMessage("create user")
@@ -50,36 +55,29 @@ export class UserController {
     return this.userService.getProfile(req.user.id);
   }
 
-  @Patch('profile')
-  @ResponseMessage('update profile')
-  @UseInterceptors(FileInterceptor('avatar'))
+  @Patch("profile")
+  @ResponseMessage("update profile")
+  @UseInterceptors(FileInterceptor("avatar"))
   updateProfile(
     @Req() req,
     @Body() updateUserDto,
     @UploadedFile() avatar: Express.Multer.File
   ) {
-    return this.userService.updateProfile(req.user.id, updateUserDto, avatar)
+    return this.userService.updateProfile(req.user.id, updateUserDto, avatar);
   }
 
-  // @Patch('update-phone')
-  // updatePhone(
-  //   @Req() req,
-  //   @Body() reqBody: { phone: string }
-  // ) {
-  //   return this.userService.updatePhone(req.user, reqBody.phone)
-  // }
-
-  // @Patch('update-password')
-  // updatePassword(
-  //   @Req() req,
-  //   @Body() reqBody: {
-  //     newPassword1: string,
-  //     newPassword2: string,
-  //     oldPassword: string
-  //   }
-  // ) {
-  //   return this.userService.updatePassword(req.user, reqBody)
-  // }
+  @Patch("change-password")
+  updatePassword(
+    @Req() req,
+    @Body()
+    body: {
+      newPassword1: string;
+      newPassword2: string;
+      oldPassword: string;
+    }
+  ) {
+    return this.userService.updatePassword(req.user.id, body);
+  }
 
   // @Delete('delete-user/:id')
   // @Roles('admin')

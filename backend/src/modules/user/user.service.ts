@@ -210,20 +210,26 @@ export class UserService {
   //   return 'ok';
   // }
 
-  // async updatePassword(req: { _id: number }, reqBody: any) {
-  //   const { newPassword1, newPassword2, oldPassword } = reqBody;
-  //   const user = await this.findById(req._id);
-  //   if (!user) throw new BadRequestException('User not found');
+  async updatePassword(userId: number, body: any) {
+    const { newPassword1, newPassword2, oldPassword } = body;
+    const user = await this.findById(userId);
+    if (!user) throw new BadRequestException("User not found");
 
-  //   const isOldPasswordValid = await comparePasswordHelper(oldPassword, user.password);
-  //   if (!isOldPasswordValid) throw new BadRequestException('Incorrect old password');
-  //   if (newPassword1 !== newPassword2) throw new BadRequestException('New passwords do not match');
+    const isOldPasswordValid = await comparePasswordHelper(
+      oldPassword,
+      user.password
+    );
+    if (!isOldPasswordValid)
+      throw new BadRequestException("Incorrect old password");
+    if (newPassword1 !== newPassword2)
+      throw new BadRequestException("New passwords do not match");
 
-  //   const hashedPassword = await hashPasswordHelper(newPassword1);
-  //   await this.userRepository.update(req._id, { password: hashedPassword });
-
-  //   return 'ok';
-  // }
+    const hashedPassword = await hashPasswordHelper(newPassword1);
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+  }
 
   // async deleteUser(userId: string) {
   //   await this.userRepository.delete(userId);

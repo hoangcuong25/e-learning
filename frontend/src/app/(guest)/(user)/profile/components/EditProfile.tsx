@@ -23,6 +23,7 @@ import { AppContext } from "@/context/AppContext";
 import Image from "next/image";
 import { updateUser } from "@/api/user.api";
 import { toast } from "sonner";
+import { GenderEnum, GenderLabel } from "@/constants/Gender";
 
 const EditProfile = () => {
   const { user } = useContext(AppContext);
@@ -85,7 +86,7 @@ const EditProfile = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="mt-3 bg-emerald-500 hover:bg-emerald-600">
+        <Button className=" bg-emerald-500 hover:bg-emerald-600">
           Chỉnh sửa hồ sơ
         </Button>
       </DialogTrigger>
@@ -188,24 +189,27 @@ const EditProfile = () => {
           </div>
 
           {/* Gender */}
-          <div className="space-y-2">
-            <Label>Giới tính</Label>
-            <Select
-              value={updateInfo.gender}
-              onValueChange={(val) =>
-                setUpdateInfo({ ...updateInfo, gender: val })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn giới tính" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Nam">Nam</SelectItem>
-                <SelectItem value="Nữ">Nữ</SelectItem>
-                <SelectItem value="Khác">Khác</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select
+            value={updateInfo.gender}
+            onValueChange={(val) =>
+              setUpdateInfo({ ...updateInfo, gender: val as GenderEnum })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn giới tính" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={GenderEnum.Male}>
+                {GenderLabel[GenderEnum.Male]}
+              </SelectItem>
+              <SelectItem value={GenderEnum.Female}>
+                {GenderLabel[GenderEnum.Female]}
+              </SelectItem>
+              <SelectItem value={GenderEnum.Other}>
+                {GenderLabel[GenderEnum.Other]}
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* Date of Birth */}
           <div className="space-y-2">

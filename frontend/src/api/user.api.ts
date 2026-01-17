@@ -21,3 +21,16 @@ export const updateUser = async (data: FormData) => {
     throw error;
   }
 };
+
+export const changePassword = async (data: {
+  oldPassword: string;
+  newPassword1: string;
+  newPassword2: string;
+}) => {
+  try {
+    const response = await axiosClient.patch("/user/change-password", data);
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};

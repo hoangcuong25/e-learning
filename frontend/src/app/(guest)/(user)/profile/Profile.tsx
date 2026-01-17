@@ -1,12 +1,20 @@
 "use client";
 
 import { AppContext } from "@/context/AppContext";
-import { Edit } from "lucide-react";
 import React, { useContext } from "react";
 import EditProfile from "./components/EditProfile";
+import { GenderEnum, GenderLabel } from "@/constants/Gender";
+import { Button } from "@/components/ui/button";
+import ChangePassword from "./components/ChangePassword";
+import VerifyAccount from "./components/VerifyAccount";
 
 const Profile = () => {
   const { user } = useContext(AppContext);
+
+  const handleVerifyAccount = () => {
+    // 👉 Ở đây bạn gọi API gửi email xác thực hoặc mở modal xác thực
+    console.log("Verify account clicked");
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4 my-3 rounded-2xl">
@@ -26,7 +34,13 @@ const Profile = () => {
               Thành viên từ:{" "}
               {user?.createdAt ? new Date(user.createdAt).getFullYear() : "N/A"}
             </p>
-            <EditProfile />
+
+            {/* Các nút hành động */}
+            <div className="flex flex-wrap gap-3 mt-3">
+              <EditProfile />
+              <ChangePassword />
+              {!user?.isVerified && <VerifyAccount />}
+            </div>
           </div>
         </div>
 
@@ -50,7 +64,9 @@ const Profile = () => {
               </li>
               <li>
                 <span className="font-medium">Giới tính:</span>{" "}
-                {user?.gender || "Chưa cập nhật"}
+                {user?.gender
+                  ? GenderLabel[user.gender as GenderEnum]
+                  : "Chưa cập nhật"}
               </li>
               <li>
                 <span className="font-medium">Ngày sinh:</span>{" "}

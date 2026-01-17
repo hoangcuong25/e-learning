@@ -135,10 +135,10 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async sendEmailActive(req) {
+  async sendEmailActive(userId) {
     const codeId = Math.random().toString(36).substring(2, 8);
 
-    const user = await this.userService.findById(req._id);
+    const user = await this.userService.findById(userId);
 
     this.mailerService.sendMail({
       to: user?.email, // list of receivers
@@ -151,15 +151,15 @@ export class AuthService {
       },
     });
 
-    await this.userService.updateCodeActive(req._id, codeId);
+    await this.userService.updateCodeActive(userId, codeId);
 
     return "ok";
   }
 
-  async comfirmActive(req, codeId) {
-    const user = await this.userService.findById(req._id);
+  async comfirmActive(userId, otp) {
+    const user = await this.userService.findById(userId);
 
-    if (user?.verificationOtp !== codeId) {
+    if (user?.verificationOtp !== otp) {
       throw new BadRequestException("Invalid activation code");
     }
 
@@ -170,7 +170,7 @@ export class AuthService {
       throw new BadRequestException("Activation code has expired");
     }
 
-    await this.userService.activeAccount(req._id);
+    await this.userService.activeAccount(userId);
 
     return "ok";
   }
