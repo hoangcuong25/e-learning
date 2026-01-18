@@ -5,8 +5,6 @@ import { comparePasswordHelper, hashPasswordHelper } from "src/helpers/util";
 import { MailerService } from "@nestjs-modules/mailer";
 import dayjs from "dayjs";
 import { CloudinaryService } from "src/cloudinary/cloudinary.service";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()

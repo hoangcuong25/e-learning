@@ -7,6 +7,20 @@ import type { NextRequest } from "next/server";
 const secret = new TextEncoder().encode(process.env.JWT_REFRESH_TOKEN_SECRET!);
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // ai cũng có thể vào những trang này
+  const publicRoutes = [
+    "/instructor/become",
+    "/instructor/apply",
+    "/instructor/status",
+  ];
+
+  // 🔹 Nếu URL nằm trong danh sách public -> cho phép truy cập
+  if (publicRoutes.some((route) => pathname.startsWith(route))) {
+    return NextResponse.next();
+  } 
+
   const token = request.cookies.get("refresh_token")?.value;
 
   if (!token) {
@@ -17,13 +31,13 @@ export async function middleware(request: NextRequest) {
     const { payload } = await jwtVerify(token, secret);
     const role = payload.role;
 
-    // Kiểm tra role nếu truy cập /admin
-    if (request.nextUrl.pathname.startsWith("/admin") && role !== "ADMIN") {
+    // 🔹 Chặn nếu không phải admin mà vào /admin
+    if (pathname.startsWith("/admin") && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // Kiểm tra role nếu truy cập /host
-    if (request.nextUrl.pathname.startsWith("/instructor") && role !== "  INSTRUCTOR") {
+    // 🔹 Chặn nếu không phải instructor mà vào /instructor (trừ /instructor/become ở trên)
+    if (pathname.startsWith("/instructor") && role !== "INSTRUCTOR") {
       return NextResponse.redirect(new URL("/", request.url));
     }
 

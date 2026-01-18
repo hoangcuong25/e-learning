@@ -1,53 +1,65 @@
-import axios from 'axios';
+import axios from "axios";
+
+let isLoggingOut = false;
+
+export const setLoggingOut = (value) => {
+  isLoggingOut = value;
+};
 
 const axiosClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
-    timeout: 10000,
-    withCredentials: true,
-    headers: {
-        'Content-Type': 'application/json'
-    },
-})
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+  timeout: 10000,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 // Add request interceptor for token
-axiosClient.interceptors.request.use((config) => {
-    const accessToken = localStorage.getItem('access_token');
+axiosClient.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem("access_token");
     if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
     return config;
-}, (error) => Promise.reject(error));
+  },
+  (error) => Promise.reject(error)
+);
 
 axiosClient.interceptors.response.use(
-    response => response,
-    async error => {
-        const originalRequest = error.config;
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
+    // 🚫 Không refresh token nếu đang logout
+    if (isLoggingOut) return Promise.reject(error);
 
-            try {
-                const response = await axios.get(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}auth/refresh-token`,
-                    { withCredentials: true }
-                );
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
 
-                const newAccessToken = response.data.data;
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}auth/refresh-token`,
+          { withCredentials: true }
+        );
 
-                if (newAccessToken) {
-                    localStorage.setItem('access_token', newAccessToken);
-                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        const newAccessToken = response.data.data;
 
-                    return axiosClient(originalRequest);
-                }
-            } catch (refreshError) {
-                console.error('Token refresh failed');
-                localStorage.removeItem('access_token');
+        if (newAccessToken) {
+          localStorage.setItem("access_token", newAccessToken);
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-                return Promise.reject(refreshError);
-            }
+          return axiosClient(originalRequest);
         }
+      } catch (refreshError) {
+        console.error("Token refresh failed");
+        localStorage.removeItem("access_token");
 
-        return Promise.reject(error);
+        return Promise.reject(refreshError);
+      }
     }
+
+    return Promise.reject(error);
+  }
 );
 
 export default axiosClient;

@@ -10,6 +10,7 @@ import { RegisterApi } from "@/api/auth.api";
 import { RegisterFormData, registerSchema } from "@/hook/zod-schema/UserSchema";
 import banner from "@public/elearning-banner.png"; // ảnh minh họa e-learning
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -27,10 +28,10 @@ export default function SignupPage() {
     try {
       await RegisterApi(data);
       router.push("/login");
+
+      toast.success("Đăng ký thành công");
     } catch (err: any) {
-      alert(
-        err.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại!"
-      );
+      toast.error(err.response?.data?.message || "Đăng ký thất bại" );
     }
   };
 

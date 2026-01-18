@@ -1,8 +1,8 @@
 "use client";
 
-import EditProfile from "./components/EditProfile";
-import ChangePassword from "./components/ChangePassword";
-import VerifyAccount from "./components/VerifyAccount";
+import EditProfile from "../../../../components/user/EditProfile";
+import ChangePassword from "../../../../components/user/ChangePassword";
+import VerifyAccount from "../../../../components/user/VerifyAccount";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { GenderEnum, GenderLabel } from "@/constants/Gender";

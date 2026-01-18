@@ -53,7 +53,7 @@ export default function ForgotPassword() {
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/send-reset-otp`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}auth/send-reset-otp`,
         { email }
       );
       if (data.statusCode === 201) {
@@ -80,7 +80,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/reset-password`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}auth/reset-password`,
         { email, otp, newPassword }
       );
       if (data.statusCode === 201) {

@@ -12,8 +12,9 @@ import { useRouter } from "next/navigation";
 import GoogleLoginForm from "@/components/GoogleLoginForm";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchUser } from "@/store/user/userSlice";
+import { fetchUser } from "@/store/userSlice";
 import banner from "@public/elearning-banner.png";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,11 +35,18 @@ export default function LoginPage() {
       const res = await LoginApi(data);
       localStorage.setItem("access_token", res.access_token);
       await dispatch(fetchUser());
+
+      if (res.role === "ADMIN") {
+        router.push("/admin/dashboard");
+        toast.success("Đăng nhập thành công - Chuyển đến trang quản trị");
+        return;
+      }
+
       router.push("/");
+
+      toast.success("Đăng nhập thành công");
     } catch (err: any) {
-      alert(
-        err.response?.data?.message || "Đăng nhập thất bại, vui lòng thử lại!"
-      );
+      toast.error("Đăng nhập thất bại");
     }
   };
 

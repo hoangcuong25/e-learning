@@ -5,9 +5,12 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useGoogleLogin } from "@react-oauth/google";
 import { LoginWithGoogle } from "@/api/auth.api";
-import { fetchUser } from "@/store/user/userSlice";
+import { fetchUser } from "@/store/userSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
 
 const GoogleLoginForm = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   const login = useGoogleLogin({
@@ -17,7 +20,7 @@ const GoogleLoginForm = () => {
         const response = await LoginWithGoogle(tokenResponse.access_token);
 
         localStorage.setItem("access_token", response.data.access_token);
-        fetchUser();
+        dispatch(fetchUser());
 
         // Điều hướng theo role
         if (response.data.user.role === "ADMIN") {
