@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { seedSpecializations } from "./seedSpecializations";
 import { seedUsers } from "./seedUsers";
 import { seedInstructorApplications } from "./seedInstructorApplications";
+import { seedCourses } from "./seedCourses";
 
 const prisma = new PrismaClient();
 
@@ -11,6 +12,7 @@ async function main() {
   await seedUsers();
   await seedSpecializations();
   await seedInstructorApplications();
+  await seedCourses();
 
   console.log("🌳 Seed hoàn tất!");
 }

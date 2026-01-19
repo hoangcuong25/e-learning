@@ -1,16 +1,11 @@
 // app.controller.ts
-import {
-  Controller,
-  Post,
-} from '@nestjs/common';
-import { CloudinaryService } from './cloudinary.service';
+import { Controller, Post } from "@nestjs/common";
+import { CloudinaryService } from "./cloudinary.service";
 
-@Controller('image')
+@Controller("image")
 export class CloudinaryController {
-  constructor(private readonly cloudinaryService: CloudinaryService) { }
+  constructor(private readonly cloudinaryService: CloudinaryService) {}
 
-  @Post('upload')
-  uploadImage() {
-
-  }
+  @Post("upload")
+  uploadImage() {}
 }

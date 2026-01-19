@@ -11,7 +11,6 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mailerService: MailerService,
     private readonly cloudinaryService: CloudinaryService
   ) {}
 

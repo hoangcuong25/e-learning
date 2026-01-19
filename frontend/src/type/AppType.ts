@@ -66,4 +66,47 @@ declare global {
     createdAt: string;
     updatedAt: string;
   };
+
+  // 🧩 CourseType — đại diện cho một khóa học
+  type CourseType = {
+    id: number;
+    title: string;
+    description?: string;
+    thumbnail?: string;
+    price: number;
+    isPublished: boolean;
+
+    instructorId: number;
+    instructor?: Pick<UserType, "id" | "fullname" | "email" | "avatar">;
+
+    // Danh sách bài học
+    lessons?: LessonType[];
+
+    // Danh sách chuyên ngành / chủ đề (qua bảng trung gian)
+    specializations?: {
+      specialization: SpecializationType;
+    }[];
+
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  // 🧩 LessonType — cho từng bài học trong khóa
+  type LessonType = {
+    id: number;
+    title: string;
+    content?: string;
+    videoUrl?: string;
+    orderIndex: number;
+    courseId: number;
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  // 🧩 CourseSpecializationType — mapping Course ↔ Specialization
+  type CourseSpecializationType = {
+    courseId: number;
+    specializationId: number;
+    specialization?: SpecializationType;
+  };
 }

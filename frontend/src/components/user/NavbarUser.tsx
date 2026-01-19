@@ -17,6 +17,7 @@ import { AppDispatch, RootState } from "@/store";
 import { useRouter, usePathname } from "next/navigation";
 import { fetchUser, logoutUser } from "@/store/userSlice";
 import { toast } from "sonner";
+import LoadingScreen from "../LoadingScreen";
 
 const NavbarUser = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -36,7 +37,13 @@ const NavbarUser = () => {
     toast.success("Đăng xuất thành công");
   };
 
-  if (loading) return <p>Loading...</p>;
+  const handleClickInstructor = () => {
+    if (user?.role === "INSTRUCTOR") {
+      router.push("/instructor/dashboard");
+    } else {
+      router.push("/become-instructor");
+    }
+  };
 
   const menuItems = [
     { label: "Trang chủ", path: "/" },
@@ -44,6 +51,8 @@ const NavbarUser = () => {
     { label: "Lộ trình học", path: "/my-learning" },
     { label: "Liên hệ", path: "/contact-us" },
   ];
+
+  if (loading) return <LoadingScreen />;
 
   return (
     <motion.nav
@@ -151,14 +160,14 @@ const NavbarUser = () => {
           <div className="mt-6 flex flex-col gap-3">
             {/* 🔹 Giảng dạy */}
             <motion.div whileHover={{ scale: 1.05 }}>
-              <Link
-                href="/instructor/become"
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 transition"
+              <div
+                onClick={handleClickInstructor}
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 transition cursor-pointer"
               >
                 <span className="text-sm font-semibold text-indigo-700">
                   Giảng dạy trên EduSmart
                 </span>
-              </Link>
+              </div>
             </motion.div>
 
             {/* 🔹 Thông báo */}
@@ -213,14 +222,14 @@ const NavbarUser = () => {
       <div className="hidden lg:flex items-center gap-5">
         {/* 🔹 Giảng dạy */}
         <motion.div whileHover={{ scale: 1.05 }}>
-          <Link
-            href="/instructor/become"
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 transition"
+          <div
+            onClick={handleClickInstructor}
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 transition cursor-pointer"
           >
             <span className="text-sm font-semibold text-indigo-700">
               Giảng dạy trên EduSmart
             </span>
-          </Link>
+          </div>
         </motion.div>
 
         {/* 🔹 Thông báo */}

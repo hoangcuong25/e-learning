@@ -12,15 +12,17 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { InstructorModule } from "./modules/instructor/instructor.module";
 import { SpecializationModule } from "./modules/specialization/specialization.module";
 import { MailModule } from "./core/mailSender/mail.module";
+import { CourseModule } from "./modules/course/course.module";
+import { LessonModule } from "./modules/lesson/lesson.module";
+import { CloudinaryModule } from "./cloudinary/cloudinary.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
 
     PrismaModule,
-
     MailModule,
-
+    CloudinaryModule,
     // RedisModule.forRootAsync({
     //   imports: [ConfigModule],
     //   useFactory: async (configService: ConfigService): Promise<RedisModuleOptions> => ({
@@ -34,6 +36,8 @@ import { MailModule } from "./core/mailSender/mail.module";
     AuthModule,
     InstructorModule,
     SpecializationModule,
+    CourseModule,
+    LessonModule,
   ],
   controllers: [AppController],
   providers: [AppService],

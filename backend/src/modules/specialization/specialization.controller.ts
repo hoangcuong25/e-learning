@@ -11,7 +11,7 @@ import { SpecializationService } from "./specialization.service";
 import { CreateSpecializationDto } from "./dto/create-specialization.dto";
 import { UpdateSpecializationDto } from "./dto/update-specialization.dto";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ResponseMessage, Roles } from "src/decorator/customize";
+import { Public, ResponseMessage, Roles } from "src/decorator/customize";
 
 @ApiTags("Specializations")
 @Controller("specialization")
@@ -27,6 +27,7 @@ export class SpecializationController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: "Lấy danh sách tất cả chuyên ngành" })
   @ResponseMessage("Danh sách chuyên ngành")
   findAll() {
@@ -34,6 +35,7 @@ export class SpecializationController {
   }
 
   @Get(":id")
+  @Public()
   @ApiOperation({ summary: "Lấy chuyên ngành theo ID" })
   @ResponseMessage("Chi tiết chuyên ngành")
   findOne(@Param("id") id: string) {
