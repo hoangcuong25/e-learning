@@ -3,9 +3,9 @@ import {
   BadRequestException,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
 import { CreateSpecializationDto } from "./dto/create-specialization.dto";
 import { UpdateSpecializationDto } from "./dto/update-specialization.dto";
+import { PrismaService } from "src/core/prisma/prisma.service";
 
 @Injectable()
 export class SpecializationService {

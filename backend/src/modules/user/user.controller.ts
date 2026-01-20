@@ -13,9 +13,7 @@ import {
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { Public, ResponseMessage, Roles } from "src/decorator/customize";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { CloudinaryService } from "src/cloudinary/cloudinary.service";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -24,6 +22,8 @@ import {
 } from "@nestjs/swagger";
 import { UserRole } from "@prisma/client";
 import { ApplyInstructorDto } from "../instructor/dto/apply-instructor.dto";
+import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
+import { ResponseMessage, Roles } from "src/core/decorator/customize";
 
 @ApiBearerAuth()
 @ApiTags("user")

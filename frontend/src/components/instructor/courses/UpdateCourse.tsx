@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -8,48 +8,64 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, ImageIcon, X } from "lucide-react";
-import { toast } from "sonner";
+import { ImageIcon, X, Edit } from "lucide-react";
 import Image from "next/image";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
-import { createCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
+import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+import { updateCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
 import { CourseFormData, courseSchema } from "@/hook/zod-schema/CourseSchema";
-import LoadingScreen from "@/components/LoadingScreen";
 
-export default function CourseCreate() {
+interface UpdateCourseProps {
+  course: CourseType;
+}
+
+export default function UpdateCourse({ course }: UpdateCourseProps) {
   const dispatch = useDispatch<AppDispatch>();
 
-  const { user, loading } = useSelector((state: RootState) => state.user);
-
   const [open, setOpen] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(
+    course.thumbnail || null
+  );
   const [file, setFile] = useState<File | null>(null);
 
   const {
     register,
     handleSubmit,
-    reset,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
-    mode: "onChange", // ⚡ validate realtime
+    mode: "onChange",
+    defaultValues: {
+      title: course.title,
+      description: course.description,
+      price: course.price,
+    },
   });
 
-  // 🖼️ Xử lý chọn ảnh
+  useEffect(() => {
+    reset({
+      title: course.title,
+      description: course.description,
+      price: course.price,
+    });
+  }, [course, reset]);
+
+  // 🖼️ Preview ảnh
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-      setValue("thumbnail", selectedFile); // đồng bộ với react-hook-form
+    const selected = e.target.files?.[0];
+    if (selected) {
+      setFile(selected);
+      setPreview(URL.createObjectURL(selected));
+      setValue("thumbnail", selected);
     }
   };
 
@@ -59,7 +75,7 @@ export default function CourseCreate() {
     setValue("thumbnail", undefined);
   };
 
-  // 🚀 Gửi form
+  // 🚀 Submit
   const onSubmit = async (data: CourseFormData) => {
     try {
       const formData = new FormData();
@@ -67,38 +83,32 @@ export default function CourseCreate() {
       formData.append("description", data.description);
       formData.append("price", data.price.toString());
       if (file) formData.append("thumbnail", file);
-      if (user?.id === undefined) {
-        return toast.error("Người dùng không hợp lệ");
-      }
-      formData.append("instructorId", user.id.toString());
 
-      await dispatch(createCourse(formData)).unwrap();
+      await dispatch(
+        updateCourse({ id: course.id, payload: formData })
+      ).unwrap();
       await dispatch(fetchCoursesByInstructor()).unwrap();
 
-      toast.success("Tạo khóa học thành công!");
-
-      reset();
-      removePreview();
+      toast.success("Cập nhật khóa học thành công!");
       setOpen(false);
-    } catch (error: any) {
-      toast.error("Không thể tạo khóa học!");
+    } catch {
+      toast.error("Không thể cập nhật khóa học!");
     }
   };
 
-  if (loading) return <LoadingScreen />;
+  console.log(file);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          Tạo khóa học mới
+        <Button variant="outline" size="sm">
+          <Edit className="w-4 h-4" /> Sửa
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle>Tạo khóa học mới</DialogTitle>
+          <DialogTitle>Chỉnh sửa khóa học</DialogTitle>
         </DialogHeader>
 
         <form
@@ -106,7 +116,7 @@ export default function CourseCreate() {
           className="flex flex-col gap-4 mt-4"
           encType="multipart/form-data"
         >
-          {/* ─── Tên khóa học ───────────────────── */}
+          {/* Title */}
           <div>
             <label className="block text-sm font-medium mb-1">
               Tên khóa học
@@ -123,11 +133,11 @@ export default function CourseCreate() {
             )}
           </div>
 
-          {/* ─── Mô tả ───────────────────────────── */}
+          {/* Description */}
           <div>
             <label className="block text-sm font-medium mb-1">Mô tả</label>
             <Textarea
-              placeholder="Nhập mô tả khóa học"
+              placeholder="Nhập mô tả"
               {...register("description")}
               className={errors.description ? "border-red-500" : ""}
             />
@@ -138,12 +148,11 @@ export default function CourseCreate() {
             )}
           </div>
 
-          {/* ─── Giá ───────────────────────────── */}
+          {/* Price */}
           <div>
             <label className="block text-sm font-medium mb-1">Giá (VNĐ)</label>
             <Input
               type="number"
-              placeholder="Nhập giá"
               {...register("price", { valueAsNumber: true })}
               className={errors.price ? "border-red-500" : ""}
             />
@@ -154,18 +163,15 @@ export default function CourseCreate() {
             )}
           </div>
 
-          {/* ─── Ảnh khóa học ───────────────────────────── */}
+          {/* Thumbnail */}
           <div>
             <label className="block text-sm font-medium mb-1">
               Ảnh khóa học
             </label>
-
             {!preview ? (
               <label
                 htmlFor="thumbnail"
-                className={`flex flex-col items-center justify-center border border-dashed rounded-lg p-6 cursor-pointer hover:bg-gray-50 ${
-                  errors.thumbnail ? "border-red-500" : ""
-                }`}
+                className="flex flex-col items-center justify-center border border-dashed rounded-lg p-6 cursor-pointer hover:bg-gray-50"
               >
                 <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-500">
@@ -196,15 +202,8 @@ export default function CourseCreate() {
                 </button>
               </div>
             )}
-
-            {errors.thumbnail && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.thumbnail.message}
-              </p>
-            )}
           </div>
 
-          {/* ─── Footer ───────────────────────────── */}
           <DialogFooter className="mt-4 flex justify-end gap-2">
             <Button
               type="button"
@@ -214,7 +213,7 @@ export default function CourseCreate() {
               Hủy
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Đang tạo..." : "Tạo"}
+              {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </DialogFooter>
         </form>

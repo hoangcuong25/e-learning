@@ -9,11 +9,12 @@ import {
   Req,
 } from "@nestjs/common";
 import { InstructorService } from "./instructor.service";
-import { ResponseMessage, Roles } from "src/decorator/customize";
 import { ApplyInstructorDto } from "./dto/apply-instructor.dto";
-import { ApiOperation } from "@nestjs/swagger";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { UserRole } from "@prisma/client";
+import { ResponseMessage, Roles } from "src/core/decorator/customize";
 
+@ApiTags("instructor")
 @Controller("instructor")
 export class InstructorController {
   constructor(private readonly instructorService: InstructorService) {}

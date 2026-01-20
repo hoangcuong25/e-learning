@@ -1,34 +1,84 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { LessonService } from './lesson.service';
-import { CreateLessonDto } from './dto/create-lesson.dto';
-import { UpdateLessonDto } from './dto/update-lesson.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  UseInterceptors,
+  UploadedFile,
+} from "@nestjs/common";
+import { LessonService } from "./lesson.service";
+import { CreateLessonDto } from "./dto/create-lesson.dto";
+import { ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { UpdateLessonDto } from "./dto/update-lesson.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { ResponseMessage, Roles } from "src/core/decorator/customize";
 
-@Controller('lesson')
+@ApiTags("Lesson")
+@Controller("lesson")
 export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
 
   @Post()
-  create(@Body() createLessonDto: CreateLessonDto) {
-    return this.lessonService.create(createLessonDto);
+  @Roles("INSTRUCTOR")
+  @ApiConsumes("multipart/form-data")
+  @ApiOperation({ summary: "Instructor create a new lesson" })
+  @ResponseMessage("Lesson created successfully")
+  @UseInterceptors(FileInterceptor("video"))
+  create(
+    @Body() dto: CreateLessonDto,
+    @Req() req: any,
+    @UploadedFile() video?: Express.Multer.File
+  ) {
+    const instructorId = req.user?.id;
+    return this.lessonService.create(dto, instructorId, video);
+  }
+
+  @Patch(":id")
+  @Roles("INSTRUCTOR")
+  @ApiConsumes("multipart/form-data")
+  @ApiOperation({ summary: "Update lesson by ID" })
+  @ResponseMessage("Lesson updated successfully")
+  @UseInterceptors(FileInterceptor("video"))
+  update(
+    @Param("id") id: string,
+    @Body() dto: UpdateLessonDto,
+    @Req() req: any,
+    @UploadedFile() video?: Express.Multer.File
+  ) {
+    return this.lessonService.update(+id, dto, req.user.id, video);
   }
 
   @Get()
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "Get all lessons" })
+  @ResponseMessage("Fetched all lessons")
   findAll() {
     return this.lessonService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get(":id")
+  @ApiOperation({ summary: "Get lesson detail by ID" })
+  @ResponseMessage("Fetched lesson detail")
+  findOne(@Param("id") id: string) {
     return this.lessonService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLessonDto: UpdateLessonDto) {
-    return this.lessonService.update(+id, updateLessonDto);
+  @Get("course/:courseId")
+  @ApiOperation({ summary: "Get all lessons by course ID" })
+  @ResponseMessage("Fetched lessons by course")
+  getLessonsByCourse(@Param("courseId") courseId: string) {
+    return this.lessonService.getLessonsByCourse(+courseId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete(":id")
+  @Roles("INSTRUCTOR")
+  @ApiOperation({ summary: "Delete lesson by ID" })
+  @ResponseMessage("Lesson deleted successfully")
+  remove(@Param("id") id: string) {
     return this.lessonService.remove(+id);
   }
 }

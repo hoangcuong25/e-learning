@@ -120,7 +120,7 @@ model Lesson {
   id          Int       @id @default(autoincrement())
   title       String    @db.VarChar(150)
   content     String?   @db.Text     // HTML content
-  videoUrl    String?   // Cloudinary / iframe URL
+  videoUrl    String?   // Cloudinary URL
   orderIndex  Int       @default(0)
 
   // Relations
@@ -129,6 +129,8 @@ model Lesson {
 
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+
+  @@unique([courseId, orderIndex])
 }
 
 // ─── N-N RELATION: Course ↔ Specialization ──────────────

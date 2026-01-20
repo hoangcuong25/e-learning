@@ -38,7 +38,7 @@ export const fetchCourseById = createAsyncThunk(
   "course/fetchById",
   async (id: number) => {
     const response = await getCourseByIdApi(id);
-    return response.data;
+    return response.data.data;
   }
 );
 

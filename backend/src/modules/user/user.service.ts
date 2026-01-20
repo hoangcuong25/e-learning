@@ -1,12 +1,11 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { CreateAuthDto } from "../auth/dto/create-auth.dto";
-import { comparePasswordHelper, hashPasswordHelper } from "src/helpers/util";
 import { MailerService } from "@nestjs-modules/mailer";
 import dayjs from "dayjs";
-import { CloudinaryService } from "src/cloudinary/cloudinary.service";
-import { PrismaService } from "src/prisma/prisma.service";
-
+import { PrismaService } from "src/core/prisma/prisma.service";
+import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
+import { comparePasswordHelper, hashPasswordHelper } from "src/core/helpers/util";
 @Injectable()
 export class UserService {
   constructor(
