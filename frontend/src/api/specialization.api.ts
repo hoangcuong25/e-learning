@@ -74,3 +74,19 @@ export const deleteSpecializationApi = async (id: number) => {
     throw error;
   }
 };
+
+/**
+ * 👨‍🏫 Lấy danh sách chuyên ngành của giảng viên
+ */
+export const getSpecializationsByInstructorIdApi = async (
+  instructorId: number
+) => {
+  try {
+    const response = await axiosClient.get(
+      `/specialization/instructor/${instructorId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -6,6 +6,7 @@ import {
 import { CreateSpecializationDto } from "./dto/create-specialization.dto";
 import { UpdateSpecializationDto } from "./dto/update-specialization.dto";
 import { PrismaService } from "src/core/prisma/prisma.service";
+import { ApplicationStatus } from "@prisma/client";
 
 @Injectable()
 export class SpecializationService {
@@ -85,5 +86,30 @@ export class SpecializationService {
     await this.prisma.specialization.delete({ where: { id } });
 
     return { message: "Xóa chuyên ngành thành công" };
+  }
+
+  async findByInstructorId(userId: number) {
+    const instructorApplication =
+      await this.prisma.instructorApplication.findFirst({
+        where: {
+          userId,
+          status: ApplicationStatus.APPROVED,
+        },
+        include: {
+          applicationSpecializations: {
+            include: {
+              specialization: {
+                select: { id: true, name: true, desc: true },
+              },
+            },
+          },
+        },
+      });
+
+    if (!instructorApplication) return [];
+
+    return instructorApplication.applicationSpecializations.map(
+      (a) => a.specialization
+    );
   }
 }

@@ -10,11 +10,11 @@ import {
 } from "@nestjs/common";
 import { InstructorService } from "./instructor.service";
 import { ApplyInstructorDto } from "./dto/apply-instructor.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { UserRole } from "@prisma/client";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
 
-@ApiTags("instructor")
+@ApiTags("Instructor")
 @Controller("instructor")
 export class InstructorController {
   constructor(private readonly instructorService: InstructorService) {}
@@ -22,6 +22,7 @@ export class InstructorController {
   @Post("instructor-application")
   @ApiOperation({ summary: "Apply to be an instructor" })
   @ResponseMessage("apply instructor")
+  @ApiBearerAuth()
   applyInstructor(@Req() req, @Body() body: ApplyInstructorDto) {
     return this.instructorService.applyInstructor(req.user.id, body);
   }
@@ -30,6 +31,7 @@ export class InstructorController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Approve instructor" })
   @ResponseMessage("approve instructor")
+  @ApiBearerAuth()
   approveInstructor(@Body() body: { applicationId: number; userId: number }) {
     return this.instructorService.approveInstructor(
       body.userId,
@@ -41,6 +43,7 @@ export class InstructorController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Reject instructor" })
   @ResponseMessage("reject instructor")
+  @ApiBearerAuth()
   rejectInstructor(@Body() body: { applicationId: number; userId: number }) {
     return this.instructorService.rejectInstructor(
       body.userId,
@@ -52,6 +55,7 @@ export class InstructorController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Get all instructor applications" })
   @ResponseMessage("get all instructor applications pending")
+  @ApiBearerAuth()
   getAllInstructorApplications() {
     return this.instructorService.getAllInstructorApplications();
   }
@@ -60,6 +64,7 @@ export class InstructorController {
   @Roles("ADMIN")
   @ApiOperation({ summary: "Get instructor application by user ID" })
   @ResponseMessage("get instructor application by user ID")
+  @ApiBearerAuth()
   getInstructorApplicationByUserId(@Param("id") userId: number) {
     return this.instructorService.getInstructorApplicationByUserId(userId);
   }

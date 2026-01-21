@@ -69,7 +69,7 @@ const InstructorApplyPage = () => {
 
       toast.success("Đơn đăng ký đã được gửi thành công!");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Có lỗi đã xảy ra");
+      toast.error("Có lỗi đã xảy ra");
     }
   };
 
@@ -89,51 +89,49 @@ const InstructorApplyPage = () => {
         className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 space-y-6"
       >
         {/* 🧩 Multi-select Specialization */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="relative">
+          <label className="block text-sm font-medium mb-1">
             Lĩnh vực chuyên môn
           </label>
 
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                className="w-full justify-between"
-                disabled={loading}
-              >
-                {selectedSpecs.length > 0
-                  ? "Chỉnh sửa lĩnh vực đã chọn"
-                  : "Chọn lĩnh vực chuyên môn"}
-                <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0">
-              <Command>
-                <CommandList>
-                  {loading ? (
-                    <p className="text-center text-gray-500 p-2">Đang tải...</p>
-                  ) : (
-                    specializations.map((spec) => (
-                      <CommandItem
-                        key={spec.id}
-                        onSelect={() => toggleSelect(spec.id)}
-                        className="flex items-center justify-between"
-                      >
-                        <span>{spec.name}</span>
-                        {selectedSpecs.includes(spec.id) && (
-                          <Check className="h-4 w-4 text-green-500" />
-                        )}
-                      </CommandItem>
-                    ))
-                  )}
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+          <button
+            type="button"
+            onClick={() => setOpen(!open)}
+            className="w-full flex justify-between items-center h-11 px-3 border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          >
+            {selectedSpecs.length > 0
+              ? `${selectedSpecs.length} lĩnh vực đã chọn`
+              : "Chọn lĩnh vực chuyên môn"}
+            <ChevronDown className="w-4 h-4 opacity-60" />
+          </button>
 
-          {/* 🏷 Hiển thị danh sách lĩnh vực đã chọn */}
+          {open && (
+            <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-56 overflow-y-auto">
+              {loading ? (
+                <p className="text-sm text-gray-500 p-3 text-center">
+                  Đang tải...
+                </p>
+              ) : specializations.length === 0 ? (
+                <p className="text-sm text-gray-500 p-3 text-center">
+                  Không có chuyên ngành
+                </p>
+              ) : (
+                specializations.map((spec) => (
+                  <div
+                    key={spec.id}
+                    onClick={() => toggleSelect(spec.id)}
+                    className="flex justify-between items-center px-3 py-2 cursor-pointer hover:bg-gray-100"
+                  >
+                    <span>{spec.name}</span>
+                    {selectedSpecs.includes(spec.id) && (
+                      <Check className="w-4 h-4 text-green-500" />
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
           {selectedSpecs.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-3">
               {selectedSpecs.map((id) => {

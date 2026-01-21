@@ -17,12 +17,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
-
-import { lessonSchema, LessonFormData } from "@/hook/zod-schema/LessonSchema";
 import { toast } from "sonner";
 import { fetchCourseById } from "@/store/coursesSlice";
+
+import { lessonSchema, LessonFormData } from "@/hook/zod-schema/LessonSchema";
+import RichTextEditor from "@/components/RichTextEditor";
 
 const CreateLesson = ({ courseId }: { courseId: number }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,6 +34,7 @@ const CreateLesson = ({ courseId }: { courseId: number }) => {
     formState: { errors, isSubmitting },
     reset,
     watch,
+    setValue,
   } = useForm<LessonFormData>({
     resolver: zodResolver(lessonSchema),
     defaultValues: {
@@ -51,7 +52,7 @@ const CreateLesson = ({ courseId }: { courseId: number }) => {
       formData.append("content", data.content);
       formData.append("orderIndex", String(data.orderIndex ?? "0"));
 
-      // ✅ lấy file từ FileList
+      // ✅ Lấy video
       if (data.video instanceof FileList && data.video.length > 0) {
         formData.append("video", data.video[0]);
       } else if (data.video instanceof File) {
@@ -64,11 +65,10 @@ const CreateLesson = ({ courseId }: { courseId: number }) => {
       formData.append("courseId", String(courseId));
 
       await dispatch(createLesson(formData)).unwrap();
-      await dispatch(fetchCourseById(courseId)).unwrap;
+      await dispatch(fetchCourseById(courseId)).unwrap();
 
       reset();
       setOpen(false);
-
       toast.success("Tạo bài học thành công!");
     } catch (err) {
       toast.error("Tạo bài học thất bại, vui lòng thử lại.");
@@ -91,12 +91,12 @@ const CreateLesson = ({ courseId }: { courseId: number }) => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="md:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Thêm bài học mới</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Tiêu đề */}
           <div>
             <Label>Tiêu đề</Label>
@@ -108,13 +108,18 @@ const CreateLesson = ({ courseId }: { courseId: number }) => {
             )}
           </div>
 
-          {/* Nội dung */}
+          {/* Rich Text Editor */}
           <div>
-            <Label>Nội dung</Label>
-            <Textarea
-              placeholder="Nhập mô tả bài học..."
-              {...register("content")}
+            <Label>Nội dung bài học</Label>
+            <RichTextEditor
+              value={watch("content")}
+              onChange={(val) => setValue("content", val)}
             />
+            {errors.content && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.content.message}
+              </p>
+            )}
           </div>
 
           {/* Thứ tự bài học */}
@@ -143,7 +148,7 @@ const CreateLesson = ({ courseId }: { courseId: number }) => {
             )}
           </div>
 
-          {/* Nút lưu */}
+          {/* Submit */}
           <Button
             type="submit"
             disabled={isSubmitting}

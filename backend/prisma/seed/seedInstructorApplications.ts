@@ -78,7 +78,7 @@ export const seedInstructorApplications = async () => {
       .slice(0, Math.floor(Math.random() * 3) + 1);
 
     for (const spec of randomSpecs) {
-      await prisma.applicationSpecializations.create({
+      await prisma.applicationSpecialization.create({
         data: {
           applicationId: application.id,
           specializationId: spec.id,
