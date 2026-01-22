@@ -1,7 +1,30 @@
-"use client";
-
 import React from "react";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Liên hệ | Học Lập Trình",
+  description:
+    "Liên hệ với đội ngũ Học Lập Trình để được hỗ trợ nhanh nhất. Chúng tôi luôn sẵn sàng giải đáp mọi thắc mắc của bạn về khóa học, thanh toán và hỗ trợ kỹ thuật.",
+  openGraph: {
+    title: "Liên hệ | Học Lập Trình",
+    description:
+      "Kết nối với đội ngũ Học Lập Trình để được hỗ trợ học tập và tư vấn khóa học nhanh chóng.",
+    url: "https://your-domain.com/contact",
+    siteName: "Học Lập Trình",
+    images: [
+      {
+        url: "/images/contact-banner.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Liên hệ Học Lập Trình",
+      },
+    ],
+    type: "website",
+  },
+  authors: [{ name: "EduSmart Team" }],
+  metadataBase: new URL("https://edusmart.vn"), // Đặt domain của bạn ở đây
+};
 
 const page = () => {
   return (
@@ -22,19 +45,17 @@ const page = () => {
         <section className="grid md:grid-cols-3 gap-8 mb-16">
           {[
             {
-              icon: (
-                <MapPin className="w-8 h-8 text-emerald-500 mb-3 mx-auto" />
-              ),
+              icon: <MapPin className="w-8 h-8 text-blue-500 mb-3 mx-auto" />,
               title: "Địa chỉ",
               info: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
             },
             {
-              icon: <Phone className="w-8 h-8 text-emerald-500 mb-3 mx-auto" />,
+              icon: <Phone className="w-8 h-8 text-blue-500 mb-3 mx-auto" />,
               title: "Điện thoại",
               info: "+84 123 456 789",
             },
             {
-              icon: <Mail className="w-8 h-8 text-emerald-500 mb-3 mx-auto" />,
+              icon: <Mail className="w-8 h-8 text-blue-500 mb-3 mx-auto" />,
               title: "Email",
               info: "support@company.com",
             },
@@ -67,7 +88,7 @@ const page = () => {
                   placeholder="Nhập họ và tên"
                   autoComplete="name"
                   aria-label="Họ và tên"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
               <div>
@@ -79,7 +100,7 @@ const page = () => {
                   placeholder="Nhập email"
                   autoComplete="email"
                   aria-label="Email"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
               <div>
@@ -90,12 +111,12 @@ const page = () => {
                   placeholder="Nhập tin nhắn của bạn..."
                   rows={5}
                   aria-label="Nội dung tin nhắn"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none resize-none"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
                 ></textarea>
               </div>
               <button
                 type="submit"
-                className="w-full bg-emerald-500 text-white py-2.5 rounded-lg hover:bg-emerald-600 transition font-medium"
+                className="w-full bg-blue-500 text-white py-2.5 rounded-lg hover:bg-blue-600 transition font-medium"
               >
                 Gửi ngay
               </button>
@@ -114,7 +135,7 @@ const page = () => {
             ></iframe>
 
             <div className="mt-6 bg-white shadow-md rounded-2xl p-6">
-              <Clock className="w-6 h-6 text-emerald-500 mb-2" />
+              <Clock className="w-6 h-6 text-blue-500 mb-2" />
               <h3 className="font-semibold text-lg mb-1">Giờ làm việc</h3>
               <p className="text-gray-600">Thứ 2 - Thứ 6: 08:00 - 18:00</p>
               <p className="text-gray-600">Thứ 7: 08:00 - 12:00</p>

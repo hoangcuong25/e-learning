@@ -28,7 +28,7 @@ export const fetchLessonsByCourse = createAsyncThunk(
   "lessons/fetchByCourse",
   async (courseId: number) => {
     const response = await getLessonsByCourseApi(courseId);
-    return response.data;
+    return response.data.data;
   }
 );
 

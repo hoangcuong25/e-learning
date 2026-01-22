@@ -14,7 +14,10 @@ import { MailerService } from "@nestjs-modules/mailer";
 import { v4 as uuidv4 } from "uuid";
 import { console } from "inspector";
 import axios from "axios";
-import { comparePasswordHelper, hashPasswordHelper } from "src/core/helpers/util";
+import {
+  comparePasswordHelper,
+  hashPasswordHelper,
+} from "src/core/helpers/util";
 
 @Injectable()
 export class AuthService {
@@ -67,7 +70,7 @@ export class AuthService {
     // Đặt cookie refresh_token
     response.cookie("refresh_token", refresh_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Dev thì false
+      secure: process.env.NODE_ENV === "production", // Trong dev thì false
       sameSite: "lax", // Hoặc "none" nếu cần cross-site + secure: true
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
@@ -88,7 +91,7 @@ export class AuthService {
       const access_token = req.headers.authorization?.split(" ")[1];
 
       if (!access_token) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException("Không có access token");
       }
 
       const decoded = this.jwtService.verify(access_token, {
@@ -97,9 +100,9 @@ export class AuthService {
 
       this.userService.clearRefreshTokenInDatabase(decoded.id);
 
-      return "ok";
+      return "Đăng xuất thành công";
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Token không hợp lệ hoặc đã hết hạn");
     }
   }
 
@@ -107,7 +110,9 @@ export class AuthService {
     const refreshToken = req.cookies.refresh_token;
 
     if (!refreshToken)
-      throw new UnauthorizedException("Không tìm thấy refresh token");
+      throw new UnauthorizedException(
+        "Không tìm thấy mã làm mới (refresh token)"
+      );
 
     const decoded = this.jwtService.verify(refreshToken, {
       secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET"),
@@ -117,9 +122,9 @@ export class AuthService {
       decoded.id
     );
 
-    console.log("Stored Token:", storedToken);
-    console.log("refreshToken:", refreshToken);
-    console.log("ss", storedToken === refreshToken);
+    console.log("Token lưu trong DB:", storedToken);
+    console.log("Token gửi lên:", refreshToken);
+    console.log("So sánh:", storedToken === refreshToken);
 
     if (storedToken.refreshToken !== refreshToken)
       throw new UnauthorizedException("Refresh token không hợp lệ");
@@ -142,9 +147,9 @@ export class AuthService {
     const user = await this.userService.findById(userId);
 
     this.mailerService.sendMail({
-      to: user?.email, // list of receivers
-      subject: "Email Active Account", // Subject line
-      text: "welcome", // plaintext body
+      to: user?.email,
+      subject: "Kích hoạt tài khoản", // tiêu đề
+      text: "Chào mừng bạn", // nội dung ngắn gọn
       template: "register",
       context: {
         name: user?.fullname,
@@ -154,37 +159,37 @@ export class AuthService {
 
     await this.userService.updateCodeActive(userId, codeId);
 
-    return "ok";
+    return "Gửi email kích hoạt thành công";
   }
 
   async comfirmActive(userId, otp) {
     const user = await this.userService.findById(userId);
 
     if (user?.verificationOtp !== otp) {
-      throw new BadRequestException("Invalid activation code");
+      throw new BadRequestException("Mã kích hoạt không hợp lệ");
     }
 
     if (
       user?.verificationOtpExpires &&
       new Date() > user.verificationOtpExpires
     ) {
-      throw new BadRequestException("Activation code has expired");
+      throw new BadRequestException("Mã kích hoạt đã hết hạn");
     }
 
     await this.userService.activeAccount(userId);
 
-    return "ok";
+    return "Kích hoạt tài khoản thành công";
   }
 
   async sendResetOtp(email) {
     if (!email) {
-      throw new BadRequestException("Email is required");
+      throw new BadRequestException("Vui lòng nhập email");
     }
 
     const user = await this.userService.findByEmail(email);
 
     if (!user) {
-      throw new BadRequestException("Người dùng này không tồn tại");
+      throw new BadRequestException("Người dùng không tồn tại");
     }
 
     const otp = Math.random().toString(36).substring(2, 8);
@@ -192,9 +197,9 @@ export class AuthService {
     await this.userService.updateOptReset(user.id, otp);
 
     this.mailerService.sendMail({
-      to: user?.email, // list of receivers
-      subject: "Reset Password", // Subject line
-      text: "Reset Your Password", // plaintext body
+      to: user?.email,
+      subject: "Đặt lại mật khẩu",
+      text: "Đặt lại mật khẩu của bạn",
       template: "resetPassword",
       context: {
         name: user?.fullname,
@@ -202,33 +207,35 @@ export class AuthService {
       },
     });
 
-    return "ok";
+    return "Đã gửi mã OTP đặt lại mật khẩu";
   }
 
   async resetPassword(email, otp, newPassword) {
     if (!email || !otp || !newPassword) {
-      throw new BadRequestException("Email, OTP, and password are required");
+      throw new BadRequestException(
+        "Vui lòng nhập đầy đủ Email, OTP và mật khẩu mới"
+      );
     }
 
     const user = await this.userService.findByEmail(email);
 
     if (!user) {
-      throw new BadRequestException("User not fount");
+      throw new BadRequestException("Không tìm thấy người dùng");
     }
 
     if (user?.resetOtp === "" || user?.resetOtp !== otp) {
-      throw new BadRequestException("Invalid OTP");
+      throw new BadRequestException("OTP không hợp lệ");
     }
 
     if (user?.resetOtpExpires && new Date() > user.resetOtpExpires) {
-      throw new BadRequestException("OTP Expired");
+      throw new BadRequestException("OTP đã hết hạn");
     }
 
     const hashPassword = await hashPasswordHelper(newPassword);
 
     this.userService.resetPassword(user.id, hashPassword);
 
-    return "ok";
+    return "Đặt lại mật khẩu thành công";
   }
 
   async verifyGoogleToken(access_token: string) {
@@ -246,14 +253,14 @@ export class AuthService {
 
   async loginGoogle(googleToken: string, response: Response) {
     if (!googleToken) {
-      throw new BadRequestException("Something wrong!");
+      throw new BadRequestException("Thiếu mã xác thực Google");
     }
 
     const { email, name, picture, email_verified } =
       await this.verifyGoogleToken(googleToken);
 
     if (!email_verified) {
-      throw new BadRequestException("Google email not verified!");
+      throw new BadRequestException("Email Google chưa được xác minh");
     }
 
     const user = await this.userService.findByEmail(email);
@@ -274,8 +281,8 @@ export class AuthService {
       // Đặt cookie refresh_token
       response.cookie("refresh_token", refresh_token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Dev thì false
-        sameSite: "lax", // Hoặc "none" nếu cần cross-site + secure: true
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
         path: "/",
       });
@@ -314,8 +321,8 @@ export class AuthService {
       // Đặt cookie refresh_token
       response.cookie("refresh_token", refresh_token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Dev thì false
-        sameSite: "lax", // Hoặc "none" nếu cần cross-site + secure: true
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
         path: "/",
       });

@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-
 import { ApplyInstructorDto } from "./dto/apply-instructor.dto";
 import { ApplicationStatus, UserRole } from "@prisma/client";
 import { MailerService } from "@nestjs-modules/mailer";
@@ -12,19 +11,20 @@ export class InstructorService {
     private readonly mailerService: MailerService
   ) {}
 
+  // 🧩 Nộp đơn đăng ký làm giảng viên
   async applyInstructor(userId: number, body: ApplyInstructorDto) {
     const { specializationIds, experience, bio } = body;
 
-    // 1️. Kiểm tra người dùng có tồn tại không
+    // Kiểm tra người dùng có tồn tại không
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
 
     if (!user) {
-      throw new BadRequestException("Người dùng không tồn tại");
+      throw new BadRequestException("Người dùng không tồn tại.");
     }
 
-    // 2️. Kiểm tra xem user đã có đơn đang chờ duyệt chưa
+    // Kiểm tra xem user đã có đơn đang chờ duyệt chưa
     const existingPending = await this.prisma.instructorApplication.findFirst({
       where: { userId, status: ApplicationStatus.PENDING },
     });
@@ -35,18 +35,18 @@ export class InstructorService {
       );
     }
 
-    // 3️. Kiểm tra danh sách chuyên ngành hợp lệ
+    // Kiểm tra danh sách chuyên ngành hợp lệ
     const validSpecs = await this.prisma.specialization.findMany({
       where: { id: { in: specializationIds } },
     });
 
     if (validSpecs.length !== specializationIds.length) {
       throw new BadRequestException(
-        "Một hoặc nhiều chuyên ngành không tồn tại"
+        "Một hoặc nhiều chuyên ngành không tồn tại."
       );
     }
 
-    // 4️. Tạo đơn đăng ký và gắn nhiều chuyên ngành
+    // Tạo đơn đăng ký và liên kết với các chuyên ngành
     const application = await this.prisma.instructorApplication.create({
       data: {
         userId,
@@ -65,11 +65,11 @@ export class InstructorService {
       },
     });
 
-    // 5️. Gửi email xác nhận
+    // Gửi email xác nhận
     await this.mailerService.sendMail({
       to: user.email,
       subject: "Xác nhận gửi đơn ứng tuyển Giảng viên",
-      template: "./applicationConfirmation", // không cần đuôi .hbs
+      template: "./applicationConfirmation",
       context: {
         user,
         application,
@@ -81,13 +81,14 @@ export class InstructorService {
     });
 
     return {
-      message: "Gửi đơn đăng ký giảng viên thành công",
+      message: "Gửi đơn đăng ký giảng viên thành công!",
       data: application,
     };
   }
 
+  // 🧩 Phê duyệt đơn đăng ký giảng viên
   async approveInstructor(userId: number, applicationId: number) {
-    // 1️. Tìm user
+    // Tìm người dùng
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
@@ -101,9 +102,9 @@ export class InstructorService {
       },
     });
 
-    if (!user) throw new BadRequestException("User not found");
+    if (!user) throw new BadRequestException("Không tìm thấy người dùng.");
 
-    // 2. Cập nhật trạng thái đơn đăng ký
+    // Lấy đơn đăng ký cụ thể
     const application = await this.prisma.instructorApplication.findUnique({
       where: { id: applicationId, userId },
       include: {
@@ -114,29 +115,28 @@ export class InstructorService {
     });
 
     if (!application)
-      throw new BadRequestException("Instructor application not found");
+      throw new BadRequestException("Không tìm thấy đơn đăng ký giảng viên.");
 
     if (application.status !== ApplicationStatus.PENDING)
-      throw new BadRequestException(
-        "Only pending applications can be approved"
-      );
+      throw new BadRequestException("Chỉ có thể phê duyệt đơn đang chờ duyệt.");
 
+    // Cập nhật trạng thái đơn đăng ký
     await this.prisma.instructorApplication.update({
       where: { id: applicationId },
       data: { status: ApplicationStatus.APPROVED },
     });
 
-    // 3. Cập nhật vai trò (role)
+    // Cập nhật vai trò người dùng
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: { role: UserRole.INSTRUCTOR },
     });
 
-    // 4. Gửi email thông báo phê duyệt
+    // Gửi email thông báo phê duyệt
     await this.mailerService.sendMail({
       to: user.email,
       subject: "Đơn ứng tuyển Giảng viên đã được phê duyệt",
-      template: "./applicationApproved", // không cần .hbs
+      template: "./applicationApproved",
       context: {
         user,
         application,
@@ -151,8 +151,9 @@ export class InstructorService {
     return updatedUser;
   }
 
+  // 🧩 Từ chối đơn đăng ký giảng viên
   async rejectInstructor(userId: number, applicationId: number) {
-    // 1️. Tìm user
+    // Tìm người dùng
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
@@ -166,9 +167,9 @@ export class InstructorService {
       },
     });
 
-    if (!user) throw new BadRequestException("User not found");
+    if (!user) throw new BadRequestException("Không tìm thấy người dùng.");
 
-    // 2. Cập nhật trạng thái đơn đăng ký
+    // Lấy đơn đăng ký cụ thể
     const application = await this.prisma.instructorApplication.findUnique({
       where: { id: applicationId, userId },
       include: {
@@ -179,23 +180,22 @@ export class InstructorService {
     });
 
     if (!application)
-      throw new BadRequestException("Instructor application not found");
+      throw new BadRequestException("Không tìm thấy đơn đăng ký giảng viên.");
 
     if (application.status !== ApplicationStatus.PENDING)
-      throw new BadRequestException(
-        "Only pending applications can be approved"
-      );
+      throw new BadRequestException("Chỉ có thể từ chối đơn đang chờ duyệt.");
 
+    // ⚠️ Cập nhật trạng thái sang bị từ chối
     await this.prisma.instructorApplication.update({
       where: { id: applicationId },
-      data: { status: ApplicationStatus.APPROVED },
+      data: { status: ApplicationStatus.REJECTED },
     });
 
-    // 3. Gửi email thông báo từ chối
+    // Gửi email thông báo từ chối
     await this.mailerService.sendMail({
       to: user.email,
-      subject: "Đơn ứng tuyển Giảng viên đã được phê duyệt",
-      template: "./applicationRejected", // không cần .hbs
+      subject: "Đơn ứng tuyển Giảng viên đã bị từ chối",
+      template: "./applicationRejected",
       context: {
         user,
         application,
@@ -207,6 +207,7 @@ export class InstructorService {
     });
   }
 
+  // 🧩 Lấy tất cả đơn đăng ký đang chờ duyệt
   async getAllInstructorApplications() {
     const applications = await this.prisma.instructorApplication.findMany({
       where: { status: ApplicationStatus.PENDING },
@@ -222,6 +223,7 @@ export class InstructorService {
     return applications;
   }
 
+  // 🧩 Lấy đơn đăng ký giảng viên của người dùng
   async getInstructorApplicationByUserId(userId: number) {
     return await this.prisma.instructorApplication.findFirst({
       where: { userId, status: ApplicationStatus.PENDING },

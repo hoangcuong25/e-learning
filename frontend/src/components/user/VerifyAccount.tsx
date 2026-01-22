@@ -32,7 +32,7 @@ const VerifyAccount = () => {
   const handleSendEmailActive = async () => {
     try {
       await SendEmailActiveApi();
-      toast.success("📘 Mã OTP đã được gửi đến email của bạn.");
+      toast.success("Mã OTP đã được gửi đến email của bạn.");
     } catch (error) {
       toast.error("Gửi mã OTP thất bại. Vui lòng thử lại.");
     }
@@ -43,7 +43,7 @@ const VerifyAccount = () => {
       await ActiveAccountApi(otp);
       dispatch(fetchUser());
 
-      toast.success("🎓 Xác thực tài khoản e-Learning thành công!");
+      toast.success("Xác thực tài khoản e-Learning thành công!");
     } catch (error) {
       toast.error("Mã OTP không hợp lệ. Vui lòng thử lại.");
     }

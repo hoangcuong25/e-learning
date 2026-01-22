@@ -58,7 +58,7 @@ export default function ForgotPassword() {
       );
       if (data.statusCode === 201) {
         setIsEmailSent(true);
-        toast.success("Mã OTP đã được gửi đến email của bạn 🎉");
+        toast.success("Mã OTP đã được gửi đến email của bạn");
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Gửi mã thất bại");
@@ -85,7 +85,7 @@ export default function ForgotPassword() {
       );
       if (data.statusCode === 201) {
         router.push("/login");
-        toast.success("Đổi mật khẩu thành công ✅");
+        toast.success("Đổi mật khẩu thành công");
       }
     } catch (error: any) {
       toast.error(

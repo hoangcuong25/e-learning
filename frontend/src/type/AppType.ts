@@ -1,6 +1,14 @@
 export {};
 
 declare global {
+  type PaginationParams = {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    order?: "asc" | "desc";
+  };
+
   type UserType = {
     id: number;
     fullname: string;
@@ -69,6 +77,7 @@ declare global {
 
   // 🧩 CourseType — đại diện cho một khóa học
   type CourseType = {
+    chapter: ChapterType[];
     id: number;
     title: string;
     description?: string;
@@ -78,9 +87,6 @@ declare global {
 
     instructorId: number;
     instructor?: Pick<UserType, "id" | "fullname" | "email" | "avatar">;
-
-    // Danh sách bài học
-    lessons?: LessonType[];
 
     // Danh sách chuyên ngành / chủ đề (qua bảng trung gian)
     specializations?: {
@@ -98,6 +104,9 @@ declare global {
     content?: string;
     videoUrl?: string;
     orderIndex: number;
+    duration: number; // Thời lượng bài học
+    chapter: ChapterType;
+    quizzes?: QuizType[];
     courseId: number;
     course?: Pick<CourseType, "id" | "title">;
     createdAt: string;
@@ -133,6 +142,7 @@ declare global {
 
   // 🧩 QuizType — đại diện cho bài quiz (gắn với 1 lesson duy nhất)
   type QuizType = {
+    _count: any;
     id: number;
     title: string; // Tên quiz
     lessonId: number;
@@ -140,5 +150,16 @@ declare global {
     questions?: QuestionType[]; // Danh sách câu hỏi
     createdAt: string;
     updatedAt: string;
+  };
+
+  type ChapterType = {
+    id: number;
+    title: string;
+    description?: string;
+    courseId: number;
+    orderIndex: number;
+    lessons?: LessonType[];
+    createdAt?: string;
+    updatedAt?: string;
   };
 }

@@ -5,7 +5,11 @@ import { MailerService } from "@nestjs-modules/mailer";
 import dayjs from "dayjs";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
-import { comparePasswordHelper, hashPasswordHelper } from "src/core/helpers/util";
+import {
+  comparePasswordHelper,
+  hashPasswordHelper,
+} from "src/core/helpers/util";
+
 @Injectable()
 export class UserService {
   constructor(
@@ -33,7 +37,7 @@ export class UserService {
       where: { id },
       data: {
         verificationOtp: codeId,
-        verificationOtpExpires: new Date(Date.now() + 5 * 60 * 1000),
+        verificationOtpExpires: new Date(Date.now() + 5 * 60 * 1000), // 5 phút
       },
     });
   }
@@ -54,7 +58,7 @@ export class UserService {
       where: { id },
       data: {
         resetOtp: otp,
-        resetOtpExpires: new Date(Date.now() + 5 * 60 * 1000),
+        resetOtpExpires: new Date(Date.now() + 5 * 60 * 1000), // 5 phút
       },
     });
   }
@@ -89,9 +93,9 @@ export class UserService {
       const { fullname, email, password1, password2 } = createUserDto;
 
       if (await this.isEmailExist(email))
-        throw new BadRequestException("Email already exists");
+        throw new BadRequestException("Email đã tồn tại");
       if (password1 !== password2)
-        throw new BadRequestException("Password not match");
+        throw new BadRequestException("Mật khẩu không khớp");
 
       const hashPassword = await hashPasswordHelper(password1);
 
@@ -108,7 +112,7 @@ export class UserService {
       return { id: savedUser.id };
     } catch (error) {
       console.log(error);
-      throw new BadRequestException("Internal server error");
+      throw new BadRequestException("Lỗi máy chủ nội bộ");
     }
   }
 
@@ -118,7 +122,7 @@ export class UserService {
 
   async findById(id: number) {
     if (!id) {
-      throw new BadRequestException("User id is required");
+      throw new BadRequestException("Cần cung cấp ID người dùng");
     }
 
     return await this.prisma.user.findUnique({
@@ -130,9 +134,9 @@ export class UserService {
     const { fullname, email, password1, password2 } = registerDto;
 
     if (await this.isEmailExist(email))
-      throw new BadRequestException("Email already exists!");
+      throw new BadRequestException("Email đã tồn tại!");
     if (password1 !== password2)
-      throw new BadRequestException("Password not match");
+      throw new BadRequestException("Mật khẩu không khớp");
 
     const hashPassword = await hashPasswordHelper(password1);
 
@@ -160,11 +164,11 @@ export class UserService {
     updateUserDto: any,
     avatar?: Express.Multer.File
   ) {
-    // 1. Kiểm tra user tồn tại
+    // 1. Kiểm tra người dùng tồn tại
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new BadRequestException("User not found");
+    if (!user) throw new BadRequestException("Không tìm thấy người dùng");
 
-    // 2. Chuẩn bị data để update
+    // 2. Chuẩn bị dữ liệu để cập nhật
     const updateData: any = { ...updateUserDto };
 
     if (avatar) {
@@ -172,10 +176,10 @@ export class UserService {
       updateData.avatar = uploaded.url;
     }
 
-    // Nếu có dob thì convert sang Date
+    // Nếu có ngày sinh (dob), chuyển sang dạng Date
     updateData.dob = new Date(updateData.dob);
 
-    // 3. Update user với Prisma
+    // 3. Cập nhật thông tin người dùng với Prisma
     return this.prisma.user.update({
       where: { id: userId },
       data: updateData,
@@ -185,16 +189,16 @@ export class UserService {
   async updatePassword(userId: number, body: any) {
     const { newPassword1, newPassword2, oldPassword } = body;
     const user = await this.findById(userId);
-    if (!user) throw new BadRequestException("User not found");
+    if (!user) throw new BadRequestException("Không tìm thấy người dùng");
 
     const isOldPasswordValid = await comparePasswordHelper(
       oldPassword,
       user.password
     );
     if (!isOldPasswordValid)
-      throw new BadRequestException("Incorrect old password");
+      throw new BadRequestException("Mật khẩu cũ không chính xác");
     if (newPassword1 !== newPassword2)
-      throw new BadRequestException("New passwords do not match");
+      throw new BadRequestException("Hai mật khẩu mới không khớp");
 
     const hashedPassword = await hashPasswordHelper(newPassword1);
     return await this.prisma.user.update({
@@ -212,7 +216,7 @@ export class UserService {
       where: { id: userId },
       data: {
         refreshToken,
-        refreshTokenExpires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        refreshTokenExpires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 ngày
       },
     });
   }

@@ -1,18 +1,24 @@
 import axiosClient from "@/lib/axiosClient";
 
-// 🧩 1. Lấy tất cả khóa học
-export const getAllCoursesApi = async () => {
-  const response = await axiosClient.get("/course");
-  return response.data; // Trả về danh sách khóa học
+// 🧩 1. Lấy tất cả khóa học (có phân trang + filter)
+export const getAllCoursesApi = async (params?: PaginationParams) => {
+  const response = await axiosClient.get("/course", { params });
+  return response.data;
 };
 
 // 🧩 2. Lấy chi tiết khóa học theo ID
-export const getCourseByIdApi = async (id: number) => {
+export const getCourseDetailApi = async (id: number) => {
   const response = await axiosClient.get(`/course/${id}`);
   return response.data;
 };
 
-// 🧩 3. Tạo khóa học mới (Instructor / Admin)
+// 🧩 3. Lấy chi tiết khóa học theo ID (instructor)
+export const getCourseByIdApi = async (id: number) => {
+  const response = await axiosClient.get(`/course/${id}/instructor`);
+  return response.data;
+};
+
+// 🧩 4. Tạo khóa học mới (Instructor / Admin)
 export const createCourseApi = async (payload: FormData) => {
   const response = await axiosClient.post("/course", payload, {
     headers: { "Content-Type": "multipart/form-data" },
@@ -20,7 +26,7 @@ export const createCourseApi = async (payload: FormData) => {
   return response.data;
 };
 
-// 🧩 4. Cập nhật khóa học
+// 🧩 5. Cập nhật khóa học
 export const updateCourseApi = async (id: number, payload: any) => {
   const response = await axiosClient.patch(
     `/course/instructor/course/${id}`,
@@ -32,13 +38,13 @@ export const updateCourseApi = async (id: number, payload: any) => {
   return response.data;
 };
 
-// 🧩 5. Xóa khóa học
+// 🧩 6. Xóa khóa học
 export const deleteCourseApi = async (id: number) => {
   const response = await axiosClient.delete(`/course/instructor/course/${id}`);
   return response.data;
 };
 
-// 🧩 6. Lấy tất cả khóa học của instructor theo Instructor ID
+// 🧩 7. Lấy tất cả khóa học của instructor theo Instructor ID
 export const getCoursesByInstructorApi = async () => {
   const response = await axiosClient.get(`/course/instructors/me/courses`);
   return response.data;

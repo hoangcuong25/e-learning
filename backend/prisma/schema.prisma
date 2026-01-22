@@ -54,7 +54,10 @@ model User {
 
   // Relations
   instructorApplications InstructorApplication[]
+  
   courses                Course[]
+  CourseRating CourseRating[]
+  CourseView CourseView[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -112,14 +115,54 @@ model Course {
   price        Float      @default(0)
   type         CourseType @default(FREE)
   isPublished  Boolean    @default(false)
+  viewCount    Int        @default(0)
+  duration     Int        @default(0) // Tổng thời lượng (phút)
 
+  // Relations
   instructorId Int
   instructor   User        @relation(fields: [instructorId], references: [id], onDelete: Cascade)
-  lessons      Lesson[]
+
   specializations CourseSpecialization[]
+
+  courseRating CourseRating[]
+  courseView CourseView[]
+  chapter Chapter[]
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+}
+
+// ─── COURSE VIEW ──────────────────────────────
+model CourseView {
+  id        Int      @id @default(autoincrement())
+  courseId  Int
+  userId    Int?
+  ipAddress String?
+  viewedAt  DateTime @default(now())
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userId, ipAddress])
+}
+
+// ─── CHAPTER ──────────────────────────────
+model Chapter {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(150)
+  description String?   @db.Text
+  orderIndex  Int       @default(0)
+  duration    Int       @default(0) // Tổng thời lượng (phút)
+
+  // Relations
+  courseId Int
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons  Lesson[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, orderIndex]) // mỗi course có thứ tự chapter riêng
 }
 
 // ─── LESSON ──────────────────────────────
@@ -129,17 +172,16 @@ model Lesson {
   content     String?   @db.Text     // HTML content
   videoUrl    String?   // Cloudinary URL
   orderIndex  Int       @default(0)
+  duration    Int       @default(0) // Tổng thời lượng (phút)
 
   // Relations
-  courseId    Int
-  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
   quizzes Quiz[]
+
+  chapterId   Int?
+  chapter     Chapter?   @relation(fields: [chapterId], references: [id], onDelete: SetNull)
 
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-
-  @@unique([courseId, orderIndex])
 }
 
 // ─── JUNCTION: Course ↔ Specialization ──────────────
@@ -184,4 +226,22 @@ model Option {
   isCorrect   Boolean  @default(false)
   questionId  Int
   question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+// ─── COURSE RATING ──────────────────────────────
+model CourseRating {
+  id        Int      @id @default(autoincrement())
+  rating    Int      @db.TinyInt // giá trị 1–5
+
+  // Relations
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  courseId  Int
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId]) // mỗi user chỉ được rate 1 lần / course
 }

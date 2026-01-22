@@ -28,6 +28,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Image from "next/image";
+import CreateChapter from "@/components/instructor/courses/chapter/CreateChapter";
 
 const CourseDetailPage = () => {
   const { id } = useParams();
@@ -66,8 +67,6 @@ const CourseDetailPage = () => {
             <span>Quay lại</span>
           </Button>
         </div>
-
-        <CreateLesson courseId={currentCourse.id} />
       </div>
 
       {/* Course Info */}
@@ -175,145 +174,131 @@ const CourseDetailPage = () => {
         </CardContent>
       </Card>
 
-      {/* Lessons */}
+      {/* ─── CHAPTERS ────────────────────────────── */}
       <Card className="shadow-sm border border-gray-200">
         <CardHeader className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Video size={20} /> Danh sách bài học (
-            {currentCourse.lessons?.length || 0})
+            <BookOpen size={20} /> Danh sách chương (
+            {currentCourse?.chapter?.length || 0})
           </CardTitle>
+          <CreateChapter courseId={currentCourse.id} />
         </CardHeader>
 
         <CardContent>
-          {currentCourse?.lessons?.length ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentCourse.lessons.map((lesson) => {
-                const thumbnail = lesson.videoUrl
-                  ? getCloudinaryThumbnail(lesson.videoUrl)
-                  : null;
-
-                return (
-                  <div
-                    key={lesson.id}
-                    className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group bg-white"
-                  >
-                    {/* Thumbnail */}
-                    <div
-                      className="relative w-full aspect-video bg-gray-100 cursor-pointer"
-                      onClick={() =>
-                        router.push(
-                          `/instructor/courses/${currentCourse.id}/lesson/${lesson?.id}`
-                        )
-                      }
-                    >
-                      {thumbnail ? (
-                        <Image
-                          src={thumbnail}
-                          alt={lesson.title}
-                          fill
-                          className="object-cover transition-transform group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full text-gray-500 italic">
-                          Chưa có video
-                        </div>
-                      )}
-
-                      {lesson.videoUrl && (
-                        <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                          <Play className="w-12 h-12 text-white" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Info */}
-                    <div className="p-4 space-y-2">
-                      <h3 className="font-semibold text-lg line-clamp-2">
-                        {lesson.orderIndex}. {lesson.title}
+          {currentCourse?.chapter?.length ? (
+            <div className="space-y-6">
+              {currentCourse.chapter.map((chapter) => (
+                <Card
+                  key={chapter.id}
+                  className="border border-gray-100 hover:shadow-md transition bg-white"
+                >
+                  {/* Header chương */}
+                  <CardHeader className="flex justify-between items-center bg-gray-50 rounded-t-lg">
+                    <div>
+                      <h3 className="font-semibold text-blue-700 text-lg">
+                        {chapter.orderIndex}. {chapter.title}
                       </h3>
-
-                      {lesson.content && (
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {currentCourse.description ? (
-                            <div
-                              className="prose max-w-none"
-                              dangerouslySetInnerHTML={{
-                                __html: currentCourse.description,
-                              }}
-                            />
-                          ) : (
-                            ""
-                          )}
+                      {chapter.description && (
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                          {chapter.description}
                         </p>
                       )}
-
-                      <div className="flex justify-between text-sm text-gray-500 mt-2">
-                        <span>
-                          Tạo:{" "}
-                          {new Date(lesson.createdAt).toLocaleDateString(
-                            "vi-VN"
-                          )}
-                        </span>
-                        <span>
-                          Sửa:{" "}
-                          {new Date(lesson.updatedAt).toLocaleDateString(
-                            "vi-VN"
-                          )}
-                        </span>
-                      </div>
-
-                      {/* Detail */}
-                      <div className="flex justify-center mt-4">
-                        <Button
-                          variant="default"
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white w-full"
-                          onClick={() =>
-                            router.push(
-                              `/instructor/courses/${currentCourse.id}/lesson/${lesson?.id}`
-                            )
-                          }
-                          disabled={!lesson.videoUrl}
-                        >
-                          <Play size={16} />
-                          <span>Chi tiết</span>
-                        </Button>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex justify-between items-center mt-3">
-                        {lesson.videoUrl ? (
-                          <Button
-                            variant="link"
-                            className="flex items-center gap-1 text-blue-600 hover:underline p-0"
-                            onClick={() => setSelectedLesson(lesson)}
-                          >
-                            <Video size={14} /> Xem video
-                          </Button>
-                        ) : (
-                          <span className="text-xs text-gray-400 italic">
-                            Không có video
-                          </span>
-                        )}
-                        <div className="flex gap-2">
-                          <UpdateLesson
-                            lesson={lesson}
-                            courseId={currentCourse.id}
-                          />
-                          <DeleteLessonDialog
-                            lessonId={lesson.id}
-                            lessonTitle={lesson.title}
-                            courseId={currentCourse.id}
-                          />
-                        </div>
-                      </div>
                     </div>
-                  </div>
-                );
-              })}
+
+                    {/* Nút thêm bài học */}
+                    <CreateLesson
+                      courseId={currentCourse.id}
+                      chapterId={chapter.id}
+                    />
+                  </CardHeader>
+
+                  {/* Danh sách bài học */}
+                  <CardContent className="pt-4 space-y-3">
+                    {chapter.lessons && chapter.lessons.length > 0 ? (
+                      chapter.lessons.map((lesson) => (
+                        <div
+                          key={lesson.id}
+                          className="flex justify-between items-center border rounded-lg px-4 py-3 hover:bg-blue-50 transition"
+                        >
+                          {/* Thông tin bài học */}
+                          <div
+                            className="cursor-pointer"
+                            onClick={() =>
+                              router.push(
+                                `/instructor/courses/${currentCourse.id}/lesson/${lesson.id}`
+                              )
+                            }
+                          >
+                            <p className="font-medium text-gray-800">
+                              {lesson.orderIndex}. {lesson.title}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              Cập nhật:{" "}
+                              {new Date(lesson.updatedAt).toLocaleDateString(
+                                "vi-VN"
+                              )}
+                            </p>
+                          </div>
+
+                          {/* Các nút hành động */}
+                          <div className="flex items-center gap-2">
+                            {/* Nút xem chi tiết */}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                              onClick={() =>
+                                router.push(
+                                  `/instructor/courses/${currentCourse.id}/lesson/${lesson.id}`
+                                )
+                              }
+                            >
+                              <BookOpen size={14} className="mr-1" />
+                              Chi tiết
+                            </Button>
+
+                            {/* Nút xem video */}
+                            {lesson.videoUrl ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-green-600 border-green-600 hover:bg-green-50"
+                                onClick={() => setSelectedLesson(lesson)}
+                              >
+                                <Video size={14} className="mr-1" />
+                                Video
+                              </Button>
+                            ) : (
+                              <span className="text-xs text-gray-400 italic">
+                                Không có video
+                              </span>
+                            )}
+
+                            {/* Sửa / Xóa */}
+                            <UpdateLesson
+                              lesson={lesson}
+                              courseId={currentCourse.id}
+                            />
+                            <DeleteLessonDialog
+                              lessonId={lesson.id}
+                              lessonTitle={lesson.title}
+                              courseId={currentCourse.id}
+                            />
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 italic text-sm">
+                        Chưa có bài học nào trong chương này.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           ) : (
             <p className="text-gray-500 italic text-center py-8">
-              Chưa có bài học nào cho khóa học này.
+              Chưa có chương nào cho khóa học này.
             </p>
           )}
         </CardContent>
