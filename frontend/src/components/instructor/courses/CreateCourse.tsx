@@ -353,7 +353,11 @@ export default function CourseCreate() {
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-blue-500 hover:bg-blue-700"
+            >
               {isSubmitting ? "Đang tạo..." : "Tạo"}
             </Button>
           </DialogFooter>

@@ -34,16 +34,16 @@ export default function RootLayout({
           >
             <div
               className="
-            min-h-screen 
-            mx-auto 
-            my-2.5 md:my-4 lg:my-8
-            px-4 sm:px-6 md:px-8 
-            max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl xl:max-w-[1600px] 2xl:max-w-[1920px]
-          "
+              flex flex-col min-h-screen
+              mx-auto 
+              my-2.5 md:my-4 lg:my-8
+              px-4 sm:px-6 md:px-8 
+              max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl xl:max-w-[1600px] 2xl:max-w-[1920px]
+              "
             >
-              {children}
-              <Toaster position="top-right" />
+              <main className="flex-grow">{children}</main>
               <Footer />
+              <Toaster position="top-right" />
             </div>
           </GoogleOAuthProvider>
         </Provider>

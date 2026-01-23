@@ -20,6 +20,7 @@
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-oauth/google": "^0.12.2",
+    "@reactour/tour": "^3.8.0",
     "@reduxjs/toolkit": "^2.9.0",
     "@tiptap/extension-link": "^3.7.2",
     "@tiptap/extension-text-align": "^3.7.2",
@@ -42,8 +43,10 @@
     "react-icons": "^5.5.0",
     "react-redux": "^9.2.0",
     "recharts": "^3.2.1",
+    "socket.io-client": "^4.8.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.0",
+    "use-debounce": "^10.0.6",
     "zod": "^4.1.12"
   },
   "devDependencies": {

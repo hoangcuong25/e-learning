@@ -6,7 +6,7 @@ import {
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
-import { ApplicationStatus, CourseType } from "@prisma/client";
+import { ApplicationStatus, CourseType, Prisma } from "@prisma/client";
 import { SpecializationService } from "../specialization/specialization.service";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import {
@@ -119,7 +119,24 @@ export class CourseService {
   async findAll(dto: PaginationQueryDto) {
     const { skip, take, page, limit } = buildPaginationParams(dto);
     const orderBy = buildOrderBy(dto);
-    const where = buildSearchFilter(dto, ["title", "description"]);
+    const where =
+      buildSearchFilter<Prisma.CourseWhereInput>(dto, [
+        "title",
+        "description",
+      ]) || {};
+
+    // Nếu có specializationId thì filter theo đó
+    if (dto.specialization) {
+      where.specializations = {
+        some: {
+          specialization: {
+            name: dto.specialization,
+          },
+        },
+      };
+    }
+
+    const now = new Date();
 
     const [courses, total] = await this.prisma.$transaction([
       this.prisma.course.findMany({
@@ -130,6 +147,19 @@ export class CourseService {
         include: {
           instructor: {
             select: { id: true, fullname: true, email: true },
+          },
+          specializations: {
+            include: {
+              specialization: {
+                select: { name: true },
+              },
+            },
+          },
+          coupon: {
+            where: {
+              isActive: true,
+              OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+            },
           },
         },
       }),
@@ -149,6 +179,13 @@ export class CourseService {
       include: {
         instructor: {
           select: { id: true, fullname: true, email: true },
+        },
+        specializations: {
+          include: {
+            specialization: {
+              select: { name: true },
+            },
+          },
         },
         chapter: {
           orderBy: { orderIndex: "asc" },
@@ -324,6 +361,13 @@ export class CourseService {
           include: {
             specialization: {
               select: { id: true, name: true },
+            },
+          },
+        },
+        chapter: {
+          include: {
+            lessons: {
+              select: { id: true, title: true },
             },
           },
         },

@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   Brain,
+  TicketPercent,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -39,12 +40,12 @@ const InstructorSidebar = () => {
     { href: "/instructor/dashboard", label: "Trang chủ", icon: Home },
     { href: "/instructor/courses", label: "Khóa học của tôi", icon: BookOpen },
     { href: "/instructor/quizzes", label: "Quản lý Quiz", icon: Brain },
-    { href: "/instructor/students", label: "Học viên", icon: Users },
     {
-      href: "/instructor/applications",
-      label: "Đơn ứng tuyển",
-      icon: FileText,
+      href: "/instructor/coupons",
+      label: "Quản lý Coupon",
+      icon: TicketPercent,
     },
+    { href: "/instructor/students", label: "Học viên", icon: Users },
     { href: "/instructor/earnings", label: "Thu nhập", icon: DollarSign },
     { href: "/instructor/settings", label: "Cài đặt", icon: Settings },
   ];

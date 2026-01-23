@@ -7,6 +7,7 @@ declare global {
     search?: string;
     sortBy?: string;
     order?: "asc" | "desc";
+    specialization?: string;
   };
 
   type UserType = {
@@ -20,6 +21,7 @@ declare global {
     phone: string;
     isVerified: boolean;
     role: string;
+    walletBalance: number;
     createdAt?: string;
     updatedAt?: string;
     createdBy?: string;
@@ -77,13 +79,21 @@ declare global {
 
   // 🧩 CourseType — đại diện cho một khóa học
   type CourseType = {
+    lessons: any;
     chapter: ChapterType[];
+    coupon: CouponType[];
     id: number;
     title: string;
     description?: string;
     thumbnail?: string;
+    duration: number;
+    type: string;
     price: number;
     isPublished: boolean;
+
+    _count?: {
+      chapter: number; // Số lượng Chapters
+    };
 
     instructorId: number;
     instructor?: Pick<UserType, "id" | "fullname" | "email" | "avatar">;
@@ -146,7 +156,7 @@ declare global {
     id: number;
     title: string; // Tên quiz
     lessonId: number;
-    lesson?: Pick<LessonType, "id" | "title" | "orderIndex" | "courseId">; // Thông tin bài học (nếu có)
+    lesson?: Pick<LessonType, "id" | "title" | "orderIndex" | "courseId" | any>; // Thông tin bài học
     questions?: QuestionType[]; // Danh sách câu hỏi
     createdAt: string;
     updatedAt: string;
@@ -159,6 +169,95 @@ declare global {
     courseId: number;
     orderIndex: number;
     lessons?: LessonType[];
+    createdAt?: string;
+    updatedAt?: string;
+  };
+
+  enum CouponTargetEnum {
+    ALL = "ALL",
+    COURSE = "COURSE",
+    SPECIALIZATION = "SPECIALIZATION",
+  }
+
+  type CouponType = {
+    id: number;
+    code: string;
+    percentage: number; // % giảm giá
+    maxUsage?: number | null; // Giới hạn số lần dùng
+    usedCount: number; // Số lần đã dùng
+    expiresAt?: string | null; // Hạn sử dụng
+    isActive: boolean;
+    target: CouponTargetEnum;
+
+    // Quan hệ
+    createdById: number;
+    createdBy?: Pick<UserType, "id" | "fullname" | "email">;
+
+    courseId?: number | null;
+    course?: Pick<CourseType, "id" | "title"> | null;
+
+    specializationId?: number | null;
+    specialization?: Pick<SpecializationType, "id" | "name"> | null;
+
+    // Các quan hệ phụ
+    couponUsages?: CouponUsageType[];
+    discountCampaigns?: DiscountCampaignType[];
+
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  type CouponUsageType = {
+    id: number;
+    couponId: number;
+    userId: number;
+    usedAt: string;
+
+    coupon?: Pick<CouponType, "id" | "code" | "percentage">;
+    user?: Pick<UserType, "id" | "fullname" | "email">;
+  };
+
+  type DiscountCampaignType = {
+    id: number;
+    title: string;
+    description?: string;
+    percentage: number;
+    startsAt: string;
+    endsAt: string;
+    isActive: boolean;
+
+    createdById: number;
+    createdBy?: Pick<UserType, "id" | "fullname">;
+
+    coupons?: Pick<CouponType, "id" | "code" | "percentage">[];
+
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  // 🧩 EnrollmentType — đại diện cho bản ghi đăng ký khóa học
+  type EnrollmentType = {
+    id: number;
+
+    // Quan hệ chính
+    userId: number;
+    courseId: number;
+
+    enrolledAt: string;
+    completedAt?: string | null;
+    progress: number; // phần trăm tiến độ (0–100)
+
+    // Nếu có coupon áp dụng
+    couponId?: number | null;
+    coupon?: Pick<
+      CouponType,
+      "id" | "code" | "percentage" | "isActive" | "expiresAt"
+    > | null;
+
+    // Thông tin quan hệ
+    user?: UserType;
+    course?: CourseType;
+
     createdAt?: string;
     updatedAt?: string;
   };

@@ -37,14 +37,6 @@ export const seedSpecializations = async () => {
       desc: "Tự động hóa triển khai và quản lý hạ tầng bằng Docker, Kubernetes, CI/CD.",
     },
     {
-      name: "React",
-      desc: "Thư viện JavaScript phổ biến để xây dựng giao diện người dùng.",
-    },
-    {
-      name: "Node.js",
-      desc: "Môi trường chạy JavaScript phía máy chủ, xây dựng ứng dụng mạng nhanh và có khả năng mở rộng.",
-    },
-    {
       name: "Backend",
       desc: "Phát triển logic phía máy chủ, cơ sở dữ liệu và API cho ứng dụng.",
     },

@@ -9,13 +9,6 @@ import { AppDispatch, RootState } from "@/store";
 import { useEffect, useState } from "react";
 import { fetchAllSpecializations } from "@/store/specializationSlice";
 import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Command, CommandItem, CommandList } from "@/components/ui/command";
-import {
   applyInstructorApi,
   ApplyInstructorPayload,
 } from "@/api/instructor.api";
@@ -69,7 +62,10 @@ const InstructorApplyPage = () => {
 
       toast.success("Đơn đăng ký đã được gửi thành công!");
     } catch (err: any) {
-      toast.error("Có lỗi đã xảy ra");
+      const message =
+        err?.response?.data?.message ||
+        "Đã xảy ra lỗi trong quá trình gửi đơn. Vui lòng thử lại sau.";
+      toast.error(message);
     }
   };
 

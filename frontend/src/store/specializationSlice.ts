@@ -8,15 +8,6 @@ import {
   getSpecializationsByInstructorIdApi,
 } from "@/api/specialization.api";
 
-// 🧱 Kiểu dữ liệu chuyên ngành
-export interface SpecializationType {
-  id: number;
-  name: string;
-  description?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
 // 🧱 State
 interface SpecializationState {
   specializations: SpecializationType[];
@@ -44,7 +35,6 @@ export const fetchAllSpecializations = createAsyncThunk(
   "specialization/fetchAll",
   async () => {
     const response = await getAllSpecializationsApi();
-    // ✅ API trả { message, data }, ta chỉ lấy data
     return response.data;
   }
 );

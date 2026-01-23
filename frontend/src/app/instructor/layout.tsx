@@ -1,11 +1,11 @@
 import InstructorSidebar from "@/components/instructor/InstructorSidebar";
 import type { Metadata } from "next";
 
-// 🧠 Metadata áp dụng cho toàn bộ khu vực giảng viên
+// Metadata áp dụng cho toàn bộ khu vực giảng viên
 export const metadata: Metadata = {
   title: {
     default: "Bảng điều khiển giảng viên | Học Lập Trình",
-    template: "Giảng viên - Học Lập Trình",
+    template: "%s | Giảng viên - Học Lập Trình",
   },
   description:
     "Quản lý khóa học, bài học và học viên của bạn trong bảng điều khiển giảng viên. Tạo nội dung chất lượng và chia sẻ kiến thức lập trình dễ dàng.",
@@ -25,6 +25,10 @@ export const metadata: Metadata = {
     ],
     locale: "vi_VN",
     type: "website",
+  },
+  robots: {
+    index: false, // Không cho SEO index trang giảng viên
+    follow: false,
   },
   metadataBase: new URL("https://yourdomain.com"),
 };

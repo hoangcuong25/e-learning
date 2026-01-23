@@ -6,10 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { toast } from "sonner";
+
 import { quizSchema, QuizFormData } from "@/hook/zod-schema/QuizSchema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -25,11 +25,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { fetchCoursesByInstructor } from "@/store/coursesSlice";
-import { clearQuizState, createQuiz, fetchInstructorQuizzes } from "@/store/quizSlice";
+import {
+  clearQuizState,
+  createQuiz,
+  fetchInstructorQuizzes,
+} from "@/store/quizSlice";
 
 const QuizForm = () => {
   const dispatch = useDispatch<AppDispatch>();
+
   const { instructorCourses, loading: courseLoading } = useSelector(
     (state: RootState) => state.courses
   );
@@ -39,29 +45,46 @@ const QuizForm = () => {
     loading: quizLoading,
   } = useSelector((state: RootState) => state.quiz);
 
+  const [chapters, setChapters] = useState<ChapterType[]>([]);
   const [lessons, setLessons] = useState<LessonType[]>([]);
+
   const form = useForm<QuizFormData>({
     resolver: zodResolver(quizSchema),
     defaultValues: {
       title: "",
       courseId: 0,
+      chapterId: 0,
       lessonId: 0,
     },
   });
 
-  const selectedCourseId = form.watch("courseId");
+  const watchCourseId = form.watch("courseId");
+  const watchChapterId = form.watch("chapterId");
 
+  // Load courses
   useEffect(() => {
     dispatch(fetchCoursesByInstructor());
   }, [dispatch]);
 
+  // Khi chọn course → load chapters
   useEffect(() => {
     const selectedCourse = instructorCourses.find(
-      (c) => c.id === selectedCourseId
+      (c) => c.id === watchCourseId
     );
-    setLessons(selectedCourse?.lessons || []);
-  }, [selectedCourseId, instructorCourses]);
+    setChapters(selectedCourse?.chapter || []);
+    setLessons([]);
+    form.setValue("chapterId", 0);
+    form.setValue("lessonId", 0);
+  }, [watchCourseId, instructorCourses, form]);
 
+  // Khi chọn chapter → load lessons
+  useEffect(() => {
+    const chapter = chapters.find((ch) => ch.id === watchChapterId);
+    setLessons(chapter?.lessons || []);
+    form.setValue("lessonId", 0);
+  }, [watchChapterId, chapters, form]);
+
+  // Toast Message
   useEffect(() => {
     if (successMessage) {
       toast.success(successMessage);
@@ -80,7 +103,7 @@ const QuizForm = () => {
       await dispatch(fetchInstructorQuizzes()).unwrap();
       toast.success("Tạo quiz thành công");
     } catch {
-      toast.error("Có lỗi đã xảy ra");
+      toast.error("Có lỗi xảy ra");
     }
   };
 
@@ -95,7 +118,7 @@ const QuizForm = () => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-6 w-full"
         >
-          {/* Khóa học */}
+          {/* Chọn khóa học */}
           <FormField
             control={form.control}
             name="courseId"
@@ -105,7 +128,6 @@ const QuizForm = () => {
                 <Select
                   onValueChange={(val) => field.onChange(Number(val))}
                   value={field.value ? String(field.value) : ""}
-                  disabled={courseLoading}
                 >
                   <FormControl>
                     <SelectTrigger className="bg-gray-50">
@@ -125,7 +147,39 @@ const QuizForm = () => {
             )}
           />
 
-          {/* Bài học */}
+          {/* Chọn Chapter */}
+          <FormField
+            control={form.control}
+            name="chapterId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-semibold">
+                  Chọn chương (Chapter)
+                </FormLabel>
+                <Select
+                  disabled={!watchCourseId}
+                  onValueChange={(val) => field.onChange(Number(val))}
+                  value={field.value ? String(field.value) : ""}
+                >
+                  <FormControl>
+                    <SelectTrigger className="bg-gray-50">
+                      <SelectValue placeholder="Chọn chương" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {chapters.map((ch) => (
+                      <SelectItem key={ch.id} value={String(ch.id)}>
+                        {ch.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Chọn Bài học */}
           <FormField
             control={form.control}
             name="lessonId"
@@ -133,19 +187,13 @@ const QuizForm = () => {
               <FormItem>
                 <FormLabel className="font-semibold">Chọn bài học</FormLabel>
                 <Select
+                  disabled={!watchChapterId}
                   onValueChange={(val) => field.onChange(Number(val))}
                   value={field.value ? String(field.value) : ""}
-                  disabled={!selectedCourseId}
                 >
                   <FormControl>
                     <SelectTrigger className="bg-gray-50">
-                      <SelectValue
-                        placeholder={
-                          selectedCourseId
-                            ? "Chọn bài học"
-                            : "Hãy chọn khóa học trước"
-                        }
-                      />
+                      <SelectValue placeholder="Chọn bài học" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -161,7 +209,7 @@ const QuizForm = () => {
             )}
           />
 
-          {/* Tiêu đề quiz */}
+          {/* Tiêu đề Quiz */}
           <FormField
             control={form.control}
             name="title"
@@ -180,11 +228,10 @@ const QuizForm = () => {
             )}
           />
 
-          {/* Submit button */}
           <Button
             type="submit"
             disabled={quizLoading || courseLoading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-xl shadow-md hover:opacity-90 transition-all"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl shadow-md"
           >
             {quizLoading ? "Đang tạo..." : "Tạo Quiz"}
           </Button>

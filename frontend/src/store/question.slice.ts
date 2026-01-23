@@ -47,7 +47,7 @@ export const createQuestion = createAsyncThunk(
   "questions/create",
   async (payload: any) => {
     const response = await createQuestionApi(payload);
-    return response;
+    return response.data.data;
   }
 );
 

@@ -1,25 +1,15 @@
-import React from "react";
-import CoursesPage from "./Courses";
+import { Metadata } from "next";
+import CoursesClient from "./Courses";
 
-// 🧭 Metadata SEO
-export const metadata = {
+export const metadata: Metadata = {
   title: "Danh sách khóa học | EduSmart",
   description:
-    "Khám phá hàng trăm khóa học trực tuyến chất lượng cao tại EduSmart. Học lập trình, thiết kế, kinh doanh, marketing và nhiều lĩnh vực khác với giảng viên hàng đầu.",
-  keywords: [
-    "EduSmart",
-    "khóa học trực tuyến",
-    "học online",
-    "khóa học lập trình",
-    "khóa học thiết kế",
-    "khóa học marketing",
-    "học online Việt Nam",
-  ],
+    "Khám phá hàng trăm khóa học trực tuyến chất lượng cao tại EduSmart. Học lập trình, thiết kế, kinh doanh, marketing và nhiều lĩnh vực khác.",
   openGraph: {
     title: "Danh sách khóa học | EduSmart",
     description:
-      "Học mọi lúc, mọi nơi với hàng trăm khóa học hấp dẫn trên EduSmart. Chọn lĩnh vực bạn yêu thích và bắt đầu ngay hôm nay!",
-    url: "https://edusmart.vn/courses", // ⚠️ Thay domain thực tế của bạn
+      "Học mọi lúc, mọi nơi với hàng trăm khóa học hấp dẫn trên EduSmart.",
+    url: "https://edusmart.vn/courses",
     siteName: "EduSmart",
     images: [
       {
@@ -29,15 +19,37 @@ export const metadata = {
         alt: "EduSmart Courses Banner",
       },
     ],
-    locale: "vi_VN",
-    type: "website",
   },
-  authors: [{ name: "EduSmart Team" }],
-  metadataBase: new URL("https://edusmart.vn"), // ⚠️ Cập nhật domain thật của bạn
 };
 
-const Page = () => {
-  return <CoursesPage />;
-};
+// Hàm SSR
+export default async function CoursesPage({
+  searchParams,
+}: {
+  searchParams: any;
+}) {
+  const params = await searchParams;
 
-export default Page;
+  const page = Number(params.page) || 1;
+  const limit = Number(params.limit) || 10;
+  const search = params.search || "";
+  const specialization = params.specialization || "";
+  const sortBy = params.sortBy || "createdAt";
+  const order = params.order || "desc";
+
+  // 🚀 Fetch dữ liệu trên server
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}course?page=${page}&limit=${limit}&search=${search}&specialization=${specialization}&sortBy=${sortBy}&order=${order}`,
+    { cache: "no-store" } // SSR fresh data
+  );
+
+  const data = await res.json();
+
+  return (
+    <CoursesClient
+      initialCourses={data.data.data}
+      totalPages={data.data.pagination.totalPages}
+      initialParams={{ page, limit, search, sortBy, order, specialization }}
+    />
+  );
+}

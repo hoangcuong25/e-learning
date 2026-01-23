@@ -16,19 +16,33 @@ export class QuizService {
   async create(createQuizDto: CreateQuizDto, instructorId: number) {
     const { title, lessonId, courseId } = createQuizDto;
 
-    // Kiểm tra khóa học có thuộc về giảng viên không
-    const isCourse = await this.prisma.course.findFirst({
+    //  Kiểm tra khóa học có thuộc về giảng viên hay không
+    const course = await this.prisma.course.findFirst({
       where: { id: courseId, instructorId },
     });
 
-    if (!isCourse) throw new BadRequestException("Không tìm thấy khóa học");
+    if (!course) {
+      throw new BadRequestException(
+        "Không tìm thấy khóa học hoặc bạn không có quyền"
+      );
+    }
 
-    // Kiểm tra lesson có tồn tại không
+    // Kiểm tra bài học có tồn tại và thuộc khóa học này không
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
+      include: { chapter: true },
     });
-    if (!lesson) throw new NotFoundException("Không tìm thấy bài học");
 
+    if (!lesson) {
+      throw new NotFoundException("Không tìm thấy bài học");
+    }
+
+    // Kiểm tra mối quan hệ giữa bài học và khóa học
+    if (!lesson.chapter || lesson.chapter.courseId !== courseId) {
+      throw new BadRequestException("Bài học không thuộc khóa học này");
+    }
+
+    // Tạo mới quiz
     return this.prisma.quiz.create({
       data: {
         title,
