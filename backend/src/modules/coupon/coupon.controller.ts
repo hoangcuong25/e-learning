@@ -96,4 +96,12 @@ export class CouponController {
   getMyCoupons(@Req() req) {
     return this.couponService.getCouponsByInstructor(req.user.id);
   }
+
+  @Get("course/:id")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Get all coupon of a course" })
+  @ResponseMessage("Get all coupon of a course")
+  getCouponCourse(@Param("id") id: string, @Req() req) {
+    return this.couponService.getCouponCourse(+id);
+  }
 }

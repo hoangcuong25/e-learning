@@ -37,7 +37,6 @@ export class DiscountService {
       data: {
         title,
         description: dto.description,
-        percentage: dto.percentage,
         startsAt: new Date(startsAt),
         endsAt: new Date(endsAt),
         createdById,

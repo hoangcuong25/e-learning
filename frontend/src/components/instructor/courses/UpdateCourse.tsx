@@ -18,8 +18,11 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { updateCourse, fetchCoursesByInstructor } from "@/store/coursesSlice";
-import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice";
+import {
+  updateCourse,
+  fetchCoursesByInstructor,
+} from "@/store/slice/coursesSlice";
+import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import RichTextEditor from "@/components/RichTextEditor";
 

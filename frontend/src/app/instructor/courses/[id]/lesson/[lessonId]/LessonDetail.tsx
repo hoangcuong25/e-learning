@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchLessonsByCourse } from "@/store/lessonsSlice";
+import { fetchLessonsByCourse } from "@/store/slice/lessonsSlice";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,

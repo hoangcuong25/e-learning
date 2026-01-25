@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { logoutUser } from "@/store/userSlice";
+import { logoutUser } from "@/store/slice/userSlice";
 
 const UserSidebar = () => {
   const dispatch = useDispatch<AppDispatch>();

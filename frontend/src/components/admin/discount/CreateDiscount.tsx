@@ -3,7 +3,10 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
-import { createDiscount, fetchAllDiscounts } from "@/store/discount.slice";
+import {
+  createDiscount,
+  fetchAllDiscounts,
+} from "@/store/slice/discount.slice";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -29,7 +32,6 @@ export default function CreateDiscountForm() {
     defaultValues: {
       title: "",
       description: "",
-      discountPercent: 0,
       startDate: "",
       endDate: "",
     },
@@ -41,7 +43,6 @@ export default function CreateDiscountForm() {
       const payload = {
         title: data.title,
         description: data.description?.trim() || undefined,
-        percentage: Number(data.discountPercent),
         startsAt: new Date(data.startDate).toISOString(),
         endsAt: new Date(data.endDate).toISOString(),
       };
@@ -109,22 +110,6 @@ export default function CreateDiscountForm() {
             {errors.description && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.description.message}
-              </p>
-            )}
-          </div>
-
-          {/* Phần trăm giảm */}
-          <div>
-            <Label htmlFor="discountPercent">Phần trăm giảm giá (%)</Label>
-            <Input
-              id="discountPercent"
-              type="number"
-              placeholder="VD: 30"
-              {...register("discountPercent", { valueAsNumber: true })}
-            />
-            {errors.discountPercent && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.discountPercent.message}
               </p>
             )}
           </div>

@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useRouter } from "next/navigation";
 import LoadingScreen from "@/components/LoadingScreen";
-import { fetchCoursesByInstructor } from "@/store/coursesSlice";
+import { fetchCoursesByInstructor } from "@/store/slice/coursesSlice";
 import CourseCreate from "@/components/instructor/courses/CreateCourse";
 import DeleteCourseDialog from "@/components/instructor/courses/DeleteCourseDialog";
 import UpdateCourse from "@/components/instructor/courses/UpdateCourse";

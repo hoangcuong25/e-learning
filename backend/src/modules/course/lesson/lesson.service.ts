@@ -10,12 +10,14 @@ import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import * as fs from "fs";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
+import { EnrollmentService } from "src/modules/enrollment/enrollment.service";
 
 @Injectable()
 export class LessonService {
   constructor(
     private prisma: PrismaService,
-    private readonly cloudinaryService: CloudinaryService
+    private readonly cloudinaryService: CloudinaryService,
+    private enrollmentService: EnrollmentService
   ) {}
 
   // 🧩 Tạo bài học mới
@@ -194,5 +196,58 @@ export class LessonService {
     if (!existing) throw new NotFoundException("Không tìm thấy bài học");
 
     return this.prisma.lesson.delete({ where: { id } });
+  }
+
+  async markLessonCompleted(lessonId: number, userId: number) {
+    // 1. Kiểm tra User có được Enroll vào Course chứa Lesson này không
+
+    const lesson = await this.prisma.lesson.findUnique({
+      where: { id: lessonId },
+      select: { chapter: { select: { courseId: true } } },
+    });
+
+    const courseId = lesson?.chapter?.courseId;
+    if (!courseId) {
+      throw new NotFoundException(
+        `Lesson with ID ${lessonId} not found or not linked to a course.`
+      );
+    }
+
+    const isEnrollment = this.prisma.enrollment.findFirst({
+      where: {
+        userId,
+        courseId,
+      },
+    });
+
+    if (!isEnrollment) {
+      throw new NotFoundException(`Some thing wrong.`);
+    }
+
+    // 2. Upsert (Tạo hoặc Cập nhật) LessonProgress
+    const updatedProgress = await this.prisma.lessonProgress.upsert({
+      where: {
+        userId_lessonId: {
+          userId,
+          lessonId,
+        },
+      },
+      update: {
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+      create: {
+        userId,
+        lessonId,
+        courseId,
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+    });
+
+    // 3. Kích hoạt logic tính toán tiến độ Enrollment
+    await this.enrollmentService.recalculateProgress(userId, courseId);
+
+    return updatedProgress;
   }
 }

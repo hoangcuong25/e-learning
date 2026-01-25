@@ -18,7 +18,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useRouter, usePathname } from "next/navigation";
-import { fetchAllApplications } from "@/store/instructorSlice";
+import { fetchAllApplications } from "@/store/slice/instructorSlice";
 import Applications from "@/components/instructor/Applications";
 /**
  * Mock data — thay bằng data thật từ API khi tích hợp

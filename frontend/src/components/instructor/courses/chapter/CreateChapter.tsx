@@ -17,9 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { fetchCourseById } from "@/store/coursesSlice";
+import { fetchCourseById } from "@/store/slice/coursesSlice";
 import { z } from "zod";
-import { createChapter } from "@/store/chapterSlice";
+import { createChapter } from "@/store/slice/chapterSlice";
 
 // Schema validation
 const chapterSchema = z.object({

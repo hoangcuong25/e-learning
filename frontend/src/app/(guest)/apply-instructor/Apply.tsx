@@ -7,11 +7,11 @@ import { Loader2, Check, ChevronDown, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useEffect, useState } from "react";
-import { fetchAllSpecializations } from "@/store/specializationSlice";
+import { fetchAllSpecializations } from "@/store/slice/specializationSlice";
 import {
   applyInstructorApi,
   ApplyInstructorPayload,
-} from "@/api/instructor.api";
+} from "@/store/api/instructor.api";
 import { toast } from "sonner";
 
 const InstructorApplyPage = () => {

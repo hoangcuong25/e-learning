@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
-import { createLesson } from "@/store/lessonsSlice";
+import { createLesson } from "@/store/slice/lessonsSlice";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { fetchCourseById } from "@/store/coursesSlice";
+import { fetchCourseById } from "@/store/slice/coursesSlice";
 
 import { lessonSchema, LessonFormData } from "@/hook/zod-schema/LessonSchema";
 import RichTextEditor from "@/components/RichTextEditor";

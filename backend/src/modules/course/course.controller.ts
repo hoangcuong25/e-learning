@@ -115,9 +115,22 @@ export class CourseController {
   rateCourse(
     @Param("id") id: string,
     @Body("rating") rating: number,
+    @Body("text") text: string,
     @Req() req
   ) {
-    return this.courseService.rateCourse(+id, rating, req.user.id);
+    return this.courseService.rateCourse(+id, rating, text, req.user.id);
+  }
+
+  @Get(":id/ratings")
+  @Public()
+  @ApiOperation({ summary: "Get course ratings by course ID" })
+  @ResponseMessage("Get course ratings")
+  async getRatings(
+    @Param("id") id: string,
+    @Query("page") page: number = 1,
+    @Query("limit") limit: number = 10
+  ) {
+    return this.courseService.getRatingsByCourse(+id, { page, limit });
   }
 
   @Post(":id/view")
@@ -127,5 +140,13 @@ export class CourseController {
   increaseView(@Param("id") id: string, @Req() req) {
     const userId = req.user?.id;
     return this.courseService.increaseView(+id, userId);
+  }
+
+  @Get(":id/detail")
+  @ApiOperation({ summary: "User Get course detail" })
+  @ResponseMessage("User Get full course detail")
+  @ApiBearerAuth()
+  async getCourseDetail(@Param("id") id: string, @Req() req) {
+    return this.courseService.getCourseDetail(+id, req.user.id);
   }
 }

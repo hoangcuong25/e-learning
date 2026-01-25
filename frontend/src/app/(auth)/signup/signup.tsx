@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RegisterApi } from "@/api/auth.api";
+import { RegisterApi } from "@/store/api/auth.api";
 import { RegisterFormData, registerSchema } from "@/hook/zod-schema/UserSchema";
 import banner from "@public/elearning-banner.png"; // ảnh minh họa e-learning
 import { motion } from "framer-motion";
@@ -31,7 +31,7 @@ export default function SignupPage() {
 
       toast.success("Đăng ký thành công");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Đăng ký thất bại" );
+      toast.error(err.response?.data?.message || "Đăng ký thất bại");
     }
   };
 

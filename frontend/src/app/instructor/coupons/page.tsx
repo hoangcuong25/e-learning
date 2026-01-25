@@ -30,7 +30,7 @@ import {
   deleteCoupon,
   fetchInstructorCoupons,
   updateCoupon,
-} from "@/store/couponSlice";
+} from "@/store/slice/couponSlice";
 import CouponForm from "@/components/instructor/coupon/CreateCoupon";
 import UpdateCouponForm from "@/components/instructor/coupon/UpdateCoupon";
 import CouponOnboarding from "@/components/instructor/onboarding/CouponOnboarding";

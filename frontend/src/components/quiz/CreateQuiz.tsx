@@ -26,12 +26,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { fetchCoursesByInstructor } from "@/store/coursesSlice";
+import { fetchCoursesByInstructor } from "@/store/slice/coursesSlice";
 import {
   clearQuizState,
   createQuiz,
   fetchInstructorQuizzes,
-} from "@/store/quizSlice";
+} from "@/store/slice/quizSlice";
 
 const QuizForm = () => {
   const dispatch = useDispatch<AppDispatch>();

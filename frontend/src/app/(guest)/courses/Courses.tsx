@@ -6,7 +6,7 @@ import CourseCard from "@/components/course/CourseCard";
 import CoursesFilter from "@/components/course/CoursesFilter";
 import { Pagination } from "@/components/ui/pagination";
 import LoadingScreen from "@/components/LoadingScreen";
-import { getAllCoursesApi } from "@/api/courses.api";
+import { getAllCoursesApi } from "@/store/api/courses.api";
 
 interface Props {
   initialCourses: any[];
@@ -49,7 +49,6 @@ const CoursesClient = ({
 
       try {
         const data = await getAllCoursesApi(params);
-        console.log(data.data.data);
         setCourses(data.data.data ?? []);
       } catch (err) {
         console.error("Fetch courses error:", err);

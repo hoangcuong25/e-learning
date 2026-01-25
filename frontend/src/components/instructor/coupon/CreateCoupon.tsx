@@ -16,9 +16,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { createCoupon, fetchInstructorCoupons } from "@/store/couponSlice";
-import { fetchSpecializationsByInstructorId } from "@/store/specializationSlice";
-import { fetchCoursesByInstructor } from "@/store/coursesSlice";
+import {
+  createCoupon,
+  fetchInstructorCoupons,
+} from "@/store/slice/couponSlice";
+import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
+import { fetchCoursesByInstructor } from "@/store/slice/coursesSlice";
 import { CouponFormData, couponSchema } from "@/hook/zod-schema/CoupondSchema";
 
 const CouponForm = () => {

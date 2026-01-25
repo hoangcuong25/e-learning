@@ -63,7 +63,7 @@ export class QuizService {
   }
 
   // ─── LẤY MỘT BẢN GHI ──────────────────────────────
-  async findOne(id: number) {
+  async findOne(id: number, userId: number) {
     const quiz = await this.prisma.quiz.findUnique({
       where: { id },
       include: {
@@ -71,7 +71,15 @@ export class QuizService {
           include: {
             chapter: {
               include: {
-                course: true,
+                course: {
+                  include: {
+                    instructor: true,
+                    enrollments: {
+                      where: { userId },
+                      select: { id: true },
+                    },
+                  },
+                },
               },
             },
           },
@@ -84,7 +92,19 @@ export class QuizService {
       },
     });
 
-    if (!quiz) throw new NotFoundException("Không tìm thấy bài kiểm tra");
+    if (!quiz) {
+      throw new NotFoundException("Không tìm thấy bài kiểm tra");
+    }
+
+    const course = quiz.lesson.chapter.course;
+
+    // Nếu là instructor của course → bỏ qua kiểm tra enrollments
+    if (course.instructorId !== userId) {
+      // Nếu không phải instructor thì phải có enrollment
+      if (course.enrollments.length === 0) {
+        throw new NotFoundException("Không có quyền truy cập");
+      }
+    }
 
     return {
       message: "Lấy thông tin bài kiểm tra thành công",

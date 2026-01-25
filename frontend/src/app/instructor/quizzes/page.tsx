@@ -30,8 +30,8 @@ import {
   deleteQuiz,
   fetchInstructorQuizzes,
   updateQuiz,
-} from "@/store/quizSlice";
-import { fetchCoursesByInstructor } from "@/store/coursesSlice";
+} from "@/store/slice/quizSlice";
+import { fetchCoursesByInstructor } from "@/store/slice/coursesSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import QuizForm from "@/components/quiz/CreateQuiz";
 import { useRouter } from "next/navigation";

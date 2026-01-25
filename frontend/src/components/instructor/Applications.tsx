@@ -10,7 +10,7 @@ import {
   approveInstructor,
   fetchAllApplications,
   rejectInstructor,
-} from "@/store/instructorSlice";
+} from "@/store/slice/instructorSlice";
 
 interface ApplicationsProps {
   applications: InstructorApplicationType[];

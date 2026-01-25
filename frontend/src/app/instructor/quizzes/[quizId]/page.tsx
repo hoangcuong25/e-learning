@@ -18,12 +18,12 @@ import { AppDispatch, RootState } from "@/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { fetchQuizById } from "@/store/quizSlice";
+import { fetchQuizById } from "@/store/slice/quizSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import { ArrowLeft } from "lucide-react";
 import CreateQuestion from "@/components/quiz/question/CreateQuestion";
 import EditQuestion from "@/components/quiz/question/EditQuestion";
-import { deleteQuestion } from "@/store/question.slice";
+import { deleteQuestion } from "@/store/slice/question.slice";
 import { toast } from "sonner";
 
 const QuizDetail = () => {

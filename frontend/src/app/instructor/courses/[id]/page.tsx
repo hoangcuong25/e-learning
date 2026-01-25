@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchCourseById } from "@/store/coursesSlice";
+import { fetchCourseById } from "@/store/slice/coursesSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +38,7 @@ const CourseDetailPage = () => {
     (state: RootState) => state.courses
   );
   const [selectedLesson, setSelectedLesson] = useState<LessonType | null>(null);
+  const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
 
   useEffect(() => {
     if (id) dispatch(fetchCourseById(Number(id)));
@@ -102,6 +103,24 @@ const CourseDetailPage = () => {
               <p className="text-sm text-gray-500 mt-1">
                 Mã khóa học: #{currentCourse.id}
               </p>
+              <div className="mt-4">
+                {Array.isArray(currentCourse?.specializations) &&
+                  currentCourse.specializations.length > 0 && (
+                    <div className="sm:col-span-2 lg:col-span-3">
+                      <p className="text-gray-800 mb-1">Chuyên ngành</p>
+                      <div className="flex flex-wrap gap-2">
+                        {currentCourse.specializations.map((sp: any) => (
+                          <span
+                            key={sp.specialization.id}
+                            className="px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded-full border border-blue-200"
+                          >
+                            {sp.specialization.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+              </div>
             </div>
           </div>
 
@@ -133,7 +152,7 @@ const CourseDetailPage = () => {
             <div>
               <p className="font-medium text-gray-800">Giá khóa học</p>
               <p className="text-sm text-gray-500">
-                {currentCourse.price.toLocaleString()}LearnCoin
+                {currentCourse.price.toLocaleString()} LearnCoin
               </p>
             </div>
           </div>
@@ -218,73 +237,118 @@ const CourseDetailPage = () => {
                       chapter.lessons.map((lesson) => (
                         <div
                           key={lesson.id}
-                          className="flex justify-between items-center border rounded-lg px-4 py-3 hover:bg-blue-50 transition"
+                          className="flex flex-col border rounded-lg px-4 py-3 hover:bg-blue-50 transition"
                         >
-                          {/* Thông tin bài học */}
-                          <div
-                            className="cursor-pointer"
-                            onClick={() =>
-                              router.push(
-                                `/instructor/courses/${currentCourse.id}/lesson/${lesson.id}`
-                              )
-                            }
-                          >
-                            <p className="font-medium text-gray-800">
-                              {lesson.orderIndex}. {lesson.title}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                              Cập nhật:{" "}
-                              {new Date(lesson.updatedAt).toLocaleDateString(
-                                "vi-VN"
-                              )}
-                            </p>
-                          </div>
-
-                          {/* Các nút hành động */}
-                          <div className="flex items-center gap-2">
-                            {/* Nút xem chi tiết */}
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                          {/* Hàng đầu: Thông tin & hành động */}
+                          <div className="flex justify-between items-center">
+                            {/* Thông tin bài học */}
+                            <div
+                              className="cursor-pointer"
                               onClick={() =>
                                 router.push(
                                   `/instructor/courses/${currentCourse.id}/lesson/${lesson.id}`
                                 )
                               }
                             >
-                              <BookOpen size={14} className="mr-1" />
-                              Chi tiết
-                            </Button>
+                              <p className="font-medium text-gray-800">
+                                {lesson.orderIndex}. {lesson.title}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                Cập nhật:{" "}
+                                {new Date(lesson.updatedAt).toLocaleDateString(
+                                  "vi-VN"
+                                )}
+                              </p>
+                            </div>
 
-                            {/* Nút xem video */}
-                            {lesson.videoUrl ? (
+                            {/* Các nút hành động */}
+                            <div className="flex items-center gap-2">
+                              {/* Nút xem chi tiết */}
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="text-green-600 border-green-600 hover:bg-green-50"
-                                onClick={() => setSelectedLesson(lesson)}
+                                className="text-blue-600 border-blue-600 hover:text-blue-700 hover:border-blue-600"
+                                onClick={() =>
+                                  router.push(
+                                    `/instructor/courses/${currentCourse.id}/lesson/${lesson.id}`
+                                  )
+                                }
                               >
-                                <Video size={14} className="mr-1" />
-                                Video
+                                <BookOpen size={14} className="mr-1" />
+                                Chi tiết
                               </Button>
-                            ) : (
-                              <span className="text-xs text-gray-400 italic">
-                                Không có video
-                              </span>
-                            )}
 
-                            {/* Sửa / Xóa */}
-                            <UpdateLesson
-                              lesson={lesson}
-                              courseId={currentCourse.id}
-                            />
-                            <DeleteLessonDialog
-                              lessonId={lesson.id}
-                              lessonTitle={lesson.title}
-                              courseId={currentCourse.id}
-                            />
+                              {/* Nút xem video */}
+                              {lesson.videoUrl ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-green-600 border-green-600 hover:border-green-700 hover:text-green-700"
+                                  onClick={() => setSelectedLesson(lesson)}
+                                >
+                                  <Video size={14} className="mr-1" />
+                                  Video
+                                </Button>
+                              ) : (
+                                <span className="text-xs text-gray-400 italic">
+                                  Không có video
+                                </span>
+                              )}
+
+                              {/* Sửa / Xóa */}
+                              <UpdateLesson
+                                lesson={lesson}
+                                courseId={currentCourse.id}
+                              />
+                              <DeleteLessonDialog
+                                lessonId={lesson.id}
+                                lessonTitle={lesson.title}
+                                courseId={currentCourse.id}
+                              />
+                            </div>
                           </div>
+
+                          {/* 🔹 Hiển thị quiz của bài học (nếu có) */}
+                          {lesson.quizzes && lesson.quizzes.length > 0 && (
+                            <div className="mt-3 ml-6 border-t border-gray-200 pt-2">
+                              <p className="text-sm font-semibold text-gray-700">
+                                Quiz:
+                              </p>
+                              <ul className="list-disc list-inside text-gray-600 text-sm space-y-2">
+                                {lesson.quizzes.map((quiz) => (
+                                  <li
+                                    key={quiz.id}
+                                    className="flex justify-between items-center bg-gray-50 border rounded-md px-3 py-2 hover:bg-blue-50 transition"
+                                  >
+                                    {/* Tên quiz có thể click để xem nhanh */}
+                                    <span
+                                      className="cursor-pointer hover:text-blue-600 transition font-medium"
+                                      onClick={() => setSelectedQuiz(quiz)}
+                                    >
+                                      {quiz.title}
+                                    </span>
+
+                                    {/* Nút mở chi tiết quiz */}
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="text-blue-600 border-blue-600 hover:text-blue-700 hover:border-blue-600"
+                                        onClick={() =>
+                                          router.push(
+                                            `/instructor/quizzes/${quiz.id}`
+                                          )
+                                        }
+                                      >
+                                        <BookOpen size={14} className="mr-1" />
+                                        Chi tiết
+                                      </Button>
+                                    </div>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
                       ))
                     ) : (
@@ -292,6 +356,78 @@ const CourseDetailPage = () => {
                         Chưa có bài học nào trong chương này.
                       </p>
                     )}
+
+                    {/* 🧩 Dialog hiển thị chi tiết quiz */}
+                    <Dialog
+                      open={!!selectedQuiz}
+                      onOpenChange={() => setSelectedQuiz(null)}
+                    >
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>{selectedQuiz?.title}</DialogTitle>
+                        </DialogHeader>
+
+                        <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+                          {selectedQuiz?.questions?.map(
+                            (q: any, qIndex: number) => (
+                              <div
+                                key={q.id}
+                                className="border rounded-lg p-3 bg-gray-50 shadow-sm"
+                              >
+                                <p className="font-medium text-gray-800 mb-1">
+                                  Câu {qIndex + 1}: {q.questionText}
+                                </p>
+                                <ul className="list-disc list-inside text-gray-600 text-sm ml-3">
+                                  {q.options?.map((opt: any) => (
+                                    <li
+                                      key={opt.id}
+                                      className={`${
+                                        opt.isCorrect
+                                          ? "text-green-600 font-medium"
+                                          : ""
+                                      }`}
+                                    >
+                                      {opt.text}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )
+                          )}
+
+                          {!selectedQuiz?.questions?.length && (
+                            <p className="text-gray-500 italic">
+                              Quiz này chưa có câu hỏi nào.
+                            </p>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
+                    {/* 🎬 Dialog xem video bài học */}
+                    <Dialog
+                      open={!!selectedLesson}
+                      onOpenChange={() => setSelectedLesson(null)}
+                    >
+                      <DialogContent className="max-w-3xl">
+                        <DialogHeader>
+                          <DialogTitle>{selectedLesson?.title}</DialogTitle>
+                        </DialogHeader>
+                        <div className="mt-2">
+                          {selectedLesson?.videoUrl ? (
+                            <video
+                              controls
+                              className="w-full rounded-lg"
+                              src={selectedLesson.videoUrl}
+                            />
+                          ) : (
+                            <p className="text-gray-500">
+                              Không có video cho bài học này.
+                            </p>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </CardContent>
                 </Card>
               ))}

@@ -5,10 +5,14 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "src/core/prisma/prisma.service";
+import { NotificationService } from "../notification/notification.service";
 
 @Injectable()
 export class EnrollmentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService
+  ) {}
 
   // ─── ĐĂNG KÝ KHÓA HỌC ──────────────────────────────
   async enrollCourse(courseId: number, userId: number, couponCode?: string) {
@@ -100,7 +104,7 @@ export class EnrollmentService {
     }
 
     // Trừ tiền, lưu lịch sử giao dịch + tạo bản ghi enrollment
-    return await this.prisma.$transaction(async (tx) => {
+    const newEnrollment = await this.prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: userId },
         data: { walletBalance: { decrement: finalPrice } },
@@ -134,6 +138,14 @@ export class EnrollmentService {
         },
       });
     });
+
+    await this.notificationService.createNotification({
+      userId: userId,
+      title: "Đăng ký khóa học thành công!",
+      body: `Bạn đã mua và đăng ký thành công khóa học **${course.title}** với giá ${finalPrice.toLocaleString()} VND.`,
+      type: "ENROLLMENT", // Dùng ENUM NotificationType đã định nghĩa
+      link: `/course/${courseId}`,
+    });
   }
 
   // ─── LẤY DANH SÁCH KHÓA HỌC CỦA TÔI ──────────────────────────────
@@ -142,23 +154,41 @@ export class EnrollmentService {
       where: { userId },
       include: {
         course: {
-          include: {
+          select: {
+            id: true,
+            title: true,
+            averageRating: true,
+            totalRating: true,
+            thumbnail: true,
+
             _count: {
               select: {
-                chapter: true, // Đếm số Chapter
+                chapter: true,
+                courseView: true,
               },
             },
+
             instructor: {
               select: { id: true, fullname: true, avatar: true },
             },
+
             specializations: {
               include: {
                 specialization: { select: { name: true } },
               },
             },
+
             chapter: {
-              include: {
-                lessons: true,
+              include: { lessons: true },
+            },
+
+            courseRating: {
+              where: { userId },
+              select: {
+                id: true,
+                rating: true,
+                userId: true,
+                createdAt: true,
               },
             },
           },
@@ -217,7 +247,97 @@ export class EnrollmentService {
     if (!enrollment || enrollment.userId !== userId)
       throw new ForbiddenException("Bạn không thể hủy đăng ký này");
 
-    // (Có thể mở rộng logic: chỉ cho hủy nếu khóa học miễn phí hoặc chưa bắt đầu)
     return this.prisma.enrollment.delete({ where: { id } });
+  }
+
+  async getCourseProgress(courseId: number, userId: number) {
+    const courseProgress = await this.prisma.enrollment.findFirst({
+      where: {
+        userId,
+        courseId,
+      },
+      select: {
+        progress: true,
+        completedAt: true,
+      },
+    });
+
+    return courseProgress;
+  }
+
+  async recalculateProgress(userId: number, courseId: number) {
+    // 1. Lấy tổng số bài học (Lesson) trong Khóa học này
+    const totalLessons = await this.prisma.lesson.count({
+      where: {
+        chapter: {
+          courseId: courseId, // Chỉ lấy lesson thuộc course này
+        },
+      },
+    });
+
+    if (totalLessons === 0) {
+      // Nếu không có bài học nào, tiến độ mặc định là 100%
+      await this.updateEnrollmentProgress(userId, courseId, 100, true);
+      return;
+    }
+
+    // 2. Đếm số bài học ĐÃ HOÀN THÀNH (LessonProgress)
+    const completedLessonsCount = await this.prisma.lessonProgress.count({
+      where: {
+        userId: userId,
+        courseId: courseId,
+        isCompleted: true,
+      },
+    });
+
+    // 3. Tính toán Tiến độ (%)
+    let progressPercentage = (completedLessonsCount / totalLessons) * 100;
+
+    // Làm tròn đến 2 chữ số thập phân
+    progressPercentage = parseFloat(progressPercentage.toFixed(2));
+
+    const isCompleted = progressPercentage >= 100;
+
+    // 4. Cập nhật bản ghi Enrollment
+    await this.updateEnrollmentProgress(
+      userId,
+      courseId,
+      progressPercentage,
+      isCompleted
+    );
+
+    return {
+      progress: progressPercentage,
+      completedCount: completedLessonsCount,
+    };
+  }
+
+  private async updateEnrollmentProgress(
+    userId: number,
+    courseId: number,
+    progress: number,
+    isCompleted: boolean
+  ) {
+    const dataToUpdate: any = {
+      progress: progress,
+    };
+
+    if (isCompleted) {
+      dataToUpdate.completedAt = new Date();
+    } else {
+      // Nếu không hoàn thành 100%, đảm bảo completedAt là null (nếu có)
+      dataToUpdate.completedAt = null;
+    }
+
+    return this.prisma.enrollment.update({
+      where: {
+        // Sử dụng unique index của Enrollment
+        userId_courseId: {
+          userId,
+          courseId,
+        },
+      },
+      data: dataToUpdate,
+    });
   }
 }

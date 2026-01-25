@@ -25,10 +25,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
-import { createCouponDiscountByAdmin } from "@/store/couponSlice";
-import { fetchAllSpecializations } from "@/store/specializationSlice";
+import { createCouponDiscountByAdmin } from "@/store/slice/couponSlice";
+import { fetchAllSpecializations } from "@/store/slice/specializationSlice";
 import { CouponFormData, couponSchema } from "@/hook/zod-schema/CoupondSchema";
-import { fetchDiscountById } from "@/store/discount.slice";
+import { fetchDiscountById } from "@/store/slice/discount.slice";
 
 export default function CouponCreateDialog({
   discount,

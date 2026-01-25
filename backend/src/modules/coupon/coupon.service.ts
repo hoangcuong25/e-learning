@@ -306,4 +306,98 @@ export class CouponService {
       },
     });
   }
+
+  async getCouponCourse(id: number) {
+    const course = await this.prisma.course.findFirst({
+      where: { id },
+      include: {
+        specializations: {
+          include: {
+            specialization: {
+              select: { id: true, name: true },
+            },
+          },
+        },
+        instructor: {
+          select: { id: true, fullname: true },
+        },
+      },
+    });
+
+    if (!course) throw new Error("Course not found");
+
+    const specializationIds = course.specializations.map(
+      (cs) => cs.specialization.id
+    );
+    const instructorId = course.instructor.id;
+    const now = new Date();
+
+    // Lấy những coupon có target phù hợp và còn hiệu lực
+    const couponsRaw = await this.prisma.coupon.findMany({
+      where: {
+        isActive: true,
+        AND: [
+          {
+            OR: [
+              { target: "ALL" },
+              {
+                target: "SPECIALIZATION",
+                specializationId: { in: specializationIds },
+              },
+              { target: "COURSE", courseId: id },
+            ],
+          },
+          {
+            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+          },
+        ],
+      },
+      include: {
+        createdBy: { select: { id: true, role: true } }, // cần biết ai tạo
+        specialization: { select: { id: true, name: true } },
+        course: { select: { id: true, title: true } },
+      },
+    });
+
+    // Filter phía app: admin mọi coupon hợp lệ; instructor chỉ coupon họ tạo (ứng với khóa này)
+    const coupons = couponsRaw.filter((coupon) => {
+      const creator = coupon.createdBy;
+      if (!creator) return false; // tránh lỗi nếu thiếu thông tin người tạo
+
+      //  Trường hợp Admin tạo coupon → luôn hợp lệ
+      if (creator.role === "ADMIN") return true;
+
+      //  Trường hợp Instructor tạo coupon
+      if (creator.role === "INSTRUCTOR") {
+        // phải chính instructor của khóa học này
+        const sameInstructor = creator.id === instructorId;
+        if (!sameInstructor) return false;
+
+        // check thêm theo target
+        switch (coupon.target) {
+          case "ALL":
+            // instructor tạo coupon cho tất cả khóa học → vẫn ok nếu chính họ tạo
+            return true;
+
+          case "SPECIALIZATION":
+            // coupon áp dụng cho specialization → hợp lệ nếu specialization đó nằm trong khóa học này
+            return (
+              coupon.specializationId &&
+              specializationIds.includes(coupon.specializationId)
+            );
+
+          case "COURSE":
+            // coupon áp dụng riêng cho khóa học → hợp lệ nếu là khóa này
+            return coupon.courseId === id;
+
+          default:
+            return false;
+        }
+      }
+
+      return false;
+    });
+
+    return { coupons };
+  }
 }

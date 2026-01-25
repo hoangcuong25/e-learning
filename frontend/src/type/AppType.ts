@@ -90,9 +90,13 @@ declare global {
     type: string;
     price: number;
     isPublished: boolean;
+    totalRating: number;
+    averageRating: number;
+    courseRating: any[];
 
     _count?: {
       chapter: number; // Số lượng Chapters
+      courseView: number;
     };
 
     instructorId: number;
@@ -102,6 +106,8 @@ declare global {
     specializations?: {
       specialization: SpecializationType;
     }[];
+
+    lessonProgresses: LessonProgressType[];
 
     createdAt: string;
     updatedAt: string;
@@ -260,5 +266,28 @@ declare global {
 
     createdAt?: string;
     updatedAt?: string;
+  };
+
+  type LessonProgressType = {
+    id: number;
+    userId: number;
+    lessonId: number;
+    courseId: number;
+
+    isCompleted: boolean;
+    completedAt?: string | null;
+
+    user?: Pick<UserType, "id" | "fullname" | "email" | "avatar">;
+    lesson?: Pick<LessonType, "id" | "title" | "orderIndex" | "courseId">;
+    course?: Pick<CourseType, "id" | "title" | "thumbnail">;
+
+    createdAt?: string;
+    updatedAt?: string;
+  };
+  type CartItemType = {
+    id: number;
+    courseId: number;
+    course: CourseType;
+    quantity?: number;
   };
 }

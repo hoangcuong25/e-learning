@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchAllSpecializations } from "@/store/specializationSlice";
+import { fetchAllSpecializations } from "@/store/slice/specializationSlice";
 
 interface Props {
   onSearch: (search: string) => void;

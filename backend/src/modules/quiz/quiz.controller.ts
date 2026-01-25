@@ -40,8 +40,8 @@ export class QuizController {
   @ApiOperation({ summary: "Get quiz by ID (include questions & options)" })
   @ResponseMessage("Get quiz by ID successfully")
   @ApiBearerAuth()
-  findOne(@Param("id") id: string) {
-    return this.quizService.findOne(+id);
+  findOne(@Param("id") id: string, @Req() req) {
+    return this.quizService.findOne(+id, req.user.id);
   }
 
   @Get("instructor/quizzes")
