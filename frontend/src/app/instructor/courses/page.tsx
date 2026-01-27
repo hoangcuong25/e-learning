@@ -24,6 +24,7 @@ import CourseCreate from "@/components/instructor/courses/CreateCourse";
 import DeleteCourseDialog from "@/components/instructor/courses/DeleteCourseDialog";
 import UpdateCourse from "@/components/instructor/courses/UpdateCourse";
 import CourseOnboarding from "@/components/instructor/onboarding/CoursesOnboarding";
+import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
 
 const InstructorCoursesPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -31,12 +32,21 @@ const InstructorCoursesPage = () => {
   const { instructorCourses, loading } = useSelector(
     (state: RootState) => state.courses
   );
+  const { user, loading: userLoading } = useSelector(
+    (state: RootState) => state.user
+  );
 
   useEffect(() => {
     dispatch(fetchCoursesByInstructor());
   }, [dispatch]);
 
-  if (loading) return <LoadingScreen />;
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchSpecializationsByInstructorId(Number(user.id)));
+    }
+  }, [dispatch, user]);
+
+  if (loading || userLoading) return <LoadingScreen />;
 
   return (
     <div className="p-6 space-y-6">
@@ -104,13 +114,13 @@ const InstructorCoursesPage = () => {
 
                     <span className="flex items-center gap-1">
                       <DollarSign className="w-4 h-4" />
-                      {course.price} LearnCoin
+                      {course.price.toLocaleString()} LearnCoin
                     </span>
                   </div>
 
                   {/* Trạng thái */}
                   <Badge
-                    variant={course.isPublished ? "default" : "secondary"}
+                    variant={course.isPublished ? "success" : "secondary"}
                     className="capitalize"
                   >
                     {course.isPublished ? "Đã xuất bản" : "Bản nháp"}

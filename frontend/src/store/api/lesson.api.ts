@@ -13,22 +13,14 @@ export const getLessonByIdApi = async (id: number) => {
 };
 
 // 🧩 3. Tạo bài học mới
-export const createLessonApi = async (payload: FormData) => {
-  const response = await axiosClient.post(`/lesson`, payload, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+export const createLessonApi = async (payload: any) => {
+  const response = await axiosClient.post(`/lesson`, payload);
   return response.data;
 };
 
 // 🧩 4. Cập nhật bài học
 export const updateLessonApi = async (id: number, payload: any) => {
-  const response = await axiosClient.patch(`/lesson/${id}`, payload, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const response = await axiosClient.patch(`/lesson/${id}`, payload);
   return response.data;
 };
 

@@ -35,16 +35,11 @@ export const SocketAuthMiddleware = (
     } catch (error) {
       // Kiểm tra lỗi Token hết hạn
       if (error instanceof TokenExpiredError) {
-        console.error("WebSocket Authentication Failed: Token Expired");
         // Trả về WsException với một thông báo lỗi cụ thể
         return next(new WsException("TokenExpired"));
       }
 
       // Các lỗi xác thực khác (token không hợp lệ, sai chữ ký,...)
-      console.error(
-        "WebSocket Authentication Failed: Invalid token",
-        error.message
-      );
       return next(new WsException("Unauthorized - Invalid token"));
     }
   };

@@ -29,34 +29,25 @@ export class LessonController {
 
   @Post()
   @Roles("INSTRUCTOR")
-  @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "Instructor create a new lesson" })
   @ResponseMessage("Lesson created successfully")
-  @UseInterceptors(FileInterceptor("video"))
   @ApiBearerAuth()
-  create(
-    @Body() dto: CreateLessonDto,
-    @Req() req: any,
-    @UploadedFile() video?: Express.Multer.File
-  ) {
+  create(@Body() dto: CreateLessonDto, @Req() req: any) {
     const instructorId = req.user?.id;
-    return this.lessonService.create(dto, instructorId, video);
+    return this.lessonService.create(dto, instructorId);
   }
 
   @Patch(":id")
   @Roles("INSTRUCTOR")
-  @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "Update lesson by ID" })
   @ResponseMessage("Lesson updated successfully")
-  @UseInterceptors(FileInterceptor("video"))
   @ApiBearerAuth()
   update(
     @Param("id") id: string,
     @Body() dto: UpdateLessonDto,
-    @Req() req: any,
-    @UploadedFile() video?: Express.Multer.File
+    @Req() req: any
   ) {
-    return this.lessonService.update(+id, dto, req.user.id, video);
+    return this.lessonService.update(+id, dto, req.user.id);
   }
 
   @Get()

@@ -23,22 +23,6 @@ const steps = [
   },
 ];
 
-function AutoStartTour() {
-  const { setIsOpen } = useTour();
-
-  useEffect(() => {
-    // const hasSeenTour = localStorage.getItem("hasSeenCourseTour");
-    // if (!hasSeenTour) {
-    //   setIsOpen(true);
-    //   localStorage.setItem("hasSeenCourseTour", "true");
-    // }
-
-    setIsOpen(true);
-  }, [setIsOpen]);
-
-  return null;
-}
-
 function RestartTourButton() {
   const { setIsOpen } = useTour();
   return (
@@ -57,7 +41,6 @@ function RestartTourButton() {
 export default function QuizOnboarding() {
   return (
     <TourProvider steps={steps}>
-      <AutoStartTour />
       <RestartTourButton />
     </TourProvider>
   );

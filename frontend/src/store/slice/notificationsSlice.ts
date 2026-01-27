@@ -8,27 +8,14 @@ import {
   FindNotificationsParams,
 } from "@/store/api/notifications.api";
 
-// 🧱 Types (Bạn có thể tách ra file types riêng nếu cần)
-export interface NotificationType {
-  id: number;
-  title: string;
-  message: string;
-  isRead: boolean;
-  createdAt: string;
-  userId: number;
-  // thêm các field khác tùy vào model Prisma của bạn
-}
-
 // 🧱 State
 interface NotificationState {
   notifications: NotificationType[];
   unreadCount: number;
-  meta: {
-    total: number;
-    page: number;
-    lastPage: number;
-  } | null;
+  nextCursor: string | null; // Cursor cho lần fetch tiếp theo
+  hasMore: boolean; // Còn data để load không
   loading: boolean;
+  loadingMore: boolean; // Loading khi scroll thêm
   error: string | null;
   successMessage: string | null;
 }
@@ -36,13 +23,15 @@ interface NotificationState {
 const initialState: NotificationState = {
   notifications: [],
   unreadCount: 0,
-  meta: null,
+  nextCursor: null,
+  hasMore: false,
   loading: false,
+  loadingMore: false,
   error: null,
   successMessage: null,
 };
 
-// 🧾 Lấy danh sách thông báo
+// 🧾 Lấy danh sách thông báo (lần đầu hoặc refresh)
 export const fetchNotifications = createAsyncThunk(
   "notifications/fetchAll",
   async (params: FindNotificationsParams | undefined, { rejectWithValue }) => {
@@ -51,6 +40,19 @@ export const fetchNotifications = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi tải thông báo");
+    }
+  }
+);
+
+// 📜 Load thêm thông báo (infinite scroll)
+export const loadMoreNotifications = createAsyncThunk(
+  "notifications/loadMore",
+  async (params: FindNotificationsParams | undefined, { rejectWithValue }) => {
+    try {
+      const response = await getNotificationsApi(params);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Lỗi tải thêm thông báo");
     }
   }
 );
@@ -89,7 +91,7 @@ export const markAsRead = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await markAsReadApi(id);
-      return { ...response, id }; 
+      return { ...response, id };
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi xử lý thông báo");
     }
@@ -126,7 +128,7 @@ const notificationsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // 🧾 Fetch All
+      // 🧾 Fetch All (lần đầu)
       .addCase(fetchNotifications.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -134,11 +136,34 @@ const notificationsSlice = createSlice({
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         state.loading = false;
         state.notifications = action.payload.data.data || [];
+        state.nextCursor = action.payload.data.nextCursor || null;
+        state.hasMore = action.payload.data.hasMore || false;
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading = false;
         state.error =
           (action.payload as any)?.message || "Lỗi tải danh sách thông báo";
+      })
+
+      // 📜 Load More (infinite scroll)
+      .addCase(loadMoreNotifications.pending, (state) => {
+        state.loadingMore = true;
+        state.error = null;
+      })
+      .addCase(loadMoreNotifications.fulfilled, (state, action) => {
+        state.loadingMore = false;
+        // Append thêm data vào cuối danh sách
+        state.notifications = [
+          ...state.notifications,
+          ...(action.payload.data.data || []),
+        ];
+        state.nextCursor = action.payload.data.nextCursor || null;
+        state.hasMore = action.payload.data.hasMore || false;
+      })
+      .addCase(loadMoreNotifications.rejected, (state, action) => {
+        state.loadingMore = false;
+        state.error =
+          (action.payload as any)?.message || "Lỗi tải thêm thông báo";
       })
 
       // 🔢 Unread Count

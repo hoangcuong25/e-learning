@@ -56,31 +56,13 @@ export const getCourseDetailWithAuthApi = async (id: number) => {
   return response.data;
 };
 
-// 🧩 9. Rate a course
-export const rateCourseApi = async (
-  courseId: number,
-  rating: number,
-  text: string
-) => {
-  const response = await axiosClient.post(`/course/${courseId}/rating`, {
-    rating,
-    text,
-  });
-  return response.data;
-};
-
 // 🧩 10. Increase course view
 export const increaseCourseViewApi = async (courseId: number) => {
   const response = await axiosClient.post(`/course/${courseId}/view`);
   return response.data;
 };
 
-export const getRatingsByCourseApi = async (
-  courseId: number,
-  params: PaginationParams 
-) => {
-  const response = await axiosClient.get(`/course/${courseId}/ratings`, {
-    params,
-  });
+export const getPopularCoursesApi = async () => {
+  const response = await axiosClient.get("/course/popular");
   return response.data;
 };

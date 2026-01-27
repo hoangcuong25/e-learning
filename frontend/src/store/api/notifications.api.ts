@@ -1,12 +1,12 @@
 import axiosClient from "@/lib/axiosClient";
 
 export interface FindNotificationsParams {
-  page?: number;
+  cursor?: string; // ISO timestamp của notification cuối cùng
   limit?: number;
   isRead?: boolean;
 }
 
-// 🧩 1. Lấy danh sách thông báo (có phân trang + filter)
+// 🧩 1. Lấy danh sách thông báo (cursor-based pagination + filter)
 export const getNotificationsApi = async (params?: FindNotificationsParams) => {
   const response = await axiosClient.get("/notifications", { params });
   return response.data;

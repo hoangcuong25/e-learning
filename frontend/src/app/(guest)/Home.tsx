@@ -7,13 +7,15 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 
 import banner from "@public/elearning-banner.png";
+import CourseCard from "@/components/course/CourseCard";
+import CourseSlider from "@/components/course/CourseSlider";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 50 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
-const Home = () => {
+const Home = ({ popularCourses }: { popularCourses: CourseType[] }) => {
   return (
     <div className="space-y-16 my-4">
       {/* Hero Section */}
@@ -61,49 +63,30 @@ const Home = () => {
       </motion.section>
 
       {/* Featured Courses */}
-      <section className="mx-auto  pb-4">
+      <section className="mx-auto pb-4">
         <h2 className="text-2xl font-bold mb-8 text-gray-800">
           Khóa học nổi bật
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1, 2, 3].map((course) => (
-            <motion.div
-              key={course}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              whileHover={{ scale: 1.03 }}
-              className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden cursor-pointer"
-            >
-              <Image
-                src={banner}
-                alt={`Course ${course}`}
-                width={400}
-                height={250}
-                className="w-full h-56 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold">
-                  Khóa học Lập trình Web {course}
-                </h3>
-                <p className="text-gray-500 text-sm">
-                  Giảng viên: Nguyễn Văn A
-                </p>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-blue-600 font-bold">499.000đ</span>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-                  >
-                    <Link href={`/course/${course}`}>Xem chi tiết</Link>
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+
+        {popularCourses.length === 0 ? (
+          <p className="text-gray-500">Hiện chưa có khóa học nổi bật nào.</p>
+        ) : (
+          <CourseSlider>
+            {popularCourses.map((course) => (
+              <motion.div
+                key={course.id}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                whileHover={{ scale: 1.03 }}
+                className="w-full"
+              >
+                <CourseCard course={course} />
+              </motion.div>
+            ))}
+          </CourseSlider>
+        )}
       </section>
 
       {/* Features */}

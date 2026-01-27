@@ -22,7 +22,6 @@ import {
   updateCourse,
   fetchCoursesByInstructor,
 } from "@/store/slice/coursesSlice";
-import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import RichTextEditor from "@/components/RichTextEditor";
 
@@ -41,9 +40,6 @@ interface CourseFormData {
 
 export default function UpdateCourse({ course }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const { user, loading: userLoading } = useSelector(
-    (state: RootState) => state.user
-  );
   const { instructorSpecializaions, loading: specializationLoading } =
     useSelector((state: RootState) => state.specialization);
 
@@ -59,7 +55,9 @@ export default function UpdateCourse({ course }: Props) {
   const [courseType, setCourseType] = useState<"FREE" | "PAID">(
     course.type || "FREE"
   );
-  const [selectPublic, setSelectPublic] = useState(course.isPublished || false);
+  const [selectPublic, setSelectPublic] = useState(
+    (course.isPublished || false).toString()
+  );
 
   const {
     register,
@@ -77,12 +75,6 @@ export default function UpdateCourse({ course }: Props) {
         course.specializations?.map((s: any) => s.specializationId) || [],
     },
   });
-
-  useEffect(() => {
-    if (user) {
-      dispatch(fetchSpecializationsByInstructorId(Number(user.id)));
-    }
-  }, [dispatch, user]);
 
   const toggleSelect = (id: number) => {
     const updated = selectedSpecs.includes(id)
@@ -133,7 +125,7 @@ export default function UpdateCourse({ course }: Props) {
       formData.append("title", data.title);
       formData.append("description", data.description);
       formData.append("type", courseType);
-      formData.append("isPublished", String(selectPublic ?? false));
+      formData.append("isPublished", selectPublic);
       formData.append(
         "price",
         courseType === "PAID" ? data.price?.toString() ?? "0" : "0"
@@ -157,7 +149,7 @@ export default function UpdateCourse({ course }: Props) {
     }
   };
 
-  if (userLoading || specializationLoading) return <LoadingScreen />;
+  if (specializationLoading) return <LoadingScreen />;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -237,18 +229,16 @@ export default function UpdateCourse({ course }: Props) {
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="radio"
-                  value="true"
-                  checked={selectPublic === true}
-                  onChange={() => setSelectPublic(true)}
+                  checked={selectPublic === "true"}
+                  onChange={() => setSelectPublic("true")}
                 />
                 Công khai
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="radio"
-                  value="false"
-                  checked={selectPublic === false}
-                  onChange={() => setSelectPublic(false)}
+                  checked={selectPublic === "false"}
+                  onChange={() => setSelectPublic("false")}
                 />
                 Bản nháp
               </label>
@@ -374,7 +364,11 @@ export default function UpdateCourse({ course }: Props) {
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Đang lưu..." : "Cập nhật"}
             </Button>
           </DialogFooter>

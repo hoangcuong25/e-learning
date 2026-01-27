@@ -20,6 +20,10 @@ export class NotificationService {
       where: { id: notification.userId },
     });
 
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
     this.notificationGateway.sendNotificationToUser(user.email, notification);
 
     return notification;
@@ -27,11 +31,10 @@ export class NotificationService {
 
   async findAllForUser(
     userId: number,
-    page: number = 1,
+    cursor?: string,
     limit: number = 10,
     isRead?: boolean
   ) {
-    const skip = (page - 1) * limit;
     const where: Prisma.NotificationWhereInput = {
       userId,
     };
@@ -40,22 +43,30 @@ export class NotificationService {
       where.isRead = isRead;
     }
 
-    const [notifications, total] = await Promise.all([
-      this.prisma.notification.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: "desc" },
-      }),
-      this.prisma.notification.count({ where }),
-    ]);
+    if (cursor) {
+      where.createdAt = {
+        lt: new Date(cursor),
+      };
+    }
+
+    const notifications = await this.prisma.notification.findMany({
+      where,
+      take: limit + 1,
+      orderBy: { createdAt: "desc" },
+    });
+
+    const hasMore = notifications.length > limit;
+
+    const data = hasMore ? notifications.slice(0, limit) : notifications;
+
+    const nextCursor =
+      data.length > 0 ? data[data.length - 1].createdAt.toISOString() : null;
 
     return {
-      data: notifications,
-      total,
-      page,
+      data,
+      nextCursor,
+      hasMore,
       limit,
-      totalPages: Math.ceil(total / limit),
     };
   }
 

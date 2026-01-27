@@ -15,22 +15,9 @@ import {
   Home,
   Tag,
 } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
-import { logoutUser, fetchUser } from "@/store/slice/userSlice";
-import { toast } from "sonner";
 
 const SidebarAdmin = () => {
   const pathname = usePathname();
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    dispatch(logoutUser());
-
-    router.push("/login");
-    toast.success("Đăng xuất thành công");
-  };
 
   const navItems = [
     { href: "/admin/dashboard", label: "Trang chủ", icon: Home },
@@ -48,7 +35,6 @@ const SidebarAdmin = () => {
     },
     { href: "/admin/revenue", label: "Doanh thu", icon: DollarSign },
     { href: "/admin/reports", label: "Báo cáo thống kê", icon: BarChart3 },
-    { href: "/admin/settings", label: "Cài đặt hệ thống", icon: Settings },
   ];
 
   return (
@@ -78,18 +64,6 @@ const SidebarAdmin = () => {
           );
         })}
       </nav>
-
-      {/* Logout Button */}
-      <div className="mt-auto pt-10 border-t border-blue-400">
-        <Button
-          variant="outline"
-          className="w-full text-blue-700 bg-white hover:bg-blue-50 font-medium flex items-center justify-center gap-2"
-          onClick={handleLogout}
-        >
-          <LogOut className="w-4 h-4" />
-          Đăng xuất
-        </Button>
-      </div>
     </aside>
   );
 };

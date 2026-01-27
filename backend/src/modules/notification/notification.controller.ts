@@ -20,13 +20,15 @@ export class NotificationController {
 
   @Get()
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Get all notifications with pagination and filter" })
+  @ApiOperation({
+    summary: "Get all notifications with cursor-based pagination and filter",
+  })
   @ResponseMessage("Get all notifications")
   findAll(@Req() req, @Query() query: FindNotificationsQueryDto) {
-    const { page, limit, isRead } = query;
+    const { cursor, limit, isRead } = query;
     return this.notificationService.findAllForUser(
       req.user.id,
-      page,
+      cursor,
       limit,
       isRead
     );

@@ -11,20 +11,6 @@ const steps = [
   { selector: ".step-courses", content: "Các khóa học mới tạo gần đây." },
 ];
 
-function AutoStartTour() {
-  const { setIsOpen } = useTour();
-
-  useEffect(() => {
-    // const hasSeenTour = localStorage.getItem("hasSeenDashboardTour");
-    // if (!hasSeenTour) {
-    //   setIsOpen(true);
-    //   localStorage.setItem("hasSeenDashboardTour", "true");
-    // }
-    setIsOpen(true);
-  }, [setIsOpen]);
-
-  return null;
-}
 
 function RestartTourButton() {
   const { setIsOpen } = useTour();
@@ -44,7 +30,6 @@ function RestartTourButton() {
 export default function DashboardOnboarding() {
   return (
     <TourProvider steps={steps}>
-      <AutoStartTour />
       <RestartTourButton />
     </TourProvider>
   );

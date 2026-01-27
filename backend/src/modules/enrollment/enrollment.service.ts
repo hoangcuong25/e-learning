@@ -143,13 +143,13 @@ export class EnrollmentService {
       userId: userId,
       title: "Đăng ký khóa học thành công!",
       body: `Bạn đã mua và đăng ký thành công khóa học **${course.title}** với giá ${finalPrice.toLocaleString()} VND.`,
-      type: "ENROLLMENT", // Dùng ENUM NotificationType đã định nghĩa
-      link: `/course/${courseId}`,
+      type: "ENROLLMENT", 
+      link: `/learn/${courseId}`,
     });
   }
 
   // ─── LẤY DANH SÁCH KHÓA HỌC CỦA TÔI ──────────────────────────────
-  async getMyEnrollments(userId: number) {
+  async getMyEnrollments(userId: number) {  
     return this.prisma.enrollment.findMany({
       where: { userId },
       include: {

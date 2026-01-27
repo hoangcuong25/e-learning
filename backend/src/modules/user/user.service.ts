@@ -111,7 +111,6 @@ export class UserService {
 
       return { id: savedUser.id };
     } catch (error) {
-      console.log(error);
       throw new BadRequestException("Lỗi máy chủ nội bộ");
     }
   }

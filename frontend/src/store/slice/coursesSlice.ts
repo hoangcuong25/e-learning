@@ -8,15 +8,15 @@ import {
   getCoursesByInstructorApi,
   getCourseDetailApi,
   getCourseDetailWithAuthApi,
-  getRatingsByCourseApi,
+  getPopularCoursesApi,
 } from "@/store/api/courses.api";
 
 // 🧱 State
 interface CourseState {
   courses: CourseType[];
   currentCourse: CourseType | null;
-  courseRatings: any | null;
   instructorCourses: CourseType[];
+  popularCourses: CourseType[];
   loading: boolean;
   error: string | null;
   successMessage: string | null;
@@ -25,8 +25,8 @@ interface CourseState {
 const initialState: CourseState = {
   courses: [],
   currentCourse: null,
-  courseRatings: null,
   instructorCourses: [],
+  popularCourses: [],
   loading: false,
   error: null,
   successMessage: null,
@@ -108,21 +108,15 @@ export const deleteCourse = createAsyncThunk(
   }
 );
 
-export const fetchCourseRatings = createAsyncThunk(
-  "course/fetchRatings",
-  async (
-    data: { courseId: number; params?: PaginationParams },
-    { rejectWithValue }
-  ) => {
+export const fetchPopularCourses = createAsyncThunk(
+  "course/fetchPopular",
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await getRatingsByCourseApi(
-        data.courseId,
-        data.params || {}
-      );
-      return response;
+      const response = await getPopularCoursesApi();
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data || "Lỗi khi tải danh sách đánh giá"
+        error.response?.data || "Lỗi khi tải danh sách khóa học phổ biến"
       );
     }
   }
@@ -136,10 +130,6 @@ const coursesSlice = createSlice({
     clearCourseState: (state) => {
       state.error = null;
       state.successMessage = null;
-    },
-
-    clearCourseRatings: (state) => {
-      state.courseRatings = null;
     },
   },
   extraReducers: (builder) => {
@@ -263,21 +253,20 @@ const coursesSlice = createSlice({
         state.error = action.error.message ?? "Lỗi khi xóa khóa học";
       })
 
-      .addCase(fetchCourseRatings.pending, (state) => {
+      .addCase(fetchPopularCourses.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchCourseRatings.fulfilled, (state, action) => {
+      .addCase(fetchPopularCourses.fulfilled, (state, action) => {
         state.loading = false;
-        state.courseRatings = action.payload.data.data;
+        state.popularCourses = action.payload || [];
       })
-      .addCase(fetchCourseRatings.rejected, (state, action) => {
+      .addCase(fetchPopularCourses.rejected, (state, action) => {
         state.loading = false;
         state.error =
           (action.payload as string) ??
           action.error.message ??
-          "Lỗi khi tải đánh giá khóa học";
-        state.courseRatings = null;
+          "Lỗi khi tải khóa học phổ biến";
       });
   },
 });

@@ -4,10 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import {
-  fetchCourseDetailWithAuth,
-  fetchCourseRatings,
-} from "@/store/slice/coursesSlice";
+import { fetchCourseDetailWithAuth } from "@/store/slice/coursesSlice";
+import { fetchCourseRatings } from "@/store/slice/courseRatingSlice";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -79,7 +77,7 @@ const Learn = () => {
 
   const lessons =
     currentCourse?.chapter?.flatMap((ch) =>
-      (ch?.lessons ?? []).map((l) => ({
+      (ch?.lessons ?? [])?.map((l) => ({
         ...l,
         chapter: ch,
       }))
@@ -89,7 +87,7 @@ const Learn = () => {
   const currentIndex = lessons.findIndex((l) => l?.id === currentLesson?.id);
 
   const completedLessonIds =
-    currentCourse?.lessonProgresses.map((cl) => cl.lessonId) || [];
+    currentCourse?.lessonProgresses?.map((cl) => cl.lessonId) || [];
 
   useEffect(() => {
     if (lessons.length > 0 && !currentLesson) {
@@ -222,15 +220,6 @@ const Learn = () => {
               </div>
             </div>
 
-            {/* Tabs */}
-            <LessonContentTabs
-              currentLesson={currentLesson}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              totalRating={currentCourse?.totalRating}
-              averageRating={currentCourse?.averageRating}
-            />
-
             {/* Quiz */}
             <div
               id="quiz-section"
@@ -245,7 +234,7 @@ const Learn = () => {
 
               {currentLesson?.quizzes?.length ? (
                 <div className="space-y-4">
-                  {currentLesson.quizzes.map((quiz: any, index: number) => (
+                  {currentLesson?.quizzes?.map((quiz: any, index: number) => (
                     <div
                       key={quiz.id}
                       className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 hover:bg-gray-100 hover:border-blue-200 transition cursor-pointer"
@@ -274,6 +263,15 @@ const Learn = () => {
                 </p>
               )}
             </div>
+
+            {/* Tabs */}
+            <LessonContentTabs
+              currentLesson={currentLesson}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              totalRating={currentCourse?.totalRating}
+              averageRating={currentCourse?.averageRating}
+            />
           </div>
         </div>
       </main>

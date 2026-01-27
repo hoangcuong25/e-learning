@@ -8,9 +8,14 @@ import { PrismaService } from "src/core/prisma/prisma.service";
 import { CreateDepositDto } from "./dto/create-payment.dto";
 import { TransactionType } from "@prisma/client";
 
+import { PaymentGateway } from "./payment.gateway";
+
 @Injectable()
 export class PaymentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private paymentGateway: PaymentGateway
+  ) {}
 
   // Tạo mã QR Sepay (chỉ hiển thị cho người dùng để chuyển tiền)
   private async generateQRCode(amount: number, content: string) {
@@ -71,6 +76,7 @@ export class PaymentService {
 
     // Nếu chưa có pending, tạo content mới
     const content = `ElearningUID${userId}${Date.now()}`;
+    console.log(content);
 
     // Tạo QR code để user quét chuyển khoản
     const qrData = await this.generateQRCode(amount, content);
@@ -100,6 +106,7 @@ export class PaymentService {
 
   //  2) Xử lý Webhook từ Sepay
   async handleSepayWebhook(payload: any) {
+    console.log("Received webhook payload:", payload);
     // Trích xuất dữ liệu gốc từ webhook
     const { transferAmount: amount, content, referenceCode } = payload;
     if (!content) return "Missing description";
@@ -107,7 +114,6 @@ export class PaymentService {
     const extractedContent = this.extractContent(content);
 
     if (!extractedContent) {
-      console.warn("Không thể extract content từ webhook:", content);
       return "Invalid content format";
     }
 
@@ -117,7 +123,6 @@ export class PaymentService {
     });
 
     if (!payment) {
-      console.warn("Payment not found for content:", extractedContent);
       return "Payment not found";
     }
 
@@ -149,6 +154,21 @@ export class PaymentService {
         data: { walletBalance: { increment: amount } },
       }),
     ]);
+
+    // Lấy thông tin user để gửi socket
+    const user = await this.prisma.user.findUnique({
+      where: { id: payment.userId },
+      select: { email: true },
+    });
+
+    if (user && user.email) {
+      this.paymentGateway.sendPaymentSuccess(user.email, {
+        status: "success",
+        amount,
+        content: extractedContent,
+        transactionId: payment.id,
+      });
+    }
 
     return "OK";
   }

@@ -31,7 +31,6 @@ export class NotificationGateway implements OnGatewayConnection {
    */
   afterInit(server: Server) {
     server.use(SocketAuthMiddleware(this.jwtService));
-    console.log("Notification Gateway Initialized with Auth Middleware");
   }
 
   /**
@@ -42,24 +41,18 @@ export class NotificationGateway implements OnGatewayConnection {
     if (!client.user || !client.user.email) {
       // Trường hợp này chỉ xảy ra nếu Middleware gặp lỗi không ném exception
       client.disconnect(true);
-      console.log(
-        `Client ${client.id} failed authentication or user info retrieval.`
-      );
       return;
     }
 
-    console.log(client.user);
     const email = client.user.email.toString(); // Lấy email đã được gắn từ Middleware
 
-    client.join(email);
-
-    console.log(`Client ${client.id} connected & joined room: ${email}`);
+    client.join(`notification-${email}`);
   }
 
   /**
    * Hàm này được gọi bởi NotificationService để đẩy thông báo
    */
   sendNotificationToUser(email: string, payload: Notification) {
-    this.server.to(email).emit("newNotification", payload);
+    this.server.to(`notification-${email}`).emit("newNotification", payload);
   }
 }

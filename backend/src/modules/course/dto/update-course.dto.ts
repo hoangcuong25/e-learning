@@ -6,7 +6,7 @@ import {
   IsNumber,
   MinLength,
 } from "class-validator";
-import { Type } from "class-transformer";
+import { Type, Transform } from "class-transformer";
 import { CourseType } from "@prisma/client";
 
 export class UpdateCourseDto {
@@ -38,10 +38,10 @@ export class UpdateCourseDto {
   @IsNumber()
   price?: number;
 
-  @ApiPropertyOptional({ example: false, description: "Publish status" })
+  @ApiPropertyOptional({ example: "true", description: "Publish status" })
   @IsOptional()
-  @IsBoolean()
-  isPublished?: boolean;
+  @IsString()
+  isPublished?: string;
 
   @ApiPropertyOptional({
     example: [1, 2],

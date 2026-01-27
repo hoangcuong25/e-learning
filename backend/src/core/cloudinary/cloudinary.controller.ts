@@ -1,7 +1,8 @@
-// app.controller.ts
 import {
   Controller,
+  Get,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
@@ -24,5 +25,10 @@ export class CloudinaryController {
   @UseInterceptors(FileInterceptor("video"))
   uploadLargeVideo(@UploadedFile() file: Express.Multer.File) {
     return this.cloudinaryService.uploadLargeVideo(file);
+  }
+
+  @Get("signature")
+  getSignature(@Query("folder") folder: string = "videos") {
+    return this.cloudinaryService.getSignature(folder);
   }
 }

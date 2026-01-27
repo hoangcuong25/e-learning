@@ -34,8 +34,15 @@ export const metadata = {
   metadataBase: new URL("https://edusmart.vn"), // Đặt domain của bạn ở đây
 };
 
-const Page = () => {
-  return <Home />;
-};
+export default async function Page() {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}course/popular`,
+    {
+      next: { revalidate: 60 },
+    }
+  );
 
-export default Page;
+  const popularCourses = await res.json();
+
+  return <Home popularCourses={popularCourses.data} />;
+}

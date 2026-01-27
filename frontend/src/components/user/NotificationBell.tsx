@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Bell, Trash2, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   deleteNotification,
   fetchNotifications,
+  loadMoreNotifications,
   markAllAsRead,
   markAsRead,
 } from "@/store/slice/notificationsSlice";
@@ -16,18 +18,27 @@ import {
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const dispatch = useDispatch<AppDispatch>();
-  const { notifications, unreadCount, loading } = useSelector(
-    (state: RootState) => state.notification
-  );
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    loadingMore,
+    nextCursor,
+    hasMore,
+  } = useSelector((state: RootState) => state.notification);
 
   const toggleDropdown = () => {
     const newState = !isOpen;
     setIsOpen(newState);
 
     if (newState) {
-      dispatch(fetchNotifications({ page: 1, limit: 10 }));
+      // Load lần đầu khi mở dropdown
+      dispatch(fetchNotifications({ limit: 10 }));
     }
   };
 
@@ -45,10 +56,51 @@ const NotificationBell = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Load more notifications khi scroll đến cuối
+  const handleLoadMore = useCallback(() => {
+    if (hasMore && !loadingMore && nextCursor) {
+      dispatch(
+        loadMoreNotifications({
+          cursor: nextCursor,
+          limit: 10,
+        })
+      );
+    }
+  }, [hasMore, loadingMore, nextCursor, dispatch]);
+
+  // Intersection Observer để detect khi scroll đến cuối
+  useEffect(() => {
+    if (!isOpen || !loadMoreTriggerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          handleLoadMore();
+        }
+      },
+      {
+        root: scrollContainerRef.current,
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(loadMoreTriggerRef.current);
+
+    return () => observer.disconnect();
+  }, [isOpen, handleLoadMore]);
+
   // Xử lý đọc tin
-  const handleRead = (id: number, isRead: boolean) => {
+  const handleClickNotification = (
+    id: number,
+    isRead: boolean,
+    link?: string
+  ) => {
     if (!isRead) {
       dispatch(markAsRead(id));
+    }
+    if (link) {
+      router.push(link);
+      setIsOpen(false);
     }
   };
 
@@ -112,7 +164,10 @@ const NotificationBell = () => {
             </div>
 
             {/* List Notifications */}
-            <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+            <div
+              ref={scrollContainerRef}
+              className="max-h-[400px] overflow-y-auto custom-scrollbar"
+            >
               {loading && notifications.length === 0 ? (
                 <div className="p-4 text-center text-gray-500 text-sm">
                   Đang tải...
@@ -122,7 +177,9 @@ const NotificationBell = () => {
                   {notifications.map((item) => (
                     <div
                       key={item.id}
-                      onClick={() => handleRead(item.id, item.isRead)}
+                      onClick={() =>
+                        handleClickNotification(item.id, item.isRead, item.link)
+                      }
                       className={`relative flex gap-3 p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-50 transition-colors group ${
                         !item.isRead ? "bg-blue-50/60" : "bg-white"
                       }`}
@@ -174,6 +231,19 @@ const NotificationBell = () => {
                       </button>
                     </div>
                   ))}
+
+                  {/* Load More Trigger - Invisible element để trigger Intersection Observer */}
+                  {hasMore && <div ref={loadMoreTriggerRef} className="h-1" />}
+
+                  {/* Loading More Indicator */}
+                  {loadingMore && (
+                    <div className="p-4 text-center text-gray-500 text-sm">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                        <span>Đang tải thêm...</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 px-4 text-gray-500">
@@ -181,17 +251,6 @@ const NotificationBell = () => {
                   <p className="text-sm">Bạn chưa có thông báo nào</p>
                 </div>
               )}
-            </div>
-
-            {/* Footer */}
-            <div className="p-2 border-t border-gray-100 bg-gray-50 text-center">
-              <Link
-                href="/notifications"
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium block py-1"
-                onClick={() => setIsOpen(false)}
-              >
-                Xem tất cả
-              </Link>
             </div>
           </motion.div>
         )}

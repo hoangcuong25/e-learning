@@ -9,7 +9,6 @@ export const metadata: Metadata = {
 };
 
 const Page = () => {
-  // 2. Component chính hiển thị UI
   return <Learn />;
 };
 

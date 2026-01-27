@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FieldError } from "react-hook-form"; // ✅ Import FieldError
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
@@ -17,12 +17,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchCourseById } from "@/store/slice/coursesSlice";
 
 import { lessonSchema, LessonFormData } from "@/hook/zod-schema/LessonSchema";
 import RichTextEditor from "@/components/RichTextEditor";
+import { uploadVideo } from "@/store/api/cloudinary.api";
+
+type ProcessState = "idle" | "uploading" | "creating_lesson";
 
 const CreateLesson = ({
   courseId,
@@ -33,6 +36,7 @@ const CreateLesson = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [open, setOpen] = useState(false);
+  const [processState, setProcessState] = useState<ProcessState>("idle");
 
   const {
     register,
@@ -52,31 +56,55 @@ const CreateLesson = ({
   });
 
   const onSubmit = async (data: LessonFormData) => {
-    try {
-      const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("content", data.content);
-      formData.append("orderIndex", String(data.orderIndex ?? "0"));
-      formData.append("chapterId", String(chapterId));
+    if (isSubmitting || processState !== "idle") return;
 
-      // ✅ Lấy video
+    let toastId: any = null;
+    try {
+      let videoUrl = "";
+
+      // 1. Kiểm tra video và Upload lên Cloudinary
       if (data.video instanceof FileList && data.video.length > 0) {
-        formData.append("video", data.video[0]);
-      } else if (data.video instanceof File) {
-        formData.append("video", data.video);
+        setProcessState("uploading");
+        toastId = toast.loading("Đang tải lên video... (Bước 1/2)", {
+          duration: Infinity,
+        });
+
+        const file = data.video[0];
+        const uploaded = await uploadVideo(file);
+        videoUrl = uploaded.secure_url;
+
+        toast.dismiss(toastId);
+        setProcessState("creating_lesson");
+        toastId = toast.loading("Đang tạo bài học... (Bước 2/2)", {
+          duration: Infinity,
+        });
       } else {
         toast.error("Vui lòng chọn file video.");
         return;
       }
 
-      await dispatch(createLesson(formData)).unwrap();
+      // 2. Gửi payload lên NestJS
+      const payload = {
+        title: data.title,
+        content: data.content,
+        orderIndex: data.orderIndex ?? 0,
+        chapterId,
+        videoUrl: videoUrl,
+      };
+
+      await dispatch(createLesson(payload)).unwrap();
       await dispatch(fetchCourseById(courseId)).unwrap();
+
+      toast.dismiss(toastId);
+      toast.success("Tạo bài học thành công!");
 
       reset();
       setOpen(false);
-      toast.success("Tạo bài học thành công!");
     } catch (err) {
+      toast.dismiss(toastId);
       toast.error("Tạo bài học thất bại, vui lòng thử lại.");
+    } finally {
+      setProcessState("idle");
     }
   };
 
@@ -87,6 +115,20 @@ const CreateLesson = ({
       : selectedVideo instanceof File
       ? selectedVideo.name
       : "";
+
+  // Logic hiển thị nút
+  const isLoading = isSubmitting || processState !== "idle";
+
+  const getButtonText = () => {
+    switch (processState) {
+      case "uploading":
+        return "Đang tải lên video...";
+      case "creating_lesson":
+        return "Đang tạo bài học...";
+      default:
+        return "Lưu";
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -108,7 +150,7 @@ const CreateLesson = ({
             <Input placeholder="Nhập tiêu đề..." {...register("title")} />
             {errors.title && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.title.message}
+                {(errors.title as FieldError).message}
               </p>
             )}
           </div>
@@ -122,7 +164,7 @@ const CreateLesson = ({
             />
             {errors.content && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.content.message}
+                {(errors.content as FieldError).message}
               </p>
             )}
           </div>
@@ -137,7 +179,7 @@ const CreateLesson = ({
             />
             {errors.orderIndex && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.orderIndex.message}
+                {(errors.orderIndex as FieldError).message}
               </p>
             )}
           </div>
@@ -151,15 +193,21 @@ const CreateLesson = ({
                 Đã chọn: {selectedFileName}
               </p>
             )}
+            {errors.video && (
+              <p className="text-red-500 text-sm mt-1">
+                {(errors.video as FieldError).message}
+              </p>
+            )}
           </div>
 
           {/* Submit */}
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {isSubmitting ? "Đang lưu..." : "Lưu"}
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {getButtonText()}
           </Button>
         </form>
       </DialogContent>

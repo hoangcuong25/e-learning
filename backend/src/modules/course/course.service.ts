@@ -291,8 +291,11 @@ export class CourseService {
     if (updateCourseDto.title) updateData.title = updateCourseDto.title;
     if (updateCourseDto.description)
       updateData.description = updateCourseDto.description;
-    if (updateCourseDto.isPublished !== undefined)
-      updateData.isPublished = updateCourseDto.isPublished;
+    if (updateCourseDto.isPublished !== undefined) {
+      const isPublished =
+        String(updateCourseDto.isPublished) === "true" ? true : false;
+      updateData.isPublished = isPublished;
+    }
     if (updateCourseDto.type) updateData.type = updateCourseDto.type;
 
     // Nếu là khóa học miễn phí → giá = 0
@@ -385,141 +388,17 @@ export class CourseService {
     });
   }
 
-  // 🧩 Đánh giá khóa học
-  async rateCourse(id: number, rating: number, text: string, userId: number) {
-    // 1. Kiểm tra khóa học có tồn tại không
-    const course = await this.prisma.course.findUnique({
-      where: { id },
+  async getPopularCourses(limit: number = 6) {
+    return this.prisma.course.findMany({
+      where: { isPublished: true },
+      orderBy: { viewCount: "desc" },
+      take: limit,
+      include: {
+        instructor: {
+          select: { fullname: true, avatar: true },
+        },
+      },
     });
-
-    if (!course) {
-      throw new NotFoundException("Không tìm thấy khóa học.");
-    }
-
-    // Đảm bảo rating hợp lệ (1-5)
-    if (rating < 1 || rating > 5) {
-      throw new BadRequestException(
-        "Giá trị đánh giá phải nằm trong khoảng từ 1 đến 5."
-      );
-    }
-
-    // Đảm bảo text không rỗng nếu là chuỗi rỗng
-    if (!text || text.trim() === "") {
-      throw new BadRequestException("Nội dung đánh giá không được để trống.");
-    }
-
-    // Khai báo biến để trả về
-    let data: any;
-    let message: string;
-
-    const result = await this.prisma.$transaction(async (prisma) => {
-      // 2. Kiểm tra xem user này đã rating khóa học này chưa
-      const existingRating = await prisma.courseRating.findUnique({
-        where: {
-          userId_courseId: {
-            userId: userId,
-            courseId: id,
-          },
-        },
-      });
-
-      if (existingRating) {
-        // User đã rate: Cập nhật rating
-        const oldRatingValue = existingRating.rating;
-
-        // Nếu rating và text không đổi, thoát sớm
-        if (oldRatingValue === rating && existingRating.text === text) {
-          message = "Đánh giá không thay đổi.";
-          data = existingRating;
-          return { message, data };
-        }
-
-        data = await prisma.courseRating.update({
-          where: { id: existingRating.id },
-          data: { rating: rating, text: text },
-        });
-        message = "Cập nhật đánh giá khóa học thành công.";
-      } else {
-        // User chưa rate: Tạo rating mới
-        data = await prisma.courseRating.create({
-          data: { courseId: id, userId, rating, text: text },
-        });
-        message = "Đánh giá khóa học thành công.";
-      }
-
-      // 3. Tính toán lại averageRating và totalRating dựa trên TẤT CẢ các bản ghi
-      const aggregation = await prisma.courseRating.aggregate({
-        _avg: {
-          rating: true,
-        },
-        _count: {
-          rating: true,
-        },
-        where: {
-          courseId: id,
-        },
-      });
-
-      const newAverageRating = aggregation._avg.rating ?? 0;
-      const newTotalRating = aggregation._count.rating ?? 0;
-
-      // Cập nhật thông tin khóa học
-      const updatedCourse = await prisma.course.update({
-        where: { id },
-        data: {
-          // Làm tròn đến 2 chữ số thập phân trước khi lưu
-          averageRating: parseFloat(newAverageRating.toFixed(2)),
-          totalRating: newTotalRating, // Cập nhật totalRating
-        },
-      });
-
-      return {
-        message: message,
-        data: {
-          rating: data,
-          courseInfo: updatedCourse,
-        },
-      };
-    });
-
-    return result;
-  }
-
-  async getRatingsByCourse(
-    courseId: number,
-    paginationDto: { page?: number; limit?: number }
-  ) {
-    const { page, limit, skip, take } = buildPaginationParams(paginationDto);
-    const courseExists = await this.prisma.course.findUnique({
-      where: { id: courseId },
-      select: { id: true },
-    });
-
-    if (!courseExists) {
-      throw new NotFoundException("Course not found");
-    }
-    const [ratings, total] = await this.prisma.$transaction([
-      this.prisma.courseRating.findMany({
-        where: { courseId },
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullname: true,
-              avatar: true,
-            },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take,
-      }),
-      this.prisma.courseRating.count({
-        where: { courseId },
-      }),
-    ]);
-
-    return buildPaginationResponse(ratings, total, page, limit);
   }
 
   // 🧩 Tăng lượt xem khóa học

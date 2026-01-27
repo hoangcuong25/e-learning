@@ -8,7 +8,7 @@ import Link from "next/link";
 import { fetchMyEnrollments } from "@/store/slice/enrollmentsSlice";
 import { BookOpen, Layers, Eye, Star } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
-import { rateCourseApi } from "@/store/api/courses.api";
+import { createRating } from "@/store/slice/courseRatingSlice";
 import { toast } from "sonner";
 import { RateDialog } from "@/components/course/RateDialog";
 
@@ -54,9 +54,11 @@ export default function MyLearningPage() {
     setIsRating(true);
 
     try {
-      const response = await rateCourseApi(selectedCourseId, rating, text);
+      await dispatch(
+        createRating({ courseId: selectedCourseId, rating, text })
+      ).unwrap();
 
-      toast.success(response.data.message || "Đánh giá khóa học thành công!");
+      toast.success("Đánh giá khóa học thành công!");
 
       // Cập nhật lại danh sách enrollments
       dispatch(fetchMyEnrollments());
