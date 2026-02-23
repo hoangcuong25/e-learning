@@ -4,7 +4,6 @@ import { AppService } from "./app.service";
 import { UserModule } from "./modules/user/user.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { ConfigModule } from "@nestjs/config";
-import { InstructorModule } from "./modules/instructor/instructor.module";
 import { SpecializationModule } from "./modules/specialization/specialization.module";
 import { MailModule } from "./core/mailSender/mail.module";
 import { CourseModule } from "./modules/course/course.module";
@@ -24,7 +23,13 @@ import { NotificationModule } from "./modules/notification/notification.module";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { THROTTLER_CONFIG } from "./core/rate-limit/rate-limit";
 import { APP_GUARD } from "@nestjs/core";
-import { DiscountCampaignModule } from "./modules/discount-campaign/discount-campaign.module";
+import { CronModule } from "./modules/cron/cron.module";
+import { ScheduleModule } from "@nestjs/schedule";
+import { ReportModule } from "./modules/report/report.module";
+import { InstructorModule } from "./modules/instructor/instructor.module";
+import { AdminAnalyticsModule } from "./modules/admin-analytics/admin-analytics.module";
+import { CommunityModule } from "./modules/community/community.module";
+import { AiModule } from "./modules/ai/ai.module";
 
 @Module({
   imports: [
@@ -45,11 +50,16 @@ import { DiscountCampaignModule } from "./modules/discount-campaign/discount-cam
     OptionModule,
     ChapterModule,
     CouponModule,
-    DiscountCampaignModule,
     PaymentModule,
     EnrollmentModule,
     CartModule,
     NotificationModule,
+    CronModule,
+    ScheduleModule.forRoot(),
+    ReportModule,
+    AdminAnalyticsModule,
+    CommunityModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [

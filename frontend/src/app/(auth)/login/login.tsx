@@ -7,14 +7,15 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormData, loginSchema } from "@/hook/zod-schema/UserSchema";
-import { LoginApi } from "@/store/api/auth.api";
+import { LoginApi } from "@/store/api/common/auth.api";
 import { useRouter } from "next/navigation";
 import GoogleLoginForm from "@/components/GoogleLoginForm";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchUser } from "@/store/slice/userSlice";
+import { fetchUser } from "@/store/slice/common/userSlice";
 import banner from "@public/elearning-banner.png";
 import { toast } from "sonner";
+import logo from "@public/logo.png";
 
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -75,6 +76,19 @@ export default function LoginPage() {
 
         {/* Right form */}
         <div className="w-full md:w-1/2 p-8">
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            <Link href="/" aria-label="Về trang chủ EduSmart">
+              <Image
+                src={logo}
+                alt="EduSmart Logo"
+                width={64}
+                height={64}
+                className="cursor-pointer hover:scale-105 transition-transform"
+                priority
+              />
+            </Link>
+          </div>
           <h2 className="text-3xl font-bold text-center text-blue-600 mb-2">
             Chào mừng đến với EduSmart
           </h2>

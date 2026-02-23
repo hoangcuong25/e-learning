@@ -22,10 +22,9 @@ import { AppDispatch, RootState } from "@/store";
 import {
   createCourse,
   fetchCoursesByInstructor,
-} from "@/store/slice/coursesSlice";
+} from "@/store/slice/course/coursesSlice";
 import { CourseFormData, courseSchema } from "@/hook/zod-schema/CourseSchema";
 import LoadingScreen from "@/components/LoadingScreen";
-import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
 import RichTextEditor from "@/components/RichTextEditor";
 
 export default function CourseCreate() {
@@ -198,6 +197,14 @@ export default function CourseCreate() {
                 <span>Trả phí</span>
               </label>
             </div>
+          </div>
+
+          {/* ─── Trạng thái khóa học ───────────────────── */}
+          <div className="rounded-lg border border-dashed p-4 bg-muted/40">
+            <p className="text-sm text-muted-foreground">
+              📌 Khóa học sẽ được tạo ở trạng thái <b>Bản nháp</b>. Sau khi hoàn
+              thiện nội dung, bạn có thể công khai khóa học sau khi hoàn thiện.
+            </p>
           </div>
 
           {/* ─── Giá ───────────────────────────── */}

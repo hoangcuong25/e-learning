@@ -18,10 +18,13 @@ import {
 } from "@/components/ui/input-otp";
 import { Button } from "@/components/ui/button";
 import { BookOpenCheck } from "lucide-react";
-import { ActiveAccountApi, SendEmailActiveApi } from "@/store/api/auth.api";
+import {
+  ActiveAccountApi,
+  SendEmailActiveApi,
+} from "@/store/api/common/auth.api";
 import { toast } from "sonner";
 import { useState } from "react";
-import { fetchUser } from "@/store/slice/userSlice";
+import { fetchUser } from "@/store/slice/common/userSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 

@@ -7,18 +7,12 @@ export class CartService {
 
   // Get or create cart
   private async getOrCreateCart(userId: number) {
-    let cart = await this.prisma.cart.findUnique({
+    return this.prisma.cart.upsert({
       where: { userId },
+      create: { userId },
+      update: {},
       include: { items: { include: { course: true } } },
     });
-
-    if (!cart) {
-      cart = await this.prisma.cart.create({
-        data: { userId },
-        include: { items: { include: { course: true } } },
-      });
-    }
-    return cart;
   }
 
   // Get cart

@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE `course` ADD COLUMN `averageRating` DOUBLE NOT NULL DEFAULT 0,
-    ADD COLUMN `totalRating` INTEGER NOT NULL DEFAULT 0;

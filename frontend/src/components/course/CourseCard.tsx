@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { BookOpen, User, Tag } from "lucide-react";
+import { BookOpen, Tag, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -26,6 +26,12 @@ const CourseCard = ({ course }: Props) => {
           fill
           className="object-cover rounded-lg"
         />
+
+        {course.isEnrolled && (
+          <span className="absolute top-2 right-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow">
+            Đã mua
+          </span>
+        )}
       </div>
 
       {/* Tiêu đề khóa học */}
@@ -36,8 +42,21 @@ const CourseCard = ({ course }: Props) => {
       {/* Giảng viên */}
       {course.instructor?.fullname && (
         <div className="flex items-center text-sm text-gray-500 mb-2">
-          <User className="w-4 h-4 mr-1 text-blue-500" />
-          <span className="line-clamp-1">{course.instructor.fullname}</span>
+          {course.instructor.avatar ? (
+            <div className="relative w-6 h-6 mr-2 shrink-0">
+              <Image
+                src={course.instructor.avatar}
+                alt={course.instructor.fullname}
+                fill
+                className="rounded-full object-cover border border-gray-200"
+              />
+            </div>
+          ) : (
+            <User className="w-4 h-4 mr-1 text-blue-500" />
+          )}
+          <span className="line-clamp-1 font-medium text-gray-700">
+            {course.instructor.fullname}
+          </span>
         </div>
       )}
 
@@ -56,7 +75,7 @@ const CourseCard = ({ course }: Props) => {
       )}
 
       {/* Mô tả ngắn */}
-      <p className="text-gray-600 text-sm flex-1 leading-relaxed mb-3">
+      <div className="text-gray-600 text-sm flex-1 leading-relaxed mb-3">
         {course.description ? (
           <div
             className="prose max-w-none text-gray-600 text-sm"
@@ -70,7 +89,7 @@ const CourseCard = ({ course }: Props) => {
         ) : (
           "Chưa có mô tả cho khóa học này."
         )}
-      </p>
+      </div>
 
       {/* Coupon */}
       {course.coupon && course.coupon.length > 0 && (
@@ -85,8 +104,9 @@ const CourseCard = ({ course }: Props) => {
         <p className="text-blue-600 font-bold">
           {course.price === 0
             ? "Miễn phí"
-            : course.price?.toLocaleString() + " LC"}
+            : new Intl.NumberFormat("vi-VN").format(course.price) + " LC"}
         </p>
+
         <Button
           size="sm"
           onClick={handleViewDetail}

@@ -13,9 +13,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { createDepositApi } from "@/store/api/payment.api";
+import { createDepositApi } from "@/store/api/common/payment.api";
 import usePaymentSocket from "@/hook/socket/usePaymentSocket";
-import { fetchUser } from "@/store/slice/userSlice";
+import { fetchUser } from "@/store/slice/common/userSlice";
 import Image from "next/image";
 
 interface DepositWatcherProps {

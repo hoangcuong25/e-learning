@@ -45,7 +45,7 @@ export class CloudinaryService {
     });
   }
 
-  getSignature(folder = "videos") {
+  getSignature(folder = "uploads") {
     const timestamp = Math.round(new Date().getTime() / 1000);
 
     const signature = cloudinary.utils.api_sign_request(
@@ -60,5 +60,22 @@ export class CloudinaryService {
       apiKey: process.env.CLOUDINARY_API_KEY,
       folder,
     };
+  }
+
+  // Xóa file từ Cloudinary
+  async deleteFile(
+    publicId: string,
+    resourceType: "image" | "video" = "image"
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      cloudinary.uploader.destroy(
+        publicId,
+        { resource_type: resourceType },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+    });
   }
 }

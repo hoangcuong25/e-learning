@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchAllSpecializations } from "@/store/slice/specializationSlice";
+import { fetchAllSpecializations } from "@/store/slice/common/specializationSlice";
 
 interface Props {
   onSearch: (search: string) => void;
@@ -56,7 +56,7 @@ const CoursesFilter = ({
   return (
     <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
       {/* Tìm kiếm */}
-      <div className="flex flex-1 items-center gap-2">
+      <div className="flex flex-1 flex-col md:flex-row md:items-center gap-3 w-full">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input

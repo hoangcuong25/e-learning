@@ -29,6 +29,16 @@ export class CreateLessonDto {
   @Min(0)
   orderIndex?: number;
 
+  @ApiProperty({
+    example: 120,
+    description: "Duration in seconds",
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  duration?: number;
+
   @ApiProperty({ example: 3 })
   @IsNotEmpty()
   @IsInt()

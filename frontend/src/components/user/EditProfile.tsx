@@ -21,11 +21,11 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { GenderEnum, GenderLabel } from "@/constants/Gender";
+import { GenderEnum, GenderLabel } from "@/constants/gender.enum";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchUser } from "@/store/slice/userSlice";
-import { updateUser } from "@/store/api/user.api";
+import { fetchUser } from "@/store/slice/common/userSlice";
+import { updateUser } from "@/store/api/common/user.api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {

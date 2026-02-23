@@ -6,15 +6,16 @@ import {
 import * as crypto from "crypto";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CreateDepositDto } from "./dto/create-payment.dto";
-import { TransactionType } from "@prisma/client";
-
+import { TransactionType, NotificationType } from "@prisma/client";
 import { PaymentGateway } from "./payment.gateway";
+import { NotificationService } from "../notification/notification.service";
 
 @Injectable()
 export class PaymentService {
   constructor(
     private prisma: PrismaService,
-    private paymentGateway: PaymentGateway
+    private paymentGateway: PaymentGateway,
+    private notificationService: NotificationService
   ) {}
 
   // Tạo mã QR Sepay (chỉ hiển thị cho người dùng để chuyển tiền)
@@ -169,6 +170,15 @@ export class PaymentService {
         transactionId: payment.id,
       });
     }
+
+    // Gửi thông báo nạp tiền thành công
+    await this.notificationService.createNotification({
+      userId: payment.userId,
+      type: NotificationType.WALLET,
+      title: "Nạp tiền thành công!",
+      body: `Bạn đã nạp thành công ${amount.toLocaleString()} VND vào ví.`,
+      link: "/wallet",
+    });
 
     return "OK";
   }

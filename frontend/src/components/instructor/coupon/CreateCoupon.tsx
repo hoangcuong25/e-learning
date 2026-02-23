@@ -19,9 +19,9 @@ import { toast } from "sonner";
 import {
   createCoupon,
   fetchInstructorCoupons,
-} from "@/store/slice/couponSlice";
-import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
-import { fetchCoursesByInstructor } from "@/store/slice/coursesSlice";
+} from "@/store/slice/common/couponSlice";
+import { fetchSpecializationsByInstructorId } from "@/store/slice/common/specializationSlice";
+import { fetchCoursesByInstructor } from "@/store/slice/course/coursesSlice";
 import { CouponFormData, couponSchema } from "@/hook/zod-schema/CoupondSchema";
 
 const CouponForm = () => {
@@ -47,7 +47,8 @@ const CouponForm = () => {
       code: "",
       percentage: "",
       maxUsage: "",
-      expiresAt: "",
+      startsAt: "",
+      endsAt: "",
       target: "ALL",
       courseId: "",
       specializationId: "",
@@ -72,9 +73,10 @@ const CouponForm = () => {
           code: data.code.toUpperCase(),
           percentage: Number(data.percentage),
           maxUsage: data.maxUsage ? Number(data.maxUsage) : undefined,
-          expiresAt: data.expiresAt
-            ? new Date(data.expiresAt).toISOString()
+          startsAt: data.startsAt
+            ? new Date(data.startsAt).toISOString()
             : undefined,
+          endsAt: data.endsAt ? new Date(data.endsAt).toISOString() : undefined,
           target: data.target,
           courseId:
             data.target === "COURSE" ? Number(data.courseId) : undefined,
@@ -139,10 +141,18 @@ const CouponForm = () => {
         )}
       </div>
 
-      {/* Expiration date */}
-      <div>
-        <label className="block text-sm font-medium mb-1">Ngày hết hạn</label>
-        <Input type="datetime-local" {...register("expiresAt")} />
+      {/* Date range */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Ngày bắt đầu</label>
+          <Input type="datetime-local" {...register("startsAt")} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Ngày kết thúc
+          </label>
+          <Input type="datetime-local" {...register("endsAt")} />
+        </div>
       </div>
 
       {/* Target */}

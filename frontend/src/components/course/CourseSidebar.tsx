@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { AppDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { addToCart } from "@/store/slice/cartSlice";
+import { addToCart } from "@/store/slice/common/cartSlice";
 
 // Định nghĩa lại props để bao gồm thông tin coupon
 interface CourseSidebarProps {
@@ -64,7 +64,7 @@ const CourseSidebar = ({
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.25 }}
         >
-          {price.toLocaleString()} LC
+          {price > 0 ? price.toLocaleString() + " LC" : "Miễn phí"}
         </motion.p>
         <p className="text-gray-500 text-sm">
           Thanh toán 1 lần - Truy cập trọn đời
@@ -101,53 +101,55 @@ const CourseSidebar = ({
         </motion.button>
       </div>
       <hr className="my-6 border-gray-200" />
-      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-        <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-          🎟️ Coupon khả dụng
-        </h3>
+      {price > 0 && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+          <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+            🎟️ Coupon khả dụng
+          </h3>
 
-        {couponsLoading ? (
-          <p className="text-sm text-yellow-700">Đang tải coupon...</p>
-        ) : couponsError ? (
-          <p className="text-sm text-red-500">{couponsError}</p>
-        ) : !Array.isArray(courseCoupons) || courseCoupons.length === 0 ? (
-          <p className="text-sm text-gray-600">
-            Không có coupon nào cho khóa học này.
-          </p>
-        ) : (
-          <>
-            <ul className="space-y-2">
-              {displayCoupons.map((coupon: any) => (
-                <motion.li
-                  key={coupon.id}
-                  className="p-3 bg-white border rounded-lg flex justify-between items-center"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
+          {couponsLoading ? (
+            <p className="text-sm text-yellow-700">Đang tải coupon...</p>
+          ) : couponsError ? (
+            <p className="text-sm text-red-500">{couponsError}</p>
+          ) : !Array.isArray(courseCoupons) || courseCoupons.length === 0 ? (
+            <p className="text-sm text-gray-600">
+              Không có coupon nào cho khóa học này.
+            </p>
+          ) : (
+            <>
+              <ul className="space-y-2">
+                {displayCoupons.map((coupon: any) => (
+                  <motion.li
+                    key={coupon.id}
+                    className="p-3 bg-white border rounded-lg flex justify-between items-center"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div>
+                      <p className="font-semibold text-sm">{coupon.code}</p>
+                      <p className="text-xs text-gray-500">
+                        {coupon.description}
+                      </p>
+                    </div>
+                  </motion.li>
+                ))}
+              </ul>
+
+              {hasMoreCoupons && (
+                <button
+                  onClick={() => setShowAllCoupons(!showAllCoupons)}
+                  className="w-full mt-3 text-blue-600 text-sm font-medium hover:text-blue-700 transition"
                 >
-                  <div>
-                    <p className="font-semibold text-sm">{coupon.code}</p>
-                    <p className="text-xs text-gray-500">
-                      {coupon.description}
-                    </p>
-                  </div>
-                </motion.li>
-              ))}
-            </ul>
-
-            {hasMoreCoupons && (
-              <button
-                onClick={() => setShowAllCoupons(!showAllCoupons)}
-                className="w-full mt-3 text-blue-600 text-sm font-medium hover:text-blue-700 transition"
-              >
-                {showAllCoupons
-                  ? "Thu gọn ▲"
-                  : `Xem thêm ${courseCoupons.length - 3} coupon khác ▼`}
-              </button>
-            )}
-          </>
-        )}
-      </div>
+                  {showAllCoupons
+                    ? "Thu gọn ▲"
+                    : `Xem thêm ${courseCoupons.length - 3} coupon khác ▼`}
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
       <hr className="my-6 border-gray-200" />{" "}
       <motion.div
         className="space-y-3 text-gray-700 text-sm"

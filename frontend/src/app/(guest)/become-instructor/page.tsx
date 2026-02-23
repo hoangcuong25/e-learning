@@ -138,7 +138,7 @@ export default function Page() {
       </section>
 
       {/* 🚀 FINAL CTA SECTION */}
-      <section className="bg-indigo-600 text-white py-16 px-6 text-center">
+      <section className="bg-indigo-600 text-white py-16 px-6 text-center rounded-2xl">
         <h2 className="text-3xl font-bold mb-6">
           Sẵn sàng bắt đầu hành trình giảng dạy?
         </h2>

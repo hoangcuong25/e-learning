@@ -54,15 +54,27 @@ export class LessonService {
     if (!dto.videoUrl) throw new NotFoundException("Cần phải có video url");
 
     // 🧩 Tạo bài học
-    return this.prisma.lesson.create({
+    const newLesson = await this.prisma.lesson.create({
       data: {
         title: dto.title,
         content: dto.content,
         videoUrl: dto.videoUrl,
         orderIndex: dto.orderIndex ?? 0,
+        duration: dto.duration ?? 0, // Lưu thời lượng (giây)
         chapterId: dto.chapterId,
       },
     });
+    // 🧩 Cập nhật tổng thời lượng của course (cộng thêm duration của lesson mới)
+    await this.prisma.course.update({
+      where: { id: chapter.courseId },
+      data: {
+        duration: {
+          increment: dto.duration ?? 0,
+        },
+      },
+    });
+
+    return newLesson;
   }
 
   // 🧩 Lấy tất cả bài học
@@ -113,14 +125,18 @@ export class LessonService {
   async update(id: number, dto: UpdateLessonDto, instructorId: number) {
     const existing = await this.prisma.lesson.findUnique({
       where: { id },
-      include: { chapter: { include: { course: true } } },
+      include: {
+        chapter: {
+          include: { course: true },
+        },
+      },
     });
 
     if (!existing) throw new NotFoundException("Không tìm thấy bài học");
     if (existing.chapter.course.instructorId !== instructorId)
       throw new ForbiddenException("Bạn không có quyền cập nhật bài học này");
 
-    // 🧩 Kiểm tra trùng orderIndex trong cùng chapter
+    // 🧩 Kiểm tra trùng orderIndex
     if (
       dto.orderIndex !== undefined &&
       dto.orderIndex !== existing.orderIndex
@@ -140,33 +156,86 @@ export class LessonService {
       }
     }
 
-    // 🧩 Upload video mới (nếu có)
+    // 🧩 Xử lý video & duration
     let videoUrl = existing.videoUrl;
-    if (dto.videoUrl) {
+    let duration = existing.duration;
+    let durationChanged = false;
+
+    if (dto.videoUrl && dto.videoUrl !== existing.videoUrl) {
+      // Xóa video cũ trên Cloudinary (nếu có)
+      if (existing.videoUrl) {
+        try {
+          // Extract public_id từ URL Cloudinary
+          const urlParts = existing.videoUrl.split("/");
+          const fileNameWithExt = urlParts[urlParts.length - 1];
+          const fileName = fileNameWithExt.split(".")[0];
+          const folder = urlParts[urlParts.length - 2];
+          const publicId = `${folder}/${fileName}`;
+
+          await this.cloudinaryService.deleteFile(publicId, "video");
+        } catch (error) {
+          console.error("Error deleting old video:", error);
+        }
+      }
+
       videoUrl = dto.videoUrl;
+      duration = dto.duration;
+      durationChanged = true;
     }
 
-    // 🧩 Cập nhật bài học
-    const updated = await this.prisma.lesson.update({
+    // 🧩 Update lesson
+    const updatedLesson = await this.prisma.lesson.update({
       where: { id },
       data: {
         title: dto.title ?? existing.title,
         content: dto.content ?? existing.content,
         orderIndex: dto.orderIndex ?? existing.orderIndex,
         videoUrl,
+        duration,
       },
     });
 
+    // 🧩 Nếu duration lesson thay đổi → update course.duration
+    if (durationChanged) {
+      const courseId = existing.chapter.course.id;
+
+      const oldDuration = existing.duration ?? 0;
+      const newDuration = duration ?? 0;
+
+      const updatedCourseDuration =
+        existing.chapter.course.duration - oldDuration + newDuration;
+
+      await this.prisma.course.update({
+        where: { id: courseId },
+        data: {
+          duration: Math.max(updatedCourseDuration, 0),
+        },
+      });
+    }
+
     return {
       message: "Cập nhật bài học thành công",
-      data: updated,
+      data: updatedLesson,
     };
   }
 
   // 🧩 Xóa bài học
   async remove(id: number) {
-    const existing = await this.prisma.lesson.findUnique({ where: { id } });
+    const existing = await this.prisma.lesson.findUnique({
+      where: { id },
+      include: { chapter: { include: { course: true } } },
+    });
     if (!existing) throw new NotFoundException("Không tìm thấy bài học");
+
+    // 🧩 Cập nhật tổng thời lượng của course
+    await this.prisma.course.update({
+      where: { id: existing.chapter.courseId },
+      data: {
+        duration: {
+          decrement: existing.duration,
+        },
+      },
+    });
 
     return this.prisma.lesson.delete({ where: { id } });
   }

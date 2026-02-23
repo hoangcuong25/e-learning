@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `course` ADD COLUMN `type` ENUM('FREE', 'PAID') NOT NULL DEFAULT 'FREE';

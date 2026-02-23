@@ -6,12 +6,12 @@ import { RateDialog } from "../course/RateDialog";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchMyEnrollments } from "@/store/slice/enrollmentsSlice";
+import { fetchMyEnrollments } from "@/store/slice/course/enrollmentsSlice";
 import { useParams } from "next/navigation";
 import {
   fetchCourseRatings,
   createRating,
-} from "@/store/slice/courseRatingSlice";
+} from "@/store/slice/course/courseRatingSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";

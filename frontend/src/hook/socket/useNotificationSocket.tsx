@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
-import { addNewNotification } from "@/store/slice/notificationsSlice";
+import { addNewNotification } from "@/store/slice/common/notificationsSlice";
 import useBaseSocket from "./useBaseSocket";
 
 interface RealtimeNotification {
@@ -25,7 +25,6 @@ const useNotificationSocket = () => {
 
     // 2. Định nghĩa hàm xử lý sự kiện
     const handleNewNotification = (data: RealtimeNotification) => {
-
       const notification = {
         ...data,
         userId: (data as any).userId ?? 0,

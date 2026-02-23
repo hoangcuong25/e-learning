@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchCourseById } from "@/store/slice/coursesSlice";
+import { fetchCourseById } from "@/store/slice/course/coursesSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,10 +14,14 @@ import {
   DollarSign,
   CheckCircle,
   Clock,
+  Eye,
+  Star,
+  Users,
 } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import Image from "next/image";
 import CourseTabs from "@/components/instructor/courseTabs/CourseTabs";
+import { formatDuration } from "@/lib/helpers";
 
 const CourseDetailPage = () => {
   const { id } = useParams();
@@ -148,8 +152,62 @@ const CourseDetailPage = () => {
             />
             <div>
               <p className="font-medium text-gray-800">Trạng thái</p>
-              <p className="text-sm text-gray-500">
+              <p
+                className={`text-sm font-medium mt-0.5 ${
+                  currentCourse.isPublished
+                    ? "text-emerald-600"
+                    : "text-slate-500"
+                }`}
+              >
                 {currentCourse.isPublished ? "Đã xuất bản" : "Bản nháp"}
+              </p>
+            </div>
+          </div>
+
+          {/* 🔹 Lượt xem */}
+          <div className="flex items-center gap-3">
+            <Eye className="text-indigo-600" />
+            <div>
+              <p className="font-medium text-gray-800">Lượt xem</p>
+              <p className="text-sm text-gray-500">
+                {currentCourse.viewCount.toLocaleString()} lượt
+              </p>
+            </div>
+          </div>
+
+          {/* 🔹 Thời lượng */}
+          <div className="flex items-center gap-3">
+            <Clock className="text-orange-600" />
+            <div>
+              <p className="font-medium text-gray-800">Thời lượng</p>
+              <p className="text-sm text-gray-500">
+                {currentCourse.duration > 0
+                  ? formatDuration(currentCourse.duration)
+                  : "Chưa có"}
+              </p>
+            </div>
+          </div>
+
+          {/* 🔹 Đánh giá trung bình */}
+          <div className="flex items-center gap-3">
+            <Star className="text-yellow-500" />
+            <div>
+              <p className="font-medium text-gray-800">Đánh giá</p>
+              <p className="text-sm text-gray-500">
+                {currentCourse.averageRating > 0
+                  ? `${currentCourse.averageRating.toFixed(1)} ⭐`
+                  : "Chưa có đánh giá"}
+              </p>
+            </div>
+          </div>
+
+          {/* 🔹 Số lượt đánh giá */}
+          <div className="flex items-center gap-3">
+            <Users className="text-teal-600" />
+            <div>
+              <p className="font-medium text-gray-800">Lượt đánh giá</p>
+              <p className="text-sm text-gray-500">
+                {currentCourse.totalRating.toLocaleString()} lượt
               </p>
             </div>
           </div>
@@ -157,7 +215,7 @@ const CourseDetailPage = () => {
           {/* 🔹 Mô tả */}
           <div className="sm:col-span-2 lg:col-span-3">
             <p className="font-medium text-gray-800 mb-1">Mô tả</p>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <div className="text-gray-600 text-sm leading-relaxed">
               {currentCourse.description ? (
                 <div
                   className="prose max-w-none"
@@ -168,7 +226,7 @@ const CourseDetailPage = () => {
               ) : (
                 "Chưa có mô tả cho khóa học này."
               )}
-            </p>
+            </div>
           </div>
         </CardContent>
       </Card>

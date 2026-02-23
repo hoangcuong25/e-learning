@@ -7,10 +7,20 @@ import { CreateSpecializationDto } from "./dto/create-specialization.dto";
 import { UpdateSpecializationDto } from "./dto/update-specialization.dto";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { ApplicationStatus } from "@prisma/client";
+import {
+  buildOrderBy,
+  buildPaginationParams,
+  buildPaginationResponse,
+  buildSearchFilter,
+} from "src/core/helpers/pagination.util";
+import { RedisService } from "src/core/redis/redis.service";
 
 @Injectable()
 export class SpecializationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redisService: RedisService
+  ) {}
 
   async create(createSpecializationDto: CreateSpecializationDto) {
     const { name, desc } = createSpecializationDto;
@@ -24,8 +34,11 @@ export class SpecializationService {
     }
 
     const specialization = await this.prisma.specialization.create({
-      data: { name },
+      data: { name, desc },
     });
+
+    // Invalidate cache
+    await this.redisService.del("specialization:list");
 
     return {
       message: "Tạo chuyên ngành thành công",
@@ -34,13 +47,21 @@ export class SpecializationService {
   }
 
   async findAll() {
-    const data = await this.prisma.specialization.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-    return {
-      message: "Danh sách chuyên ngành",
-      data,
-    };
+    const cacheKey = "specialization:list";
+
+    return this.redisService.getOrSet(
+      cacheKey,
+      async () => {
+        const data = await this.prisma.specialization.findMany({
+          orderBy: { createdAt: "desc" },
+        });
+        return {
+          message: "Danh sách chuyên ngành",
+          data,
+        };
+      },
+      1800 // 30 minutes TTL
+    );
   }
 
   async findOne(id: number) {
@@ -69,6 +90,9 @@ export class SpecializationService {
       data: updateSpecializationDto,
     });
 
+    // Invalidate cache
+    await this.redisService.del("specialization:list");
+
     return {
       message: "Cập nhật chuyên ngành thành công",
       data: updated,
@@ -85,7 +109,36 @@ export class SpecializationService {
 
     await this.prisma.specialization.delete({ where: { id } });
 
+    // Invalidate cache
+    await this.redisService.del("specialization:list");
+
     return { message: "Xóa chuyên ngành thành công" };
+  }
+
+  async findAllForAdmin(dto: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    order?: "asc" | "desc";
+    search?: string;
+  }) {
+    const { skip, take, page, limit } = buildPaginationParams(dto);
+    const orderBy = buildOrderBy(dto);
+    const searchFilter = buildSearchFilter(dto, ["name", "desc"]);
+
+    const where = searchFilter || {};
+
+    const [data, total] = await Promise.all([
+      this.prisma.specialization.findMany({
+        where,
+        orderBy,
+        skip,
+        take,
+      }),
+      this.prisma.specialization.count({ where }),
+    ]);
+
+    return buildPaginationResponse(data, total, page, limit);
   }
 
   async findByInstructorId(userId: number) {

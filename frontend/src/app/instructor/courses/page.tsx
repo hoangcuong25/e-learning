@@ -5,26 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  BookOpen,
-  DollarSign,
-  Eye,
-} from "lucide-react";
+import { Search, BookOpen, DollarSign, Eye, Layers } from "lucide-react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useRouter } from "next/navigation";
 import LoadingScreen from "@/components/LoadingScreen";
-import { fetchCoursesByInstructor } from "@/store/slice/coursesSlice";
+import { fetchCoursesByInstructor } from "@/store/slice/course/coursesSlice";
 import CourseCreate from "@/components/instructor/courses/CreateCourse";
 import DeleteCourseDialog from "@/components/instructor/courses/DeleteCourseDialog";
 import UpdateCourse from "@/components/instructor/courses/UpdateCourse";
 import CourseOnboarding from "@/components/instructor/onboarding/CoursesOnboarding";
-import { fetchSpecializationsByInstructorId } from "@/store/slice/specializationSlice";
+import { fetchSpecializationsByInstructorId } from "@/store/slice/common/specializationSlice";
 
 const InstructorCoursesPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -49,12 +41,17 @@ const InstructorCoursesPage = () => {
   if (loading || userLoading) return <LoadingScreen />;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between ">
-        <h1 className="text-2xl font-bold tracking-tight step-course-header">
-          Khóa học của bạn
-        </h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-1 step-course-header">
+            Khóa học của bạn
+          </h1>
+          <p className="text-gray-500">
+            Quản lý và theo dõi các khóa học bạn đang giảng dạy.
+          </p>
+        </div>
 
         <div className="flex gap-4 items-center">
           <div className="step-create-course">
@@ -108,10 +105,19 @@ const InstructorCoursesPage = () => {
                   {/* Thông tin cơ bản */}
                   <div className="flex items-center justify-between text-sm text-gray-600">
                     <span className="flex items-center gap-1">
-                      <BookOpen className="w-4 h-4" />
-                      {course.lessons?.length || 0} bài học
+                      <Layers className="w-4 h-4" />
+                      {course.chapter?.length || 0} chương
                     </span>
 
+                    <span className="flex items-center gap-1">
+                      <BookOpen className="w-4 h-4" />
+                      {course.chapter?.reduce(
+                        (total, chapter) =>
+                          total + (chapter.lessons?.length || 0),
+                        0
+                      ) || 0}{" "}
+                      bài học
+                    </span>
                     <span className="flex items-center gap-1">
                       <DollarSign className="w-4 h-4" />
                       {course.price.toLocaleString()} LearnCoin
@@ -121,7 +127,11 @@ const InstructorCoursesPage = () => {
                   {/* Trạng thái */}
                   <Badge
                     variant={course.isPublished ? "success" : "secondary"}
-                    className="capitalize"
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      course.isPublished
+                        ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                        : "bg-slate-100 text-slate-600 border border-slate-200"
+                    }`}
                   >
                     {course.isPublished ? "Đã xuất bản" : "Bản nháp"}
                   </Badge>

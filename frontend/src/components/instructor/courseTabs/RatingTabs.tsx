@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchCourseRatings } from "@/store/slice/courseRatingSlice";
+import { fetchCourseRatings } from "@/store/slice/course/courseRatingSlice";
 import { Star } from "lucide-react";
 import { Pagination } from "@/components/ui/pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

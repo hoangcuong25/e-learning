@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { CreateAuthDto } from "../auth/dto/create-auth.dto";
 import { MailerService } from "@nestjs-modules/mailer";
@@ -9,6 +13,13 @@ import {
   comparePasswordHelper,
   hashPasswordHelper,
 } from "src/core/helpers/util";
+import {
+  buildPaginationParams,
+  buildOrderBy,
+  buildSearchFilter,
+  buildPaginationResponse,
+} from "src/core/helpers/pagination.util";
+import { UserPaginationQueryDto } from "./dto/user-pagination.dto";
 
 @Injectable()
 export class UserService {
@@ -150,12 +161,102 @@ export class UserService {
     return { id: savedUser.id };
   }
 
-  async findAll() {
-    return await this.prisma.user.findMany();
+  async findAll(paginationDto: UserPaginationQueryDto) {
+    const { skip, take, page, limit } = buildPaginationParams(paginationDto);
+    const orderBy = buildOrderBy(paginationDto);
+    const searchFilter = buildSearchFilter(paginationDto, [
+      "fullname",
+      "email",
+    ]);
+
+    const where: any = {
+      ...(searchFilter || {}),
+    };
+
+    if (paginationDto.role) {
+      where.role = paginationDto.role;
+    }
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take,
+        orderBy,
+        select: {
+          id: true,
+          fullname: true,
+          email: true,
+          avatar: true,
+          gender: true,
+          dob: true,
+          address: true,
+          phone: true,
+          isVerified: true,
+          walletBalance: true,
+          createdAt: true,
+          updatedAt: true,
+          role: true,
+        },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return buildPaginationResponse(users, total, page, limit);
   }
 
   async getProfile(userId: number) {
-    return await this.findById(userId);
+    if (!userId) {
+      throw new BadRequestException("Cần cung cấp ID người dùng");
+    }
+
+    const [user, cartCount, enrollmentCount, completedCount] =
+      await this.prisma.$transaction([
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            id: true,
+            fullname: true,
+            email: true,
+            avatar: true,
+            gender: true,
+            dob: true,
+            address: true,
+            phone: true,
+            role: true,
+            isVerified: true,
+            walletBalance: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        }),
+
+        this.prisma.cart.count({
+          where: { userId },
+        }),
+
+        this.prisma.enrollment.count({
+          where: { userId },
+        }),
+
+        this.prisma.enrollment.count({
+          where: {
+            userId,
+            OR: [{ completedAt: { not: null } }, { progress: 100 }],
+          },
+        }),
+      ]);
+
+    if (!user) {
+      throw new NotFoundException("Không tìm thấy người dùng");
+    }
+
+    return {
+      ...user,
+      cartCount,
+      enrollmentCount,
+      completedCount,
+    };
   }
 
   async updateProfile(
@@ -171,6 +272,22 @@ export class UserService {
     const updateData: any = { ...updateUserDto };
 
     if (avatar) {
+      // Xóa avatar cũ trên Cloudinary (nếu có)
+      if (user.avatar) {
+        try {
+          // Extract public_id từ URL Cloudinary
+          const urlParts = user.avatar.split("/");
+          const fileNameWithExt = urlParts[urlParts.length - 1];
+          const fileName = fileNameWithExt.split(".")[0];
+          const folder = urlParts[urlParts.length - 2];
+          const publicId = `${folder}/${fileName}`;
+
+          await this.cloudinaryService.deleteFile(publicId, "image");
+        } catch (error) {
+          console.error("Error deleting old avatar:", error);
+        }
+      }
+
       const uploaded = await this.cloudinaryService.uploadFile(avatar);
       updateData.avatar = uploaded.url;
     }
@@ -219,4 +336,55 @@ export class UserService {
       },
     });
   }
+
+  // async getWall(targetUserId: number, currentUserId?: number) {
+  //   if (!targetUserId) {
+  //     throw new BadRequestException("Cần cung cấp ID người dùng");
+  //   }
+
+  //   const [user, isFollowing] = await Promise.all([
+  //     this.prisma.user.findUnique({
+  //       where: { id: targetUserId },
+  //       select: {
+  //         id: true,
+  //         fullname: true,
+  //         email: true,
+  //         avatar: true,
+  //         gender: true,
+  //         dob: true,
+  //         address: true,
+  //         phone: true,
+  //         role: true,
+  //         isVerified: true,
+  //         createdAt: true,
+  //         updatedAt: true,
+  //         _count: {
+  //           select: {
+  //             followers: true,
+  //             following: true,
+  //           },
+  //         },
+  //       },
+  //     }),
+  //     currentUserId
+  //       ? this.prisma.follow.findUnique({
+  //           where: {
+  //             followerId_followingId: {
+  //               followerId: currentUserId,
+  //               followingId: targetUserId,
+  //             },
+  //           },
+  //         })
+  //       : null,
+  //   ]);
+
+  //   if (!user) {
+  //     throw new NotFoundException("Không tìm thấy người dùng");
+  //   }
+
+  //   return {
+  //     ...user,
+  //     isFollowing: !!isFollowing,
+  //   };
+  // }
 }

@@ -5,7 +5,7 @@ import ChangePassword from "@/components/user/ChangePassword";
 import VerifyAccount from "@/components/user/VerifyAccount";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { GenderEnum, GenderLabel } from "@/constants/Gender";
+import { GenderEnum, GenderLabel } from "@/constants/gender.enum";
 import Image from "next/image";
 
 export default function ProfilePage() {
@@ -31,7 +31,6 @@ export default function ProfilePage() {
             {user?.createdAt ? new Date(user.createdAt).getFullYear() : "N/A"}
           </p>
 
-          {/* Action buttons */}
           <div className="flex flex-wrap gap-3 mt-4 justify-center md:justify-start">
             <EditProfile />
             <ChangePassword />
@@ -48,7 +47,7 @@ export default function ProfilePage() {
           </h2>
           <ul className="space-y-2 text-gray-700 text-sm md:text-base">
             <li>
-              <span className="font-medium">Email:</span> {user?.email || ""}
+              <span className="font-medium">Email:</span> {user?.email}
             </li>
             <li>
               <span className="font-medium">Số điện thoại:</span>{" "}
@@ -84,24 +83,28 @@ export default function ProfilePage() {
             </li>
             <li>
               <span className="font-medium">Vai trò:</span>{" "}
-              {user?.role?.toUpperCase() || "USER"}
+              {user?.role?.toUpperCase()}
             </li>
           </ul>
         </div>
 
+        {/* Study Info */}
         <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
           <h2 className="text-xl font-semibold text-blue-700 mb-4">
             🎓 Thông tin học tập
           </h2>
           <ul className="space-y-2 text-gray-700 text-sm md:text-base">
             <li>
-              <span className="font-medium">Số khóa học đã tham gia:</span> 0
+              <span className="font-medium">Số khóa học đã tham gia:</span>{" "}
+              {user?.enrollmentCount ?? 0}
             </li>
             <li>
-              <span className="font-medium">Hoàn thành:</span> 0
+              <span className="font-medium">Hoàn thành:</span>{" "}
+              {user?.completedCount ?? 0}
             </li>
             <li>
-              <span className="font-medium">Khóa học yêu thích:</span> N/A
+              <span className="font-medium">Trong giỏ hàng:</span>{" "}
+              {user?.cartCount ?? 0}
             </li>
           </ul>
         </div>
@@ -110,16 +113,24 @@ export default function ProfilePage() {
       {/* Stats */}
       <div className="mt-8 grid grid-cols-3 gap-4 text-center">
         <div className="bg-blue-100 p-4 rounded-xl">
-          <h3 className="text-2xl font-bold text-blue-700">0</h3>
+          <h3 className="text-2xl font-bold text-blue-700">
+            {user?.enrollmentCount ?? 0}
+          </h3>
           <p className="text-gray-700 text-sm">Khóa học</p>
         </div>
+
         <div className="bg-blue-100 p-4 rounded-xl">
-          <h3 className="text-2xl font-bold text-blue-700">0</h3>
+          <h3 className="text-2xl font-bold text-blue-700">
+            {user?.completedCount ?? 0}
+          </h3>
           <p className="text-gray-700 text-sm">Hoàn thành</p>
         </div>
+
         <div className="bg-blue-100 p-4 rounded-xl">
-          <h3 className="text-2xl font-bold text-blue-700">N/A</h3>
-          <p className="text-gray-700 text-sm">Yêu thích</p>
+          <h3 className="text-2xl font-bold text-blue-700">
+            {user?.cartCount ?? 0}
+          </h3>
+          <p className="text-gray-700 text-sm">Trong giỏ</p>
         </div>
       </div>
 

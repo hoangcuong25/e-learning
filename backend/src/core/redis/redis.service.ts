@@ -69,4 +69,37 @@ export class RedisService {
   async keys(pattern = "*"): Promise<string[]> {
     return this.redis.keys(pattern);
   }
+
+  /**
+   * Delete all keys matching a pattern
+   * @param pattern - Redis key pattern (e.g., "course:*")
+   */
+  async delPattern(pattern: string): Promise<number> {
+    const keys = await this.redis.keys(pattern);
+    if (keys.length === 0) return 0;
+    return this.redis.del(...keys);
+  }
+
+  /**
+   * Get from cache or execute callback and cache the result
+   * @param key - Cache key
+   * @param callback - Function to execute if cache miss
+   * @param ttlSeconds - TTL in seconds
+   */
+  async getOrSet<T>(
+    key: string,
+    callback: () => Promise<T>,
+    ttlSeconds?: number
+  ): Promise<T> {
+    const cached = await this.get<T>(key);
+    if (cached !== null) {
+      this.logger.debug(`Cache hit: ${key}`);
+      return cached;
+    }
+
+    this.logger.debug(`Cache miss: ${key}`);
+    const result = await callback();
+    await this.set(key, result, ttlSeconds);
+    return result;
+  }
 }

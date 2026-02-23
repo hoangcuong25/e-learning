@@ -6,8 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { AppDispatch, RootState } from "@/store";
-import { fetchCourseDetail } from "@/store/slice/coursesSlice";
-import { createEnrollment } from "@/store/slice/enrollmentsSlice";
+import { fetchCourseDetail } from "@/store/slice/course/coursesSlice";
+import { createEnrollment } from "@/store/slice/course/enrollmentsSlice";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowLeft } from "lucide-react";
@@ -19,7 +19,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { fetchCourseCoupons } from "@/store/slice/couponSlice";
+import { fetchCourseCoupons } from "@/store/slice/common/couponSlice";
 
 const Payment = () => {
   const { courseId } = useParams();
@@ -66,7 +66,7 @@ const Payment = () => {
       ).unwrap();
 
       toast.success(`Thanh toán thành công! Bạn đã ghi danh vào khóa học.`);
-      router.push(`/courses/${courseId}`);
+      router.push(`/my-learning`);
     } catch (error: any) {
       toast.error(
         error?.message || "Có lỗi xảy ra khi thanh toán, vui lòng thử lại."
@@ -130,8 +130,8 @@ const Payment = () => {
           </span>
         </div>
 
-        {/* COUPON DROPDOWN */}
-        {courseCoupons && courseCoupons.length > 0 && (
+        {/* COUPON DROPDOWN (Chỉ hiển thị khi khóa học có phí) */}
+        {basePrice > 0 && courseCoupons && courseCoupons.length > 0 && (
           <div className="my-4">
             <label className="block text-gray-700 mb-2">Chọn mã giảm giá</label>
             <Select

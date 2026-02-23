@@ -16,7 +16,8 @@ export const couponSchema = z.object({
     .refine((val) => !val || (!isNaN(Number(val)) && Number(val) > 0), {
       message: "Số lần sử dụng phải là số dương",
     }),
-  expiresAt: z.string().optional(),
+  startsAt: z.string().optional(),
+  endsAt: z.string().optional(),
   target: z.enum(["ALL", "COURSE", "SPECIALIZATION"]),
   courseId: z.string().optional(),
   specializationId: z.string().optional(),

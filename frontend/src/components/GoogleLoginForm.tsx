@@ -4,8 +4,8 @@ import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useGoogleLogin } from "@react-oauth/google";
-import { LoginWithGoogle } from "@/store/api/auth.api";
-import { fetchUser } from "@/store/slice/userSlice";
+import { LoginWithGoogle } from "@/store/api/common/auth.api";
+import { fetchUser } from "@/store/slice/common/userSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 

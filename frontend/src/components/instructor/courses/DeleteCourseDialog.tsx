@@ -17,7 +17,7 @@ import { AppDispatch } from "@/store";
 import {
   deleteCourse,
   fetchCoursesByInstructor,
-} from "@/store/slice/coursesSlice";
+} from "@/store/slice/course/coursesSlice";
 import { toast } from "sonner";
 
 interface DeleteCourseDialogProps {

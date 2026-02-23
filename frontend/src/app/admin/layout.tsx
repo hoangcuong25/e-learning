@@ -30,8 +30,10 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <SidebarAdmin />
+      {/* Sidebar - Hidden on mobile, visible on desktop */}
+      <div className="hidden xl:block">
+        <SidebarAdmin />
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">

@@ -6,7 +6,7 @@ import { RootState } from "@/store";
 import { Wallet, PlusCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { getMyTransactionsApi } from "@/store/api/payment.api";
+import { getMyTransactionsApi } from "@/store/api/common/payment.api";
 import { DepositConfirmationDialog } from "@/components/wallet/DepositConfirmation";
 
 export default function WalletPage() {

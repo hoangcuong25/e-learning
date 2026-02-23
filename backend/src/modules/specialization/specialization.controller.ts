@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from "@nestjs/common";
 import { SpecializationService } from "./specialization.service";
 import { CreateSpecializationDto } from "./dto/create-specialization.dto";
@@ -35,8 +36,19 @@ export class SpecializationController {
     return this.specializationService.findAll();
   }
 
+  @Get("admin/list")
+  @Roles("ADMIN")
+  @ApiOperation({
+    summary: "Lấy danh sách chuyên ngành cho admin (có phân trang)",
+  })
+  @ResponseMessage("Danh sách chuyên ngành")
+  @ApiBearerAuth()
+  findAllForAdmin(@Query() query: any) {
+    return this.specializationService.findAllForAdmin(query);
+  }
+
   @Get(":id")
-  @Public()
+  @Roles("ADMIN")
   @ApiOperation({ summary: "Lấy chuyên ngành theo ID" })
   @ResponseMessage("Chi tiết chuyên ngành")
   findOne(@Param("id") id: string) {

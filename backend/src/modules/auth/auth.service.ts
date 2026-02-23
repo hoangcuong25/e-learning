@@ -47,10 +47,12 @@ export class AuthService {
   createRefreshToken = (payload: any) => {
     const refreshExpire =
       this.configService.get<string>("JWT_REFRESH_EXPIRE") || "7d";
+
     const refresh_token = this.jwtService.sign(payload, {
       secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET"),
-      expiresIn: this.configService.get<string>("JWT_REFRESH_EXPIRE"),
+      expiresIn: refreshExpire as any,
     });
+
     return refresh_token;
   };
 
@@ -86,24 +88,28 @@ export class AuthService {
     return await this.userService.handleRegister(registerDto);
   };
 
-  async logout(req) {
-    try {
-      const access_token = req.headers.authorization?.split(" ")[1];
-
-      if (!access_token) {
-        throw new UnauthorizedException("Không có access token");
-      }
-
-      const decoded = this.jwtService.verify(access_token, {
-        secret: this.configService.get<string>("JWT_ACCESS_TOKEN_SECRET"),
-      });
-
-      this.userService.clearRefreshTokenInDatabase(decoded.id);
-
-      return "Đăng xuất thành công";
-    } catch {
-      throw new UnauthorizedException("Token không hợp lệ hoặc đã hết hạn");
+  async logout(req, res) {
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    if (!accessToken) {
+      throw new UnauthorizedException("Không có access token");
     }
+
+    const decoded = this.jwtService.verify(accessToken, {
+      secret: this.configService.get("JWT_ACCESS_TOKEN_SECRET"),
+    });
+
+    // Xóa refresh token trong DB
+    await this.userService.clearRefreshTokenInDatabase(decoded.id);
+
+    // Xóa cookie refresh token
+    res.clearCookie("refresh_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
+
+    return "Đăng xuất thành công";
   }
 
   async refreshToken(req) {

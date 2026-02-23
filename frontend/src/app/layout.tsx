@@ -1,6 +1,6 @@
 "use client";
 
-// import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import { Provider } from "react-redux";
@@ -8,16 +8,17 @@ import { store } from "@/store";
 import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import SocketInitializer from "@/components/SocketInitializer";
+import FloatingChatWidget from "@/components/community/chat/FloatingChatWidget";
 
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export default function RootLayout({
   children,
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-      // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Provider store={store}>
           <SocketInitializer />
@@ -48,6 +49,7 @@ export default function RootLayout({
               <Toaster position="top-right" />
             </div>
           </GoogleOAuthProvider>
+          <FloatingChatWidget />
         </Provider>
       </body>
     </html>

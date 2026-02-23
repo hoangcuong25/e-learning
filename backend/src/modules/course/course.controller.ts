@@ -10,6 +10,7 @@ import {
   UploadedFile,
   Req,
   Query,
+  UseGuards,
 } from "@nestjs/common";
 import { CourseService } from "./course.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
@@ -23,6 +24,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { Public, ResponseMessage, Roles } from "src/core/decorator/customize";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
+import { OptionalJwtAuthGuard } from "../auth/passport/jwt-optional.guard";
+import { CourseQueryDto } from "./dto/course-query.dto";
 
 @ApiTags("Course")
 @Controller("course")
@@ -45,18 +48,22 @@ export class CourseController {
 
   @Get("popular")
   @Public()
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: "Get popular courses" })
   @ResponseMessage("Get popular courses")
-  getPopularCourses() {
+  getPopularCourses(@Req() req) {
+    const userId = req.user?.id || null;
     return this.courseService.getPopularCourses();
   }
 
   @Get()
   @Public()
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: "Get all courses with pagination and filter" })
   @ResponseMessage("Get all courses")
-  findAll(@Query() dto: PaginationQueryDto) {
-    return this.courseService.findAll(dto);
+  findAll(@Query() dto: CourseQueryDto, @Req() req) {
+    const userId = req.user?.id || null;
+    return this.courseService.findAll(dto, userId);
   }
 
   @Get(":id")
@@ -68,7 +75,7 @@ export class CourseController {
   }
 
   @Get(":id/instructor")
-  @Roles("INSTRUCTOR")
+  @Roles("INSTRUCTOR", "ADMIN")
   @ApiOperation({ summary: "Get course detail by ID" })
   @ResponseMessage("Get course detail")
   @ApiBearerAuth()
@@ -108,7 +115,7 @@ export class CourseController {
   }
 
   @Delete("instructor/course/:id")
-  @Roles("INSTRUCTOR")
+  @Roles("INSTRUCTOR", "ADMIN")
   @ApiOperation({ summary: "Delete a course by ID" })
   @ResponseMessage("Delete course")
   @ApiBearerAuth()

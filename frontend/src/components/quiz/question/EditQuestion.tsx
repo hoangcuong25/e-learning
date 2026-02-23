@@ -18,12 +18,15 @@ import { PlusCircle, Trash2, CheckCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { toast } from "sonner";
-import { saveQuestion, updateQuestion } from "@/store/slice/question.slice";
+import {
+  saveQuestion,
+  updateQuestion,
+} from "@/store/slice/course/question.slice";
 import {
   createOption,
   deleteOption,
   updateOption,
-} from "@/store/slice/option.slice";
+} from "@/store/slice/course/option.slice";
 import DeleteOption from "./DeleteQuestion";
 
 interface EditQuestionProps {

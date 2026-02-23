@@ -16,10 +16,10 @@ import { PlusCircle, CheckCircle, Trash2 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { Textarea } from "@/components/ui/textarea";
-import { createQuestion } from "@/store/slice/question.slice";
-import { createManyOptions } from "@/store/slice/option.slice";
+import { createQuestion } from "@/store/slice/course/question.slice";
+import { createManyOptions } from "@/store/slice/course/option.slice";
 import { toast } from "sonner";
-import { fetchQuizById } from "@/store/slice/quizSlice";
+import { fetchQuizById } from "@/store/slice/course/quizSlice";
 
 interface CreateQuestionProps {
   quizId: number;

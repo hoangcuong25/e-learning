@@ -9,10 +9,11 @@ import {
   Req,
   UseInterceptors,
   UploadedFile,
+  Query,
+  UseGuards,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
   ApiBearerAuth,
@@ -20,10 +21,10 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { UserRole } from "@prisma/client";
-import { ApplyInstructorDto } from "../instructor/dto/apply-instructor.dto";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
 import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { UserPaginationQueryDto } from "./dto/user-pagination.dto";
+import { OptionalJwtAuthGuard } from "../auth/passport/jwt-optional.guard";
 
 @ApiBearerAuth()
 @ApiTags("User")
@@ -31,7 +32,7 @@ import { ResponseMessage, Roles } from "src/core/decorator/customize";
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly cloudinaryService: CloudinaryService
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   @Post()
@@ -46,8 +47,8 @@ export class UserController {
   @ResponseMessage("get all user")
   @ApiResponse({ status: 200, description: "Users retrieved successfully" })
   @Roles("ADMIN")
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() query: UserPaginationQueryDto) {
+    return this.userService.findAll(query);
   }
 
   @Get("@me")
@@ -57,6 +58,14 @@ export class UserController {
     return this.userService.getProfile(req.user.id);
   }
 
+  // @Get("wall/:id")
+  // @UseGuards(OptionalJwtAuthGuard)
+  // @ResponseMessage("get user wall")
+  // @ApiResponse({ status: 200, description: "User wall retrieved successfully" })
+  // getWall(@Param("id") id: string, @Req() req) {
+  //   return this.userService.getWall(+id, req.user?.id);
+  // }
+
   @Patch("profile")
   @ResponseMessage("update profile")
   @ApiOperation({ summary: "Update user profile" })
@@ -64,7 +73,7 @@ export class UserController {
   updateProfile(
     @Req() req,
     @Body() updateUserDto,
-    @UploadedFile() avatar: Express.Multer.File
+    @UploadedFile() avatar: Express.Multer.File,
   ) {
     return this.userService.updateProfile(req.user.id, updateUserDto, avatar);
   }
@@ -79,7 +88,7 @@ export class UserController {
       newPassword1: string;
       newPassword2: string;
       oldPassword: string;
-    }
+    },
   ) {
     return this.userService.updatePassword(req.user.id, body);
   }

@@ -6,7 +6,8 @@ import { SpecializationModule } from "../specialization/specialization.module";
 import { ChapterModule } from "./chapter/chapter.module";
 import { LessonDiscussionModule } from "./lesson-discussion/lesson-discussion.module";
 import { LessonDiscussionGateway } from "./lesson-discussion/lesson-discussion.gateway";
-import { CourseRatingModule } from './course-rating/course-rating.module';
+import { CourseRatingModule } from "./course-rating/course-rating.module";
+import { RedisModule } from "src/core/redis/redis.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CourseRatingModule } from './course-rating/course-rating.module';
     ChapterModule,
     LessonDiscussionModule,
     CourseRatingModule,
+    RedisModule,
   ],
   controllers: [CourseController],
   providers: [CourseService, LessonDiscussionGateway],

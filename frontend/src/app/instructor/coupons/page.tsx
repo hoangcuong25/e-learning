@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -29,8 +30,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import {
   deleteCoupon,
   fetchInstructorCoupons,
-  updateCoupon,
-} from "@/store/slice/couponSlice";
+} from "@/store/slice/common/couponSlice";
 import CouponForm from "@/components/instructor/coupon/CreateCoupon";
 import UpdateCouponForm from "@/components/instructor/coupon/UpdateCoupon";
 import CouponOnboarding from "@/components/instructor/onboarding/CouponOnboarding";
@@ -69,43 +69,17 @@ const Coupons = () => {
     }
   };
 
-  // ✏️ Update coupon
-  const handleUpdate = async () => {
-    if (!editCoupon) return;
-    if (!newTitle.trim()) return toast.error("Tên coupon không được để trống!");
-    if (isNaN(Number(newDiscount)))
-      return toast.error("Phần trăm giảm phải là số!");
-
-    try {
-      await dispatch(
-        updateCoupon({
-          id: editCoupon.id,
-          payload: {
-            title: newTitle,
-            discountPercent: Number(newDiscount),
-          },
-        })
-      ).unwrap();
-
-      await dispatch(fetchInstructorCoupons()).unwrap();
-      toast.success("Đã cập nhật coupon thành công!");
-      setEditCoupon(null);
-    } catch {
-      toast.error("Cập nhật thất bại!");
-    }
-  };
-
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div className="step-coupon-header">
-          <h1 className="text-3xl font-bold text-gray-800">
-            🎟️ Quản lý Coupon của bạn
+          <h1 className="text-3xl font-bold text-gray-800 mb-1">
+            Quản lý Coupon của bạn
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-gray-500">
             Tạo, chỉnh sửa và quản lý mã giảm giá cho khóa học của bạn.
           </p>
         </div>
@@ -257,6 +231,12 @@ const Coupons = () => {
                       </DialogTrigger>
 
                       <DialogContent className="max-w-3xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-xl font-semibold text-gray-800">
+                            ✏️ Cập nhật Coupon
+                          </DialogTitle>
+                        </DialogHeader>
+
                         <UpdateCouponForm
                           coupon={coupon}
                           onSuccess={() => {

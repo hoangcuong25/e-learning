@@ -17,13 +17,16 @@ import {
   buildSearchFilter,
 } from "src/core/helpers/pagination.util";
 import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
+import { RedisService } from "src/core/redis/redis.service";
+import { CourseQueryDto } from "./dto/course-query.dto";
 
 @Injectable()
 export class CourseService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
-    private readonly specializationService: SpecializationService
+    private readonly specializationService: SpecializationService,
+    private readonly redisService: RedisService
   ) {}
 
   // 🧩 Tạo khóa học mới
@@ -117,7 +120,16 @@ export class CourseService {
   }
 
   // 🧩 Lấy danh sách khóa học (phân trang + tìm kiếm)
-  async findAll(dto: PaginationQueryDto) {
+  async findAll(dto: CourseQueryDto, userId: number) {
+    let user;
+    if (userId) {
+      user = await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+    }
+
     const { skip, take, page, limit } = buildPaginationParams(dto);
     const orderBy = buildOrderBy(dto);
     const where =
@@ -126,7 +138,13 @@ export class CourseService {
         "description",
       ]) || {};
 
-    // Nếu có specializationId thì filter theo đó
+    where.deletedAt = null;
+    if (user?.role === "ADMIN" && dto.isPublished !== undefined) {
+      where.isPublished = dto.isPublished;
+    } else {
+      where.isPublished = true;
+    }
+
     if (dto.specialization) {
       where.specializations = {
         some: {
@@ -147,8 +165,15 @@ export class CourseService {
         orderBy,
         include: {
           instructor: {
-            select: { id: true, fullname: true, email: true },
+            select: { id: true, fullname: true, avatar: true },
           },
+
+          _count: {
+            select: {
+              chapter: true,
+            },
+          },
+
           specializations: {
             include: {
               specialization: {
@@ -156,72 +181,128 @@ export class CourseService {
               },
             },
           },
+
+          // check enrollment của user
+          ...(userId && {
+            enrollments: {
+              where: {
+                userId,
+              },
+              select: {
+                id: true,
+                progress: true,
+                enrolledAt: true,
+                completedAt: true,
+              },
+            },
+          }),
+
           coupon: {
             where: {
               isActive: true,
-              OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+              AND: [
+                { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+                { OR: [{ endsAt: null }, { endsAt: { gt: now } }] },
+              ],
             },
           },
         },
       }),
+
       this.prisma.course.count({ where }),
     ]);
 
+    // Map ra field isEnrolled
+    const mappedCourses = courses.map((course) => ({
+      ...course,
+      isEnrolled: Boolean(course.enrollments?.length),
+    }));
+
     return {
       message: "Lấy danh sách khóa học thành công.",
-      ...buildPaginationResponse(courses, total, page, limit),
+      ...buildPaginationResponse(mappedCourses, total, page, limit),
     };
   }
 
   // 🧩 Lấy khóa học theo ID
   async findCourseById(id: number) {
-    const course = await this.prisma.course.findUnique({
-      where: { id },
-      include: {
-        instructor: {
-          select: { id: true, fullname: true, email: true },
-        },
-        specializations: {
+    const cacheKey = `course:detail:${id}`;
+
+    return this.redisService.getOrSet(
+      cacheKey,
+      async () => {
+        const course = await this.prisma.course.findFirst({
+          where: { id, deletedAt: null },
           include: {
-            specialization: {
-              select: { name: true },
+            instructor: {
+              select: { id: true, fullname: true, email: true, avatar: true },
             },
-          },
-        },
-        chapter: {
-          orderBy: { orderIndex: "asc" },
-          include: {
-            lessons: {
+            specializations: {
+              include: {
+                specialization: {
+                  select: { name: true },
+                },
+              },
+            },
+            chapter: {
               orderBy: { orderIndex: "asc" },
-              select: {
-                id: true,
-                title: true,
-                orderIndex: true,
-                content: true,
-                duration: true,
-                createdAt: true,
-                updatedAt: true,
+              include: {
+                lessons: {
+                  orderBy: { orderIndex: "asc" },
+                  select: {
+                    id: true,
+                    title: true,
+                    orderIndex: true,
+                    content: true,
+                    duration: true,
+                    createdAt: true,
+                    updatedAt: true,
+                  },
+                },
               },
             },
           },
-        },
+        });
+
+        if (!course) {
+          throw new NotFoundException("Không tìm thấy khóa học.");
+        }
+
+        return course;
       },
-    });
-
-    if (!course) {
-      throw new NotFoundException("Không tìm thấy khóa học.");
-    }
-
-    return course;
+      600 // 10 minutes TTL
+    );
   }
 
   // 🧩 Lấy chi tiết khóa học (bao gồm chương, bài học, chuyên ngành)
-  async findOne(id: number, instructorId: number) {
-    const course = await this.prisma.course.findUnique({
-      where: { id, instructorId },
+  async findOne(id: number, userId: number) {
+    // Query database để lấy role của user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (!user) throw new NotFoundException("Không tìm thấy người dùng.");
+
+    // Nếu là ADMIN thì có thể xem bất kỳ khóa học nào
+    const whereCondition: any = { id, deletedAt: null };
+
+    // Nếu không phải ADMIN thì chỉ được xem khóa học của mình
+    if (user.role !== "ADMIN") {
+      whereCondition.instructorId = userId;
+    }
+
+    const course = await this.prisma.course.findFirst({
+      where: whereCondition,
       include: {
         instructor: {
-          select: { id: true, fullname: true, email: true },
+          select: { id: true, fullname: true, email: true, avatar: true },
+        },
+        _count: {
+          select: {
+            enrollments: true,
+            courseRating: true,
+          },
         },
         chapter: {
           include: {
@@ -232,6 +313,7 @@ export class CourseService {
                 orderIndex: true,
                 videoUrl: true,
                 content: true,
+                duration: true,
                 createdAt: true,
                 updatedAt: true,
                 quizzes: {
@@ -283,6 +365,22 @@ export class CourseService {
 
     // Upload ảnh bìa mới (nếu có)
     if (thumbnail) {
+      // Xóa ảnh cũ trên Cloudinary (nếu có)
+      if (existing.thumbnail) {
+        try {
+          // Extract public_id từ URL Cloudinary
+          const urlParts = existing.thumbnail.split("/");
+          const fileNameWithExt = urlParts[urlParts.length - 1];
+          const fileName = fileNameWithExt.split(".")[0];
+          const folder = urlParts[urlParts.length - 2];
+          const publicId = `${folder}/${fileName}`;
+
+          await this.cloudinaryService.deleteFile(publicId, "image");
+        } catch (error) {
+          console.error("Error deleting old thumbnail:", error);
+        }
+      }
+
       const uploaded = await this.cloudinaryService.uploadFile(thumbnail);
       updateData.thumbnail = uploaded.url;
     }
@@ -339,6 +437,10 @@ export class CourseService {
         },
       });
 
+      // Invalidate caches
+      await this.redisService.del(`course:detail:${id}`);
+      await this.redisService.delPattern("course:popular:*");
+
       return { message: "Cập nhật khóa học thành công.", data: updated };
     }
 
@@ -351,23 +453,56 @@ export class CourseService {
       },
     });
 
+    // Invalidate caches
+    await this.redisService.del(`course:detail:${id}`);
+    await this.redisService.delPattern("course:popular:*");
+
     return { message: "Cập nhật khóa học thành công.", data: updated };
   }
 
-  // 🧩 Xóa khóa học
+  // 🧩 Xóa khóa học (Soft Delete)
   async remove(id: number, userId: number) {
-    const existing = await this.prisma.course.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException("Không tìm thấy khóa học.");
-
-    return await this.prisma.course.delete({
-      where: { id, instructorId: userId },
+    // Lấy thông tin khóa học
+    const existing = await this.prisma.course.findUnique({
+      where: { id, deletedAt: null },
     });
+
+    if (!existing) {
+      throw new NotFoundException(
+        "Không tìm thấy khóa học hoặc khóa học đã bị xóa."
+      );
+    }
+
+    // Query database để lấy role của user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (!user) throw new NotFoundException("Không tìm thấy người dùng.");
+
+    // Nếu không phải ADMIN thì kiểm tra quyền sở hữu
+    if (user.role !== "ADMIN" && existing.instructorId !== userId) {
+      throw new ForbiddenException("Bạn không có quyền xóa khóa học này.");
+    }
+
+    // Soft delete: chỉ cập nhật deletedAt thay vì xóa thật
+    const result = await this.prisma.course.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+
+    // Invalidate caches
+    await this.redisService.del(`course:detail:${id}`);
+    await this.redisService.delPattern("course:popular:*");
+
+    return result;
   }
 
   // 🧩 Lấy danh sách khóa học của giảng viên
   async getCoursesByInstructor(instructorId: number) {
     return this.prisma.course.findMany({
-      where: { instructorId },
+      where: { instructorId, deletedAt: null },
       orderBy: { createdAt: "desc" },
       include: {
         specializations: {
@@ -389,16 +524,24 @@ export class CourseService {
   }
 
   async getPopularCourses(limit: number = 6) {
-    return this.prisma.course.findMany({
-      where: { isPublished: true },
-      orderBy: { viewCount: "desc" },
-      take: limit,
-      include: {
-        instructor: {
-          select: { fullname: true, avatar: true },
-        },
+    const cacheKey = `course:popular:${limit}`;
+
+    return this.redisService.getOrSet(
+      cacheKey,
+      async () => {
+        return this.prisma.course.findMany({
+          where: { isPublished: true, deletedAt: null },
+          orderBy: { viewCount: "desc" },
+          take: limit,
+          include: {
+            instructor: {
+              select: { fullname: true, avatar: true },
+            },
+          },
+        });
       },
-    });
+      900 // 15 minutes TTL
+    );
   }
 
   // 🧩 Tăng lượt xem khóa học
@@ -438,8 +581,8 @@ export class CourseService {
   }
 
   async getCourseDetail(courseId: number, userId?: number) {
-    const course = await this.prisma.course.findUnique({
-      where: { id: courseId },
+    const course = await this.prisma.course.findFirst({
+      where: { id: courseId, deletedAt: null },
       include: {
         instructor: {
           select: { id: true, fullname: true, avatar: true },

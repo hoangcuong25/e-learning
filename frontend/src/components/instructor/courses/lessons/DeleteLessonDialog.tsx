@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { deleteLesson } from "@/store/slice/lessonsSlice";
+import { deleteLesson } from "@/store/slice/course/lessonsSlice";
 import { toast } from "sonner";
-import { fetchCourseById } from "@/store/slice/coursesSlice";
+import { fetchCourseById } from "@/store/slice/course/coursesSlice";
 
 const DeleteLessonDialog = ({
   lessonId,
@@ -59,7 +59,17 @@ const DeleteLessonDialog = ({
 
         <AlertDialogFooter>
           <AlertDialogCancel>Hủy</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Xóa</AlertDialogAction>
+          <AlertDialogAction
+            onClick={handleDelete}
+            className="
+              bg-red-600 
+              text-white 
+              hover:bg-red-700 
+              focus:ring-red-500
+            "
+          >
+            Xóa
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
