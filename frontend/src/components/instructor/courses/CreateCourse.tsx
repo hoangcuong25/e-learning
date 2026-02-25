@@ -30,7 +30,7 @@ import RichTextEditor from "@/components/RichTextEditor";
 export default function CourseCreate() {
   const dispatch = useDispatch<AppDispatch>();
   const { user, loading: userLoading } = useSelector(
-    (state: RootState) => state.user
+    (state: RootState) => state.user,
   );
   const { instructorSpecializaions, loading: specializationLoading } =
     useSelector((state: RootState) => state.specialization);
@@ -107,7 +107,7 @@ export default function CourseCreate() {
       else formData.append("price", "0");
 
       selectedSpecs.forEach((id) =>
-        formData.append("specializationIds", id.toString())
+        formData.append("specializationIds", id.toString()),
       );
 
       if (file) formData.append("thumbnail", file);
@@ -137,7 +137,7 @@ export default function CourseCreate() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="md:max-w-[800px]">
+      <DialogContent className="md:max-w-[800px] max-h-[90vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>Tạo khóa học mới</DialogTitle>
         </DialogHeader>
@@ -270,7 +270,7 @@ export default function CourseCreate() {
               <div className="flex flex-wrap gap-2 mt-3">
                 {selectedSpecs.map((id) => {
                   const spec = instructorSpecializaions.find(
-                    (s) => s.id === id
+                    (s) => s.id === id,
                   );
                   return (
                     <span

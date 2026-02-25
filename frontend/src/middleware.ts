@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
   // 🔹 Nếu URL nằm trong danh sách public -> cho phép truy cập
   if (publicRoutes.some((route) => pathname.startsWith(route))) {
     return NextResponse.next();
-  } 
+  }
 
   const token = request.cookies.get("refresh_token")?.value;
 

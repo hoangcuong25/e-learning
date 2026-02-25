@@ -45,17 +45,17 @@ export default function UpdateCourse({ course }: Props) {
   const [open, setOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(
-    course.thumbnail || null
+    course.thumbnail || null,
   );
   const [file, setFile] = useState<File | null>(null);
   const [selectedSpecs, setSelectedSpecs] = useState<number[]>(
-    course.specializations?.map((s: any) => s.specializationId) || []
+    course.specializations?.map((s: any) => s.specializationId) || [],
   );
   const [courseType, setCourseType] = useState<"FREE" | "PAID">(
-    course.type || "FREE"
+    course.type || "FREE",
   );
   const [selectPublic, setSelectPublic] = useState(
-    (course.isPublished || false).toString()
+    (course.isPublished || false).toString(),
   );
 
   const {
@@ -127,17 +127,17 @@ export default function UpdateCourse({ course }: Props) {
       formData.append("isPublished", selectPublic);
       formData.append(
         "price",
-        courseType === "PAID" ? data.price?.toString() ?? "0" : "0"
+        courseType === "PAID" ? (data.price?.toString() ?? "0") : "0",
       );
 
       selectedSpecs.forEach((id) =>
-        formData.append("specializationIds", id.toString())
+        formData.append("specializationIds", id.toString()),
       );
 
       if (file) formData.append("thumbnail", file);
 
       await dispatch(
-        updateCourse({ id: course.id, payload: formData })
+        updateCourse({ id: course.id, payload: formData }),
       ).unwrap();
       await dispatch(fetchCoursesByInstructor()).unwrap();
 
@@ -159,7 +159,7 @@ export default function UpdateCourse({ course }: Props) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="md:max-w-[800px]">
+      <DialogContent className="md:max-w-[800px] max-h-[90vh] overflow-auto">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
             Cập nhật khóa học
@@ -285,7 +285,7 @@ export default function UpdateCourse({ course }: Props) {
               <div className="flex flex-wrap gap-2 mt-2">
                 {selectedSpecs.map((id) => {
                   const spec = instructorSpecializaions.find(
-                    (s) => s.id === id
+                    (s) => s.id === id,
                   );
                   return (
                     <span

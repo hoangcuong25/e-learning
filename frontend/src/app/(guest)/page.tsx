@@ -39,7 +39,7 @@ export default async function Page() {
     `${process.env.NEXT_PUBLIC_BACKEND_URL}course/popular`,
     {
       next: { revalidate: 60 },
-    }
+    },
   );
 
   const popularCourses = await res.json();

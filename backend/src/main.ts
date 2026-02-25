@@ -25,7 +25,7 @@ async function bootstrap() {
       whitelist: true,
       transform: true, // cho phép tự động ép kiểu string -> number
       transformOptions: { enableImplicitConversion: true },
-    })
+    }),
   );
 
   app.use(cookieParser());
@@ -54,6 +54,6 @@ async function bootstrap() {
     swaggerOptions: { persistAuthorization: true }, // giữ token khi reload
   });
 
-  await app.listen(port, "0.0.0.0");
+  await app.listen(port);
 }
 bootstrap();
