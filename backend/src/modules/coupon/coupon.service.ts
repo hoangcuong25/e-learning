@@ -21,7 +21,9 @@ import { Prisma } from "@prisma/client";
 export class CouponService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateCouponDto, instructorId: number) {
+  async create(dto: CreateCouponDto, userId: number, role?: string) {
+    const isAdmin = role === "ADMIN";
+
     // Kiểm tra quyền instructor
     if (dto.courseId) {
       const course = await this.prisma.course.findUnique({
@@ -29,7 +31,7 @@ export class CouponService {
       });
       if (!course) throw new NotFoundException("Khóa học không tồn tại");
 
-      if (course.instructorId !== instructorId) {
+      if (!isAdmin && course.instructorId !== userId) {
         throw new ForbiddenException(
           "Bạn không có quyền tạo coupon cho khóa học này",
         );
@@ -87,7 +89,7 @@ export class CouponService {
         isActive: dto.isActive ?? true,
         courseId: dto.courseId ?? null,
         specializationId: dto.specializationId ?? null,
-        createdById: instructorId,
+        createdById: userId,
         usedCount: 0,
       },
     });
@@ -212,7 +214,14 @@ export class CouponService {
     return coupon;
   }
 
-  async update(id: number, dto: UpdateCouponDto, instructorId: number) {
+  async update(
+    id: number,
+    dto: UpdateCouponDto,
+    userId: number,
+    role?: string,
+  ) {
+    const isAdmin = role === "ADMIN";
+
     const coupon = await this.prisma.coupon.findUnique({
       where: { id },
       include: { course: true },
@@ -220,7 +229,7 @@ export class CouponService {
     if (!coupon) throw new NotFoundException("Không tìm thấy coupon");
 
     // Chỉ admin hoặc instructor của course được update
-    if (coupon.course && coupon.course.instructorId !== instructorId) {
+    if (!isAdmin && coupon.course && coupon.course.instructorId !== userId) {
       throw new ForbiddenException("Bạn không có quyền cập nhật coupon này");
     }
 
@@ -247,14 +256,16 @@ export class CouponService {
     return { message: "Thay đổi coupon thành công", data: updated };
   }
 
-  async remove(id: number, userId: number) {
+  async remove(id: number, userId: number, role?: string) {
+    const isAdmin = role === "ADMIN";
+
     const coupon = await this.prisma.coupon.findUnique({
       where: { id },
       include: { course: true },
     });
     if (!coupon) throw new NotFoundException("Không tìm thấy coupon");
 
-    if (coupon.course && coupon.course.instructorId !== userId) {
+    if (!isAdmin && coupon.course && coupon.course.instructorId !== userId) {
       throw new ForbiddenException("Bạn không có quyền xóa coupon này");
     }
 

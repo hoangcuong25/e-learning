@@ -31,8 +31,8 @@ const SidebarAdmin = () => {
       icon: GraduationCap,
     },
     {
-      href: "/admin/discount-campaigns",
-      label: "Khyến mãi",
+      href: "/admin/coupon",
+      label: "Quản lý coupon",
       icon: Tag,
     },
     {

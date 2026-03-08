@@ -22,12 +22,12 @@ export class CouponController {
   constructor(private readonly couponService: CouponService) {}
 
   @Post()
-  @Roles("INSTRUCTOR")
+  @Roles("INSTRUCTOR", "ADMIN")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Create new coupon" })
   @ResponseMessage("Create coupon successfully")
   create(@Body() dto: CreateCouponDto, @Req() req) {
-    return this.couponService.create(dto, req.user.id);
+    return this.couponService.create(dto, req.user.id, req.user.role);
   }
 
   @Post("admin")
@@ -59,21 +59,21 @@ export class CouponController {
   }
 
   @Patch(":id")
-  @Roles("INSTRUCTOR")
+  @Roles("INSTRUCTOR", "ADMIN")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update coupon information" })
   @ResponseMessage("Update coupon successfully")
   update(@Param("id") id: string, @Body() dto: UpdateCouponDto, @Req() req) {
-    return this.couponService.update(+id, dto, req.user.id);
+    return this.couponService.update(+id, dto, req.user.id, req.user.role);
   }
 
   @Delete(":id")
-  @Roles("INSTRUCTOR")
+  @Roles("INSTRUCTOR", "ADMIN")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Delete coupon by ID" })
   @ResponseMessage("Delete coupon successfully")
   remove(@Param("id") id: string, @Req() req) {
-    return this.couponService.remove(+id, req.user.id);
+    return this.couponService.remove(+id, req.user.id, req.user.role);
   }
 
   @Post(":code/apply")
@@ -83,7 +83,7 @@ export class CouponController {
   applyCoupon(
     @Param("code") code: string,
     @Body("courseId") courseId: number,
-    @Req() req
+    @Req() req,
   ) {
     return this.couponService.applyCoupon(req.user.id, code, +courseId);
   }

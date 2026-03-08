@@ -49,7 +49,7 @@ export const fetchCouponById = createAsyncThunk(
   }
 );
 
-// ➕ Tạo coupon (Instructor)
+// ➕ Tạo coupon
 export const createCoupon = createAsyncThunk(
   "coupon/create",
   async (payload: any, { rejectWithValue }) => {

@@ -50,7 +50,7 @@ export default function CreateDiscountForm() {
       await dispatch(createDiscount(payload)).unwrap();
       await dispatch(fetchAllDiscounts({ page: 1 }));
 
-      toast.success("Tạo chiến dịch thành công!");
+      toast.success("Tạo coupon thành công!");
       reset();
     } catch (error: any) {
       // Xử lý thông báo lỗi chi tiết
@@ -149,7 +149,7 @@ export default function CreateDiscountForm() {
             disabled={isSubmitting}
             className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white"
           >
-            {isSubmitting ? "Đang lưu..." : "Lưu chiến dịch"}
+            {isSubmitting ? "Đang lưu..." : "Lưu Coupon"}
           </Button>
         </form>
       </CardContent>
