@@ -11,18 +11,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { BookOpen, User, Briefcase, Award } from "lucide-react";
 
+import { fetchAllCourses } from "@/store/slice/course/coursesSlice";
+import CourseCard from "@/components/course/CourseCard";
+
 const InstructorProfilePublicPage = () => {
   const params = useParams();
   const instructorId = Number(params.instructorId);
   const dispatch = useDispatch<AppDispatch>();
 
   const { publicProfile, loading, error } = useSelector(
-    (state: RootState) => state.instructorProfile
+    (state: RootState) => state.instructorProfile,
+  );
+
+  const { courses, loading: coursesLoading } = useSelector(
+    (state: RootState) => state.courses,
   );
 
   useEffect(() => {
     if (instructorId) {
       dispatch(fetchInstructorProfile(instructorId));
+      dispatch(fetchAllCourses({ instructorId, page: 1, limit: 100 } as any));
     }
   }, [dispatch, instructorId]);
 
@@ -57,7 +65,7 @@ const InstructorProfilePublicPage = () => {
   // Attempting to render with potential missing user data gracefully.
 
   return (
-    <div className="container mx-auto py-10 px-4 max-w-4xl">
+    <div className="container mx-auto py-10 px-4 max-w-5xl">
       <Card className="shadow-lg border-t-4 border-t-primary">
         <CardHeader className="text-center pb-2">
           <div className="flex flex-col items-center gap-4">
@@ -109,6 +117,32 @@ const InstructorProfilePublicPage = () => {
             <div className="prose max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
               {publicProfile.experience || "Chưa có thông tin kinh nghiệm."}
             </div>
+          </div>
+
+          {/* Courses Section */}
+          <div className="space-y-3 pt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen className="w-5 h-5 text-primary" />
+              <h3 className="text-xl font-semibold">
+                Các khóa học của giảng viên
+              </h3>
+            </div>
+            <Separator />
+            {coursesLoading ? (
+              <p className="text-center text-muted-foreground mt-4">
+                Đang tải...
+              </p>
+            ) : courses && courses.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
+                {courses.map((course) => (
+                  <CourseCard key={course.id} course={course} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground mt-4">
+                Chưa có khóa học nào.
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -26,14 +26,14 @@ export class CourseService {
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly specializationService: SpecializationService,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
   ) {}
 
   // 🧩 Tạo khóa học mới
   async create(
     createCourseDto: CreateCourseDto,
     instructorId: number,
-    thumbnail?: Express.Multer.File
+    thumbnail?: Express.Multer.File,
   ) {
     const { title, description, price, isPublished, specializationIds, type } =
       createCourseDto;
@@ -44,7 +44,7 @@ export class CourseService {
 
     if (!approvedSpecializations.length) {
       throw new ForbiddenException(
-        "Bạn cần được phê duyệt là giảng viên trước khi tạo khóa học."
+        "Bạn cần được phê duyệt là giảng viên trước khi tạo khóa học.",
       );
     }
 
@@ -63,14 +63,14 @@ export class CourseService {
 
     // 🧩 Kiểm tra các chuyên ngành hợp lệ
     const invalidIds = parsedSpecializationIds.filter(
-      (id) => !approvedIds.includes(id)
+      (id) => !approvedIds.includes(id),
     );
 
     if (invalidIds.length > 0) {
       throw new ForbiddenException(
         `Bạn chỉ có thể chọn chuyên ngành đã được phê duyệt. ID không hợp lệ: ${invalidIds.join(
-          ", "
-        )}`
+          ", ",
+        )}`,
       );
     }
 
@@ -153,6 +153,10 @@ export class CourseService {
           },
         },
       };
+    }
+
+    if (dto.instructorId) {
+      where.instructorId = Number(dto.instructorId);
     }
 
     const now = new Date();
@@ -270,7 +274,7 @@ export class CourseService {
 
         return course;
       },
-      600 // 10 minutes TTL
+      600, // 10 minutes TTL
     );
   }
 
@@ -353,7 +357,7 @@ export class CourseService {
     id: number,
     updateCourseDto: UpdateCourseDto,
     thumbnail?: Express.Multer.File,
-    userId?: number
+    userId?: number,
   ) {
     // Kiểm tra khóa học thuộc giảng viên hiện tại
     const existing = await this.prisma.course.findUnique({
@@ -411,7 +415,7 @@ export class CourseService {
         specializationIds = [Number(updateCourseDto.specializationIds)];
       } else {
         specializationIds = updateCourseDto.specializationIds.map((id) =>
-          Number(id)
+          Number(id),
         );
       }
     }
@@ -469,7 +473,7 @@ export class CourseService {
 
     if (!existing) {
       throw new NotFoundException(
-        "Không tìm thấy khóa học hoặc khóa học đã bị xóa."
+        "Không tìm thấy khóa học hoặc khóa học đã bị xóa.",
       );
     }
 
@@ -540,7 +544,7 @@ export class CourseService {
           },
         });
       },
-      900 // 15 minutes TTL
+      900, // 15 minutes TTL
     );
   }
 

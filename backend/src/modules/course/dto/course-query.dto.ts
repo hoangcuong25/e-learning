@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsBoolean, IsOptional } from "class-validator";
+import { IsBoolean, IsOptional, IsString } from "class-validator";
 import { Transform } from "class-transformer";
 import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
 
@@ -17,4 +17,13 @@ export class CourseQueryDto extends PaginationQueryDto {
   })
   @IsBoolean()
   isPublished?: boolean;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: String,
+    description: "Filter by instructor",
+    example: "1",
+  })
+  instructorId?: string;
 }
