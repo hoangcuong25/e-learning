@@ -9,9 +9,14 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { BookOpen, User, Briefcase, Award } from "lucide-react";
+import { BookOpen, User, Briefcase, Award, MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 import { fetchAllCourses } from "@/store/slice/course/coursesSlice";
+import {
+  findOrCreateConversation,
+  setMiniChatOpen,
+} from "@/store/slice/community/chatSlice";
 import CourseCard from "@/components/course/CourseCard";
 
 const InstructorProfilePublicPage = () => {
@@ -26,6 +31,19 @@ const InstructorProfilePublicPage = () => {
   const { courses, loading: coursesLoading } = useSelector(
     (state: RootState) => state.courses,
   );
+
+  const handleMessageClick = () => {
+    if (publicProfile?.userId) {
+      dispatch(findOrCreateConversation(publicProfile.userId))
+        .unwrap()
+        .then(() => {
+          dispatch(setMiniChatOpen(true));
+        })
+        .catch((err) => {
+          console.error("Lỗi khi tạo/tìm hội thoại:", err);
+        });
+    }
+  };
 
   useEffect(() => {
     if (instructorId) {
@@ -90,6 +108,13 @@ const InstructorProfilePublicPage = () => {
               <p className="text-muted-foreground flex items-center justify-center gap-1">
                 <User className="w-4 h-4" /> Instructor
               </p>
+              <Button
+                className="mt-4 gap-2 w-full md:w-auto mx-auto bg-blue-500 hover:bg-blue-600 text-white"
+                onClick={handleMessageClick}
+              >
+                <MessageSquare className="w-4 h-4" />
+                Nhắn tin với giảng viên
+              </Button>
             </div>
           </div>
         </CardHeader>
