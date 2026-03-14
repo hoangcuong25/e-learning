@@ -4,6 +4,7 @@ import { seedUsers } from "./seedUsers";
 import { seedInstructorApplications } from "./seedInstructorApplications";
 import { seedCourses } from "./seedCourses";
 import { seedDailyStats } from "./seedDailyStats";
+import { seedMissions } from "./seedMissions";
 
 const prisma = new PrismaClient();
 
@@ -15,6 +16,7 @@ async function main() {
   await seedInstructorApplications();
   await seedCourses();
   await seedDailyStats();
+  await seedMissions();
 
   console.log("🌳 Seed hoàn tất!");
 }
@@ -27,3 +29,5 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+// npx ts-node prisma/seed/seedMissions.ts

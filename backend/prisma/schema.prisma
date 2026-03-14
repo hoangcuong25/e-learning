@@ -134,6 +134,11 @@
   AI           // user ↔ AI
 }
 
+  enum MissionType {
+    DAILY_LOGIN
+    ONLINE_TIME
+  }
+
   // ┌─────────────────────────────────────────────────────────────────────────┐
   // │ 3. USER & AUTHENTICATION MODULE                                        │
   // └─────────────────────────────────────────────────────────────────────────┘
@@ -195,6 +200,8 @@
 
     sentMessages     Message[] @relation("MessageSender")
     receivedMessages Message[] @relation("MessageReceiver")
+
+    userMissions     UserMission[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -790,4 +797,50 @@
     message   Message   @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
     createdAt DateTime  @default(now())
+  }
+
+  // ┌─────────────────────────────────────────────────────────────────────────┐
+  // │ 13. MISSION & REWARD MODULE                                             │
+  // └─────────────────────────────────────────────────────────────────────────┘
+
+  model Mission {
+    id           Int          @id @default(autoincrement())
+    title        String       @db.VarChar(150)
+    description  String?      @db.Text
+    type         MissionType  @default(ONLINE_TIME)
+    
+    requirement  Int          @default(0) 
+
+    rewardAmount Float        @default(0)
+
+    isActive     Boolean      @default(true)
+
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
+
+    userMissions UserMission[]
+  }
+
+  model UserMission {
+    id           Int       @id @default(autoincrement())
+    userId       Int
+    missionId    Int
+
+    // Tiến độ hiện tại (ví dụ: đã online bao nhiêu phút)
+    progress     Int       @default(0)
+
+    isCompleted  Boolean   @default(false)
+    completedAt  DateTime?
+
+    // Ngày thực hiện nhiệm vụ (để hỗ trợ nhiệm vụ reset hàng ngày)
+    date         DateTime  @db.Date
+
+    user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    mission      Mission   @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime  @updatedAt
+
+    @@unique([userId, missionId, date])
+    @@index([userId, date])
   }

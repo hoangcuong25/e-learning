@@ -70,18 +70,6 @@ const InstructorProfilePublicPage = () => {
     );
   }
 
-  // Assuming publicProfile might contain user info nested or we need to fetch it separately if the backend returns it.
-  // Based on service implementation in backend:
-  // instructorProfileService.getProfile returns the profile which has `user` relation if included?
-  // Let's verify backend service implementation again.
-  // Backend: return this.prisma.instructorProfile.findUnique({ where: { userId } });
-  // It does NOT currently include the `user` relation in `getProfile`.
-  // I should probably update the backend to include `user` info (name, avatar, email) for the public profile view.
-  // But for now, I will display what I have.
-
-  // NOTE: Ideally the backend should return user details (name, avatar) with the profile.
-  // Attempting to render with potential missing user data gracefully.
-
   return (
     <div className="container mx-auto py-10 px-4 max-w-5xl">
       <Card className="shadow-lg border-t-4 border-t-primary">

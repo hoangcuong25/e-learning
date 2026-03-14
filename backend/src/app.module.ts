@@ -30,6 +30,7 @@ import { InstructorModule } from "./modules/instructor/instructor.module";
 import { AdminAnalyticsModule } from "./modules/admin-analytics/admin-analytics.module";
 import { CommunityModule } from "./modules/community/community.module";
 import { AiModule } from "./modules/ai/ai.module";
+import { MissionModule } from './modules/mission/mission.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { AiModule } from "./modules/ai/ai.module";
     AdminAnalyticsModule,
     CommunityModule,
     AiModule,
+    MissionModule,
   ],
   controllers: [AppController],
   providers: [

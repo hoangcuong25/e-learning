@@ -21,6 +21,7 @@ import commentReducer from "./slice/community/commentSlice";
 import followReducer from "./slice/community/followSlice";
 import chatReducer from "./slice/community/chatSlice";
 import algorithmReducer from "./slice/common/algorithmSlice";
+import missionReducer from "./slice/mission/missionSlice";
 
 export const store = configureStore({
   reducer: {
@@ -46,6 +47,7 @@ export const store = configureStore({
     follow: followReducer,
     chat: chatReducer,
     algorithm: algorithmReducer,
+    mission: missionReducer,
   },
 });
 

@@ -1,20 +1,50 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, ShoppingCart, User, BookOpen, Wallet } from "lucide-react";
+import { LogOut, ShoppingCart, User, BookOpen, Wallet, Target } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { logoutUser } from "@/store/slice/common/userSlice";
+import { updateMissionProgress, fetchDailyMissions } from "@/store/slice/mission/missionSlice";
 
 const UserSidebar = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { user, loading } = useSelector((state: RootState) => state.user);
   const router = useRouter();
   const pathname = usePathname();
+  
+  // Ref để lưu trữ timer nhằm clear khi unmount
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Hiệu ứng theo dõi thời gian online
+  useEffect(() => {
+    // Chỉ bật tracking nếu user đã đăng nhập
+    if (!user) return;
+
+    // Lấy trước dữ liệu phòng khi user không vào tab Nhiệm vụ
+    dispatch(fetchDailyMissions());
+
+    timerRef.current = setInterval(() => {
+      // Mỗi 1 phút (60,000 ms) gửi request 1 lần để cập nhật 1 phút vào CSDL
+      dispatch(updateMissionProgress(1))
+        .unwrap()
+        .then((res) => {
+           // Nếu user vừa đạt mốc và nhận thưởng, hiện thông báo cho xôm!
+           if (res.totalReward && res.totalReward > 0) {
+             toast.success(`🎉 Chúc mừng! Bạn vừa hoàn thành nhiệm vụ và nhận được ${new Intl.NumberFormat('vi-VN').format(res.totalReward)} Learncoin!`);
+           }
+        })
+        .catch((error) => console.error("Lỗi cập nhật nhiệm vụ:", error));
+    }, 60000); // 60,000ms = 1 phút
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [dispatch, user]);
 
   const handleLogout = async () => {
     dispatch(logoutUser());
@@ -43,6 +73,11 @@ const UserSidebar = () => {
       label: "Khóa học của tôi",
       href: "/my-learning",
       icon: <BookOpen className="w-5 h-5 text-blue-500" />,
+    },
+    {
+      label: "Nhiệm vụ",
+      href: "/mission",
+      icon: <Target className="w-5 h-5 text-blue-500" />,
     },
   ];
 
