@@ -54,6 +54,7 @@ const NavbarUser = () => {
   const menuItems = [
     { label: "Trang chủ", path: "/" },
     { label: "Khóa học", path: "/courses" },
+    { label: "Liên hệ", path: "/contact-us" },
   ];
 
   if (loading) return <LoadingScreen />;

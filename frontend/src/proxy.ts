@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
 
 const secret = new TextEncoder().encode(process.env.JWT_REFRESH_TOKEN_SECRET!);
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ai cũng có thể vào những trang này

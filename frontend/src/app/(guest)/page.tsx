@@ -34,15 +34,30 @@ export const metadata = {
   metadataBase: new URL("https://edusmart.vn"), // Đặt domain của bạn ở đây
 };
 
+async function getPopularCourses() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}course/popular`,
+      {
+        cache: "force-cache",
+        next: { revalidate: 60 },
+      },
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch courses");
+    }
+
+    const data = await res.json();
+    return data?.data || [];
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return [];
+  }
+}
+
 export default async function Page() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}course/popular`,
-    {
-      next: { revalidate: 60 },
-    },
-  );
+  const popularCourses = await getPopularCourses();
 
-  const popularCourses = await res.json();
-
-  return <Home popularCourses={popularCourses.data} />;
+  return <Home popularCourses={popularCourses} />;
 }
