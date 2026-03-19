@@ -58,6 +58,13 @@ export class UserController {
     return this.userService.getProfile(req.user.id);
   }
 
+  @Get("@me/activity")
+  @ResponseMessage("get user learning activity")
+  @ApiResponse({ status: 200, description: "User activity retrieved successfully" })
+  getActivity(@Req() req) {
+    return this.userService.getActivity(req.user.id);
+  }
+
   // @Get("wall/:id")
   // @UseGuards(OptionalJwtAuthGuard)
   // @ResponseMessage("get user wall")

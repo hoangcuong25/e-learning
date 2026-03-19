@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { GenderEnum, GenderLabel } from "@/constants/gender.enum";
 import Image from "next/image";
+import ActivityHeatmap from "@/components/user/ActivityHeatmap";
 
 export default function ProfilePage() {
   const { user } = useSelector((state: RootState) => state.user);
@@ -133,6 +134,8 @@ export default function ProfilePage() {
           <p className="text-gray-700 text-sm">Trong giỏ</p>
         </div>
       </div>
+
+      <ActivityHeatmap />
 
       {/* Animation */}
       <style jsx>{`

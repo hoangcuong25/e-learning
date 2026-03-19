@@ -6,7 +6,7 @@ import {
 import { CreateUserDto } from "./dto/create-user.dto";
 import { CreateAuthDto } from "../auth/dto/create-auth.dto";
 import { MailerService } from "@nestjs-modules/mailer";
-import dayjs from "dayjs";
+import * as dayjs from "dayjs";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
 import {
@@ -231,8 +231,8 @@ export class UserService {
           },
         }),
 
-        this.prisma.cart.count({
-          where: { userId },
+        this.prisma.cartItem.count({
+          where: { cart: { userId } },
         }),
 
         this.prisma.enrollment.count({
@@ -256,6 +256,71 @@ export class UserService {
       cartCount,
       enrollmentCount,
       completedCount,
+    };
+  }
+
+  async getActivity(userId: number) {
+    if (!userId) {
+      throw new BadRequestException("Cần cung cấp ID người dùng");
+    }
+
+    const [lessonProgresses, userMissions] = await Promise.all([
+      this.prisma.lessonProgress.findMany({
+        where: { userId, isCompleted: true, completedAt: { not: null } },
+        select: { completedAt: true },
+      }),
+      this.prisma.userMission.findMany({
+        where: { userId, OR: [{ isCompleted: true }, { progress: { gt: 0 } }] },
+        select: { date: true, updatedAt: true },
+      }),
+    ]);
+
+    const activityObj: Record<string, number> = {};
+
+    lessonProgresses.forEach((lp) => {
+      if (lp.completedAt) {
+        const dateStr = dayjs(lp.completedAt).format("YYYY-MM-DD");
+        activityObj[dateStr] = (activityObj[dateStr] || 0) + 1;
+      }
+    });
+
+    userMissions.forEach((um) => {
+      const dateStr = dayjs(um.date || um.updatedAt).format("YYYY-MM-DD");
+      activityObj[dateStr] = (activityObj[dateStr] || 0) + 1;
+    });
+
+    let streak = 0;
+    const today = dayjs().format("YYYY-MM-DD");
+    const yesterday = dayjs().subtract(1, "day").format("YYYY-MM-DD");
+
+    let currentDate = dayjs();
+
+    if (activityObj[today]) {
+        // Valid, streak count from today
+    } else if (activityObj[yesterday]) {
+        // Valid, streak count from yesterday
+        currentDate = currentDate.subtract(1, "day");
+    } else {
+        // No streak
+        return {
+            streak: 0,
+            activityMap: Object.keys(activityObj).map((date) => ({ date, count: activityObj[date] })),
+        };
+    }
+
+    while (true) {
+      const dateStr = currentDate.format("YYYY-MM-DD");
+      if (activityObj[dateStr]) {
+        streak++;
+        currentDate = currentDate.subtract(1, "day");
+      } else {
+        break;
+      }
+    }
+
+    return {
+      streak,
+      activityMap: Object.keys(activityObj).map((date) => ({ date, count: activityObj[date] })),
     };
   }
 

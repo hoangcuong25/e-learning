@@ -52,3 +52,12 @@ export const getUserWall = async (userId: number) => {
     throw error;
   }
 };
+
+export const getUserActivity = async () => {
+  try {
+    const response = await axiosClient.get("/user/@me/activity");
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
