@@ -9,3 +9,11 @@ export const explainTermApi = async (term: string) => {
 
   return res.data;
 };
+
+export const chatLessonApi = async (data: {
+  question: string;
+  lessonId: number;
+}): Promise<{ answer: string; hasContext: boolean }> => {
+  const response = await axiosClient.post("/ai/chat-lesson", data);
+  return response.data.data;
+};

@@ -30,7 +30,7 @@ const Learn = () => {
     (state: RootState) => state.courses
   );
 
-  const [activeTab, setActiveTab] = useState<"overview" | "qna" | "review">(
+  const [activeTab, setActiveTab] = useState<"overview" | "qna" | "review" | "ai">(
     "overview"
   );
 

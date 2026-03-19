@@ -11,13 +11,15 @@ import * as fs from "fs";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
 import { EnrollmentService } from "src/modules/enrollment/enrollment.service";
+import { RagService } from "src/core/lib/ai/rag.service";
 
 @Injectable()
 export class LessonService {
   constructor(
     private prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
-    private enrollmentService: EnrollmentService
+    private enrollmentService: EnrollmentService,
+    private ragService: RagService
   ) {}
 
   // 🧩 Tạo bài học mới
@@ -73,6 +75,12 @@ export class LessonService {
         },
       },
     });
+    // 🧩 Kích hoạt tiến trình phân tích AI RAG cho Video (Chạy ngầm)
+    if (newLesson.videoUrl) {
+      this.ragService.processLessonVideo(newLesson.id, newLesson.videoUrl).catch(err => {
+        console.error("Lỗi khi chạy RAG Pipeline cho Video: ", err);
+      });
+    }
 
     return newLesson;
   }

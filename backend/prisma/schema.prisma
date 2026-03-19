@@ -376,6 +376,11 @@
     chapterId   Int?
     chapter     Chapter?   @relation(fields: [chapterId], references: [id], onDelete: SetNull)
 
+    // AI Fields
+    transcript  String?   @db.LongText
+    summary     String?   @db.Text
+    chunks      LessonChunk[]
+
     createdAt   DateTime   @default(now())
     updatedAt   DateTime   @updatedAt
 
@@ -383,6 +388,16 @@
   
     lessonQuestions LessonQuestion[]
 }
+
+  // ─── Lesson Chunk (For Vector RAG) ───
+  model LessonChunk {
+    id          Int      @id @default(autoincrement())
+    lessonId    Int
+    content     String   @db.Text
+    embedding   Json     // Storing vector as JSON array
+    
+    lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  }
 
   // ─── Lesson Question ───
   model LessonQuestion {

@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { termPrompt } from "./prompts/term.prompt";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { ExplainTermDto } from "./dto/explain-term.dto";
+import { ChatLessonDto } from "./dto/chat-lesson.dto";
+import { VectorStoreService } from "src/core/lib/ai/vector-store.service";
 import OpenAI from "openai";
 
 @Injectable()
@@ -11,7 +13,10 @@ export class AiService {
     baseURL: "https://api.groq.com/openai/v1",
   });
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly vectorStoreService: VectorStoreService,
+  ) {}
 
   async explainTerm(dto: ExplainTermDto) {
     try {
@@ -77,5 +82,33 @@ export class AiService {
 
       throw error;
     }
+  }
+
+  async chatLesson(dto: ChatLessonDto): Promise<{ answer: string; hasContext: boolean }> {
+    const { question, lessonId } = dto;
+
+    // 1. Tìm kiếm ngữ cảnh liên quan từ DB (RAG)
+    const relevantChunks = await this.vectorStoreService.search(question, lessonId, 3);
+    const hasContext = relevantChunks.length > 0;
+
+    const context = hasContext
+      ? relevantChunks.map((c, i) => `[Đoạn ${i + 1}]: ${c.content}`).join("\n\n")
+      : "";
+
+    const systemPrompt = hasContext
+      ? `Bạn là trợ lý AI học tập thông minh cho nền tảng E-Learning. Học viên đang xem một bài giảng video. Hãy trả lời câu hỏi của học viên DỰA TRÊN ngữ cảnh tài liệu từ bài giảng dưới đây. Trả lời bằng tiếng Việt, súc tích và dễ hiểu. Nếu ngữ cảnh không đủ để trả lời, hãy nói thật.\n\nNGỮ CẢNH TÀI LIỆU:\n${context}`
+      : `Bạn là trợ lý AI học tập. Tài liệu của bài học này chưa được xử lý (AI chưa phân tích xong video). Hãy trả lời câu hỏi của học viên theo kiến thức chung của bạn và thông báo rằng tài liệu chưa được tích hợp. Luôn trả lời bằng tiếng Việt.`;
+
+    const completion = await this.groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: question },
+      ],
+      temperature: 0.5,
+    });
+
+    const answer = completion.choices[0]?.message?.content || "Tôi không thể trả lời lúc này.";
+    return { answer, hasContext };
   }
 }

@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Bot } from "lucide-react";
 import LessonDiscussion from "./LessonDiscussion";
 import CourseRatingTab from "./CourseRatingTab";
+import LessonAiChat from "./LessonAiChat";
 
 interface LessonContentTabsProps {
   currentLesson: any;
@@ -58,6 +59,19 @@ const LessonContentTabs: React.FC<LessonContentTabsProps> = ({
             }`}
           >
             Đánh giá
+          </button>
+
+          {/* TAB TRỢ LÝ AI */}
+          <button
+            onClick={() => setActiveTab("ai")}
+            className={`${tabClasses.base} flex items-center gap-1.5 ${
+              activeTab === "ai"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-blue-500 hover:border-blue-300"
+            }`}
+          >
+            <Bot size={14} />
+            Trợ lý AI
           </button>
         </nav>
       </div>
@@ -115,6 +129,20 @@ const LessonContentTabs: React.FC<LessonContentTabsProps> = ({
             totalRating={totalRating}
             averageRating={averageRating}
           />
+        )}
+
+        {/* TAB TRỢ LÝ AI */}
+        {activeTab === "ai" && (
+          <div id="ai-tab">
+            <div className="flex items-center gap-2 mb-4 text-xl font-semibold text-gray-800">
+              <Bot size={20} className="text-blue-500" />
+              Trợ lý AI — Hỏi về nội dung bài học
+            </div>
+            <p className="text-sm text-gray-500 mb-4">
+              Đặt câu hỏi về kiến thức trong video bài giảng. AI sẽ truy xuất nội dung từ bài học và giải thích cho bạn.
+            </p>
+            <LessonAiChat lessonId={currentLesson.id} />
+          </div>
         )}
       </div>
     </div>
