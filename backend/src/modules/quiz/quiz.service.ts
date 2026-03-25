@@ -2,14 +2,22 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "src/core/prisma/prisma.service";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
+import OpenAI from "openai";
 
 @Injectable()
 export class QuizService {
+  private readonly logger = new Logger(QuizService.name);
+  private groq = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1",
+  });
+
   constructor(private prisma: PrismaService) {}
 
   // ─── TẠO MỚI ──────────────────────────────
@@ -220,5 +228,109 @@ export class QuizService {
         createdAt: "desc",
       },
     });
+  }
+
+  // ─── SINH CÂU HỎI TỰ ĐỘNG BẰNG AI ──────────────────────────────
+  async generateQuestionsFromAi(quizId: number, instructorId: number) {
+    // 1. Kiểm tra quyền instructor với quiz này
+    const quiz = await this.prisma.quiz.findFirst({
+      where: {
+        id: quizId,
+        lesson: { chapter: { course: { instructorId } } },
+      },
+      include: {
+        lesson: {
+          select: {
+            id: true,
+            transcript: true,
+            chunks: { select: { content: true }, take: 20 },
+          },
+        },
+        questions: {
+          select: { questionText: true }, // Lấy danh sách câu hỏi đã có
+        },
+      },
+    });
+
+    if (!quiz) {
+      throw new ForbiddenException(
+        "Không tìm thấy bài kiểm tra hoặc bạn không có quyền truy cập"
+      );
+    }
+
+    // 2. Lấy ngữ cảnh bài học
+    const lesson = quiz.lesson;
+    let context = "";
+
+    if (lesson.transcript && lesson.transcript.length > 100) {
+      context = lesson.transcript.substring(0, 4000);
+    } else if (lesson.chunks && lesson.chunks.length > 0) {
+      context = lesson.chunks
+        .map((c) => c.content)
+        .join("\n\n")
+        .substring(0, 4000);
+    }
+
+    if (!context) {
+      throw new BadRequestException(
+        "Bài học này chưa có nội dung AI. Hãy chờ hệ thống xử lý video xong."
+      );
+    }
+
+    // 3. Chuẩn bị danh sách câu hỏi cũ để tránh trùng lặp
+    const existingQuestions = quiz.questions.map(q => q.questionText).join("\n- ");
+    const avoidanceInstruction = existingQuestions 
+      ? `\n\nCÁC CÂU HỎI ĐÃ CÓ (TUYỆT ĐỐI KHÔNG ĐƯỢC TRÙNG LẶP HOẶC TƯƠNG TỰ):\n- ${existingQuestions}`
+      : "";
+
+    // 4. Gọi Groq để sinh câu hỏi
+    this.logger.log(`Generating AI questions for quiz ${quizId}...`);
+
+    const systemPrompt = `Bạn là chuyên gia giáo dục. Dựa vào nội dung bài giảng được cung cấp, hãy tạo đúng 5 câu hỏi trắc nghiệm bằng tiếng Việt.
+Yêu cầu:
+- Mỗi câu hỏi có đúng 4 lựa chọn (A, B, C, D).
+- Chỉ có 1 đáp án đúng.
+- Câu hỏi phải bám sát nội dung bài giảng.
+- TUYỆT ĐỐI KHÔNG tạo lại những câu hỏi đã có sẵn trong danh sách phía dưới (nếu có).
+- Hãy khai thác những kiến thức khác trong bài giảng để đảm bảo sự đa dạng và không bị lặp nội dung.
+- Trả về ĐÚNG định dạng JSON sau, KHÔNG có bất kỳ text nào khác:
+[{"content":"Câu hỏi?","options":[{"text":"Đáp án A","isCorrect":true},{"text":"Đáp án B","isCorrect":false},{"text":"Đáp án C","isCorrect":false},{"text":"Đáp án D","isCorrect":false}]}]`;
+
+    const completion = await this.groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Nội dung bài giảng:\n\n${context}${avoidanceInstruction}` },
+      ],
+      temperature: 0.7,
+    });
+
+    let rawContent = completion.choices[0]?.message?.content || "[]";
+
+    // 4. Parse JSON
+    let parsedQuestions: {
+      content: string;
+      options: { text: string; isCorrect: boolean }[];
+    }[];
+    try {
+      const jsonMatch = rawContent.match(/\[[\s\S]*\]/);
+      rawContent = jsonMatch ? jsonMatch[0] : rawContent;
+      parsedQuestions = JSON.parse(rawContent);
+    } catch {
+      this.logger.error("Failed to parse AI response:", rawContent);
+      throw new BadRequestException(
+        "AI trả về dữ liệu không hợp lệ. Vui lòng thử lại."
+      );
+    }
+
+    // 5. Trả về câu hỏi (không lưu vào DB để người dùng tự duyệt)
+    this.logger.log(
+      `Generated ${parsedQuestions.length} questions for quiz ${quizId} (preview mode)`
+    );
+
+    return {
+      message: `Đã tạo ${parsedQuestions.length} câu hỏi bằng AI thành công. Hãy kiểm tra và lưu lại.`,
+      data: parsedQuestions,
+    };
   }
 }

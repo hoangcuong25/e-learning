@@ -9,6 +9,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
 
 interface DeleteOptionDialogProps {
@@ -27,10 +28,10 @@ const DeleteOption: React.FC<DeleteOptionDialogProps> = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Xác nhận xóa lựa chọn?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Hành động này không thể hoàn tác.
+          </AlertDialogDescription>
         </AlertDialogHeader>
-        <p className="text-gray-600 text-sm">
-          Hành động này không thể hoàn tác.
-        </p>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>Hủy</AlertDialogCancel>
           <AlertDialogAction

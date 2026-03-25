@@ -1,8 +1,8 @@
 import { pipeline } from "@xenova/transformers";
 
-let extractor = null;
+let extractor: any = null;
 
-export async function getEmbedding(text) {
+export async function getEmbedding(text: string): Promise<number[]> {
   if (!extractor) {
     extractor = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
   }
@@ -12,5 +12,5 @@ export async function getEmbedding(text) {
     normalize: true,
   });
 
-  return Array.from(output.data);
+  return Array.from(output.data) as number[];
 }

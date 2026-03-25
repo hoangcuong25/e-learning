@@ -108,10 +108,15 @@ const QuizForm = () => {
   };
 
   return (
-    <div className="w-full">
-      <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">
-        Tạo Quiz Mới
-      </h2>
+    <div className="w-full space-y-8 py-4">
+      <div className="space-y-2">
+        <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          Tạo Quiz Mới
+        </h2>
+        <p className="text-slate-500 text-sm">
+          Thiết lập tiêu đề và vị trí bài kiểm tra trong khóa học của bạn.
+        </p>
+      </div>
 
       <Form {...form}>
         <form
@@ -130,7 +135,7 @@ const QuizForm = () => {
                   value={field.value ? String(field.value) : ""}
                 >
                   <FormControl>
-                    <SelectTrigger className="bg-gray-50">
+                    <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl h-12 focus:ring-2 focus:ring-blue-500 transition-all">
                       <SelectValue placeholder="Chọn khóa học" />
                     </SelectTrigger>
                   </FormControl>
@@ -162,7 +167,7 @@ const QuizForm = () => {
                   value={field.value ? String(field.value) : ""}
                 >
                   <FormControl>
-                    <SelectTrigger className="bg-gray-50">
+                    <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl h-12 focus:ring-2 focus:ring-blue-500 transition-all">
                       <SelectValue placeholder="Chọn chương" />
                     </SelectTrigger>
                   </FormControl>
@@ -192,7 +197,7 @@ const QuizForm = () => {
                   value={field.value ? String(field.value) : ""}
                 >
                   <FormControl>
-                    <SelectTrigger className="bg-gray-50">
+                    <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl h-12 focus:ring-2 focus:ring-blue-500 transition-all">
                       <SelectValue placeholder="Chọn bài học" />
                     </SelectTrigger>
                   </FormControl>
@@ -218,9 +223,9 @@ const QuizForm = () => {
                 <FormLabel className="font-semibold">Tiêu đề Quiz</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Nhập tiêu đề quiz"
+                    placeholder="Nhập tiêu đề quiz (VD: Kiểm tra kiến thức chương 1)"
                     {...field}
-                    className="bg-gray-50"
+                    className="bg-slate-50 border-slate-200 rounded-xl h-12 focus:ring-2 focus:ring-blue-500 transition-all"
                   />
                 </FormControl>
                 <FormMessage />
@@ -231,9 +236,9 @@ const QuizForm = () => {
           <Button
             type="submit"
             disabled={quizLoading || courseLoading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl shadow-md"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-6 rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-95 disabled:opacity-50"
           >
-            {quizLoading ? "Đang tạo..." : "Tạo Quiz"}
+            {quizLoading ? "Đang xử lý..." : "Xác nhận tạo Quiz"}
           </Button>
         </form>
       </Form>

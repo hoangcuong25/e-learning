@@ -15,7 +15,7 @@ export class QuestionService {
 
   // ─── TẠO CÂU HỎI ──────────────────────────────
   async create(createQuestionDto: CreateQuestionDto, instructorId: number) {
-    const { questionText, quizId } = createQuestionDto;
+    const { questionText, quizId, options } = createQuestionDto;
 
     // Kiểm tra quiz có tồn tại và thuộc quyền của giảng viên không
     const quiz = await this.prisma.quiz.findFirst({
@@ -45,12 +45,19 @@ export class QuestionService {
         "Bạn không có quyền thêm câu hỏi vào bài kiểm tra này hoặc bài kiểm tra không tồn tại"
       );
 
-    // Tạo câu hỏi mới
+    // Tạo câu hỏi mới (kèm options nếu có)
     const newQuestion = await this.prisma.question.create({
       data: {
         questionText,
         quizId,
+        options: options && options.length > 0 ? {
+          create: options.map((opt) => ({
+            text: opt.text,
+            isCorrect: opt.isCorrect,
+          })),
+        } : undefined,
       },
+      include: { options: true },
     });
 
     return {
@@ -119,9 +126,11 @@ export class QuestionService {
       throw new ForbiddenException("Bạn không có quyền chỉnh sửa câu hỏi này");
     }
 
+    const { options, ...data } = updateQuestionDto;
+
     return this.prisma.question.update({
       where: { id },
-      data: updateQuestionDto,
+      data,
     });
   }
 

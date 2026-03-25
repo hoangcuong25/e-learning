@@ -35,3 +35,9 @@ export const getInstructorQuizzesApi = async () => {
   const response = await axiosClient.get("/quiz/instructor/quizzes");
   return response.data;
 };
+
+// 🧩 7. Tự động sinh câu hỏi bằng AI cho quiz (chỉ giảng viên)
+export const generateAiQuestionsApi = async (id: number) => {
+  const response = await axiosClient.post(`/quiz/${id}/generate-questions`);
+  return response.data;
+};

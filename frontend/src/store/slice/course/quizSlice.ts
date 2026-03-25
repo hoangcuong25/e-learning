@@ -3,16 +3,18 @@ import {
   createQuizApi,
   deleteQuizApi,
   getAllQuizzesApi,
+  generateAiQuestionsApi,
   getInstructorQuizzesApi,
   getQuizByIdApi,
   updateQuizApi,
 } from "@/store/api/course/quiz.api";
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
 interface QuizState {
   quizzes: QuizType[];
   instructorQuizzes: QuizType[];
   currentQuiz: QuizType | null;
+  generatedQuestions: any[];
   loading: boolean;
   error: string | null;
   successMessage: string | null;
@@ -22,6 +24,7 @@ const initialState: QuizState = {
   quizzes: [],
   instructorQuizzes: [],
   currentQuiz: null,
+  generatedQuestions: [],
   loading: false,
   error: null,
   successMessage: null,
@@ -39,7 +42,7 @@ export const fetchQuizById = createAsyncThunk(
   async (id: number) => {
     const response = await getQuizByIdApi(id);
     return response.data.data;
-  }
+  },
 );
 
 // ➕ Tạo quiz mới (Instructor)
@@ -52,7 +55,7 @@ export const createQuiz = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi tạo quiz");
     }
-  }
+  },
 );
 
 // ✏️ Cập nhật quiz
@@ -65,7 +68,7 @@ export const updateQuiz = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi cập nhật quiz");
     }
-  }
+  },
 );
 
 // 🗑️ Xóa quiz
@@ -78,7 +81,7 @@ export const deleteQuiz = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lỗi xóa quiz");
     }
-  }
+  },
 );
 
 // 🎓 Lấy quiz của giảng viên hiện tại
@@ -90,10 +93,25 @@ export const fetchInstructorQuizzes = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data || "Lỗi khi tải quiz giảng viên"
+        error.response?.data || "Lỗi khi tải quiz giảng viên",
       );
     }
-  }
+  },
+);
+
+// Tự động sinh câu hỏi bằng AI
+export const generateQuizQuestionsByAi = createAsyncThunk(
+  "quiz/generateAiQuestions",
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const response = await generateAiQuestionsApi(id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Lỗi khi sinh câu hỏi bằng AI",
+      );
+    }
+  },
 );
 
 // 🧩 Slice
@@ -104,6 +122,21 @@ const quizSlice = createSlice({
     clearQuizState: (state) => {
       state.error = null;
       state.successMessage = null;
+      state.generatedQuestions = [];
+    },
+    updateGeneratedQuestion: (
+      state,
+      action: PayloadAction<{ index: number; question: any }>,
+    ) => {
+      if (Array.isArray(state.generatedQuestions)) {
+        state.generatedQuestions[action.payload.index] =
+          action.payload.question;
+      }
+    },
+    removeGeneratedQuestion: (state, action: PayloadAction<number>) => {
+      if (Array.isArray(state.generatedQuestions)) {
+        state.generatedQuestions.splice(action.payload, 1);
+      }
     },
   },
   extraReducers: (builder) => {
@@ -146,7 +179,12 @@ const quizSlice = createSlice({
       })
       .addCase(createQuiz.rejected, (state, action) => {
         state.loading = false;
-        state.error = (action.payload as string) ?? "Lỗi khi tạo quiz";
+        const payload = action.payload as any;
+        state.error = Array.isArray(payload?.message)
+          ? payload.message.join(", ")
+          : payload?.message ||
+            (action.payload as string) ||
+            "Lỗi khi tạo quiz";
       })
 
       // ✏️ Update
@@ -158,12 +196,17 @@ const quizSlice = createSlice({
         state.successMessage =
           action.payload.message ?? "Cập nhật quiz thành công";
         state.quizzes = state.quizzes.map((q) =>
-          q.id === action.payload.data.id ? action.payload.data : q
+          q.id === action.payload.data.id ? action.payload.data : q,
         );
       })
       .addCase(updateQuiz.rejected, (state, action) => {
         state.loading = false;
-        state.error = (action.payload as string) ?? "Lỗi khi cập nhật quiz";
+        const payload = action.payload as any;
+        state.error = Array.isArray(payload?.message)
+          ? payload.message.join(", ")
+          : payload?.message ||
+            (action.payload as string) ||
+            "Lỗi khi cập nhật quiz";
       })
 
       // 🗑️ Delete
@@ -178,7 +221,12 @@ const quizSlice = createSlice({
       })
       .addCase(deleteQuiz.rejected, (state, action) => {
         state.loading = false;
-        state.error = (action.payload as string) ?? "Lỗi khi xóa quiz";
+        const payload = action.payload as any;
+        state.error = Array.isArray(payload?.message)
+          ? payload.message.join(", ")
+          : payload?.message ||
+            (action.payload as string) ||
+            "Lỗi khi xóa quiz";
       })
 
       // 🎓 Fetch instructor quizzes
@@ -192,11 +240,40 @@ const quizSlice = createSlice({
       })
       .addCase(fetchInstructorQuizzes.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          (action.payload as string) ?? "Không thể tải quiz của giảng viên";
+        const payload = action.payload as any;
+        state.error = Array.isArray(payload?.message)
+          ? payload.message.join(", ")
+          : payload?.message ||
+            (action.payload as string) ||
+            "Không thể tải quiz của giảng viên";
+      })
+
+      // 🤖 AI Generation
+      .addCase(generateQuizQuestionsByAi.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(generateQuizQuestionsByAi.fulfilled, (state, action) => {
+        state.loading = false;
+        state.generatedQuestions = action.payload.data || [];
+        state.successMessage =
+          action.payload.message || "Đã sinh câu hỏi thành công";
+      })
+      .addCase(generateQuizQuestionsByAi.rejected, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+        state.error = Array.isArray(payload?.message)
+          ? payload.message.join(", ")
+          : payload?.message ||
+            (action.payload as string) ||
+            "Lỗi khi sinh câu hỏi bằng AI";
       });
   },
 });
 
-export const { clearQuizState } = quizSlice.actions;
+export const {
+  clearQuizState,
+  updateGeneratedQuestion,
+  removeGeneratedQuestion,
+} = quizSlice.actions;
 export default quizSlice.reducer;

@@ -74,4 +74,14 @@ export class QuizController {
   remove(@Param("id") id: string, @Req() req) {
     return this.quizService.remove(+id, req.user.id);
   }
+
+  @Post(":id/generate-questions")
+  @Roles("INSTRUCTOR")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Auto-generate quiz questions from lesson AI content" })
+  @ResponseMessage("Câu hỏi đã được tạo bằng AI")
+  generateAiQuestions(@Param("id") id: string, @Req() req) {
+    return this.quizService.generateQuestionsFromAi(+id, req.user.id);
+  }
 }
+
