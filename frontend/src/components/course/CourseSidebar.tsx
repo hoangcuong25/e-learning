@@ -31,7 +31,6 @@ const CourseSidebar = ({
   const dispatch = useDispatch<AppDispatch>();
   const { loading } = useSelector((state: RootState) => state.cart);
 
-  // Lấy danh sách coupon hiển thị (tối đa 3 hoặc tất cả)
   const displayCoupons = showAllCoupons
     ? courseCoupons
     : Array.isArray(courseCoupons)
@@ -43,7 +42,7 @@ const CourseSidebar = ({
 
   const handleAddToCart = async () => {
     try {
-      const result = await dispatch(addToCart(courseId)).unwrap();
+      await dispatch(addToCart(courseId)).unwrap();
       toast.success("Đã thêm vào giỏ hàng");
     } catch (error: any) {
       toast.error(error || "Không thể thêm vào giỏ hàng");
@@ -52,128 +51,107 @@ const CourseSidebar = ({
 
   return (
     <motion.aside
-      className="bg-white rounded-2xl shadow-xl p-6 sticky top-20 h-fit border border-gray-100"
+      className="bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] p-8 border border-slate-100 space-y-8"
       initial={{ opacity: 0, x: 30 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={{ duration: 0.8, ease: "circOut" }}
     >
-      <div className="text-center mb-6">
+      <div className="text-center space-y-2">
         <motion.p
-          className="text-3xl font-bold text-blue-600"
-          initial={{ scale: 0.8, opacity: 0 }}
+          className="text-4xl font-black text-indigo-600 tracking-tighter"
+          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.25 }}
+          transition={{ delay: 0.3 }}
         >
-          {price > 0 ? price.toLocaleString() + " LC" : "Miễn phí"}
+          {price > 0 ? price.toLocaleString() + " LC" : "MIỄN PHÍ"}
         </motion.p>
-        <p className="text-gray-500 text-sm">
-          Thanh toán 1 lần - Truy cập trọn đời
+        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+          Truy cập trọn đời • Hỗ trợ 24/7
         </p>
       </div>
-      <div className="flex flex-col gap-3">
+
+      <div className="space-y-4">
         <motion.button
-          whileHover={{
-            scale: 1.06,
-            boxShadow: "0 6px 18px rgba(37, 99, 235, 0.3)",
-          }}
-          whileTap={{ scale: 0.94 }}
-          transition={{ type: "spring", stiffness: 500, damping: 25 }}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition"
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-indigo-600/20 transition-all uppercase tracking-widest text-xs"
           onClick={() => router.push(`/payment/${courseId}`)}
         >
-          Mua ngay
+          Mua ngay khóa học
         </motion.button>
 
         <motion.button
-          whileHover={{
-            scale: 1.06,
-            backgroundColor: "#EFF6FF",
-            boxShadow: "0 6px 15px rgba(59, 130, 246, 0.2)",
-          }}
-          whileTap={{ scale: 0.94 }}
-          transition={{ type: "spring", stiffness: 500, damping: 25 }}
-          className="w-full border border-blue-600 text-blue-600 font-medium py-3 rounded-xl transition flex items-center justify-center gap-2"
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full border border-slate-200 bg-white text-slate-900 font-black py-4 rounded-2xl flex items-center justify-center gap-3 hover:border-indigo-600 hover:text-indigo-600 transition-all uppercase tracking-widest text-xs"
           disabled={loading}
           onClick={() => handleAddToCart()}
         >
-          <ShoppingCart className="w-4 h-4" />
+          <ShoppingCart size={18} />
           Thêm vào giỏ hàng
         </motion.button>
       </div>
-      <hr className="my-6 border-gray-200" />
+
       {price > 0 && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-          <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-            🎟️ Coupon khả dụng
+        <div className="pt-6 border-t border-slate-50 space-y-4">
+          <h3 className="font-black text-xs text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
+            🎟️ Mã giảm giá
           </h3>
 
           {couponsLoading ? (
-            <p className="text-sm text-yellow-700">Đang tải coupon...</p>
+            <div className="py-4 flex justify-center">
+               <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            </div>
           ) : couponsError ? (
-            <p className="text-sm text-red-500">{couponsError}</p>
+            <p className="text-xs text-red-400 font-bold">{couponsError}</p>
           ) : !Array.isArray(courseCoupons) || courseCoupons.length === 0 ? (
-            <p className="text-sm text-gray-600">
-              Không có coupon nào cho khóa học này.
-            </p>
+            <p className="text-xs text-slate-300 font-medium">Hiện không có mã giảm giá nào.</p>
           ) : (
             <>
-              <ul className="space-y-2">
+              <div className="space-y-2">
                 {displayCoupons.map((coupon: any) => (
-                  <motion.li
+                  <motion.div
                     key={coupon.id}
-                    className="p-3 bg-white border rounded-lg flex justify-between items-center"
+                    className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex justify-between items-center group hover:bg-indigo-50 hover:border-indigo-100 transition-colors"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3 }}
                   >
                     <div>
-                      <p className="font-semibold text-sm">{coupon.code}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="font-black text-sm text-slate-900 group-hover:text-indigo-600 transition-colors tracking-tight">{coupon.code}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         {coupon.description}
                       </p>
                     </div>
-                  </motion.li>
+                  </motion.div>
                 ))}
-              </ul>
+              </div>
 
               {hasMoreCoupons && (
                 <button
                   onClick={() => setShowAllCoupons(!showAllCoupons)}
-                  className="w-full mt-3 text-blue-600 text-sm font-medium hover:text-blue-700 transition"
+                  className="w-full text-indigo-600 text-[10px] font-black uppercase tracking-widest hover:text-indigo-500 pt-2"
                 >
-                  {showAllCoupons
-                    ? "Thu gọn ▲"
-                    : `Xem thêm ${courseCoupons.length - 3} coupon khác ▼`}
+                  {showAllCoupons ? "Thu gọn ▲" : `Xem thêm ${courseCoupons.length - 3} mã khác ▼`}
                 </button>
               )}
             </>
           )}
         </div>
       )}
-      <hr className="my-6 border-gray-200" />{" "}
-      <motion.div
-        className="space-y-3 text-gray-700 text-sm"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.3 }}
-      >
-        <div className="flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-green-500" />
-          <span>Truy cập không giới hạn</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-green-500" />
-          <span>Tài liệu và video chất lượng cao</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-green-500" />
-          <span>Cập nhật khóa học miễn phí</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Lock className="w-4 h-4 text-green-500" />
-          <span>Bảo mật thanh toán an toàn</span>
-        </div>
-      </motion.div>
+
+      <div className="pt-6 border-t border-slate-50 space-y-4">
+        {[
+          { icon: <CheckCircle size={16} />, text: "Truy cập không giới hạn" },
+          { icon: <CheckCircle size={16} />, text: "Hỗ trợ học tập trực tuyến" },
+          { icon: <CheckCircle size={16} />, text: "Cập nội dung mới" },
+          { icon: <Lock size={16} />, text: "Thanh toán bảo mật" },
+        ].map((item, i) => (
+          <div key={i} className="flex items-center gap-3 text-slate-900 font-bold text-[11px] uppercase tracking-wider">
+            <span className="text-emerald-500">{item.icon}</span>
+            <span>{item.text}</span>
+          </div>
+        ))}
+      </div>
     </motion.aside>
   );
 };

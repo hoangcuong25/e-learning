@@ -11,7 +11,7 @@ import { NotificationService } from "../notification/notification.service";
 export class EnrollmentService {
   constructor(
     private prisma: PrismaService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
   ) {}
 
   // ─── ĐĂNG KÝ KHÓA HỌC ──────────────────────────────
@@ -23,13 +23,13 @@ export class EnrollmentService {
 
     if (!course || !course.isPublished) {
       throw new NotFoundException(
-        "Khóa học không tồn tại hoặc chưa được xuất bản"
+        "Khóa học không tồn tại hoặc chưa được xuất bản",
       );
     }
 
     if (course.instructorId === userId) {
       throw new BadRequestException(
-        "Giảng viên không thể đăng ký khóa học của chính mình"
+        "Giảng viên không thể đăng ký khóa học của chính mình",
       );
     }
 
@@ -52,7 +52,7 @@ export class EnrollmentService {
 
       if (!coupon || !coupon.isActive) {
         throw new BadRequestException(
-          "Mã giảm giá không hợp lệ hoặc đã bị vô hiệu"
+          "Mã giảm giá không hợp lệ hoặc đã bị vô hiệu",
         );
       }
 
@@ -63,7 +63,7 @@ export class EnrollmentService {
       // Kiểm tra đối tượng áp dụng
       if (coupon.target === "COURSE" && coupon.courseId !== courseId) {
         throw new BadRequestException(
-          "Mã giảm giá không áp dụng cho khóa học này"
+          "Mã giảm giá không áp dụng cho khóa học này",
         );
       }
 
@@ -74,7 +74,7 @@ export class EnrollmentService {
         const specializationIds = courseSpec.map((s) => s.specializationId);
         if (!specializationIds.includes(coupon.specializationId)) {
           throw new BadRequestException(
-            "Mã giảm giá không áp dụng cho chuyên ngành này"
+            "Mã giảm giá không áp dụng cho chuyên ngành này",
           );
         }
       }
@@ -129,7 +129,7 @@ export class EnrollmentService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (user.walletBalance < finalPrice) {
       throw new BadRequestException(
-        "Số dư ví không đủ để đăng ký khóa học này"
+        "Số dư ví không đủ để đăng ký khóa học này",
       );
     }
 
@@ -236,6 +236,7 @@ export class EnrollmentService {
             averageRating: true,
             totalRating: true,
             thumbnail: true,
+            duration: true,
 
             _count: {
               select: {
@@ -300,7 +301,7 @@ export class EnrollmentService {
 
     if (!course || course.instructorId !== instructorId) {
       throw new ForbiddenException(
-        "Bạn không có quyền truy cập vào khóa học này"
+        "Bạn không có quyền truy cập vào khóa học này",
       );
     }
 
@@ -349,7 +350,7 @@ export class EnrollmentService {
     // 2. Kiểm tra khóa học có phải là khóa trả phí không
     if (enrollment.course.type === "FREE") {
       throw new BadRequestException(
-        "Không thể hoàn tiền cho khóa học miễn phí"
+        "Không thể hoàn tiền cho khóa học miễn phí",
       );
     }
 
@@ -361,14 +362,14 @@ export class EnrollmentService {
 
     if (hoursSinceEnrollment > 1) {
       throw new BadRequestException(
-        "Chỉ có thể hoàn tiền trong vòng 1 tiếng sau khi đăng ký"
+        "Chỉ có thể hoàn tiền trong vòng 1 tiếng sau khi đăng ký",
       );
     }
 
     // 4. Kiểm tra tiến độ học (phải dưới 20%)
     if (enrollment.progress > 20) {
       throw new BadRequestException(
-        "Không thể hoàn tiền khi tiến độ học vượt quá 20%"
+        "Không thể hoàn tiền khi tiến độ học vượt quá 20%",
       );
     }
 
@@ -528,7 +529,7 @@ export class EnrollmentService {
       userId,
       courseId,
       progressPercentage,
-      isCompleted
+      isCompleted,
     );
 
     return {
@@ -541,7 +542,7 @@ export class EnrollmentService {
     userId: number,
     courseId: number,
     progress: number,
-    isCompleted: boolean
+    isCompleted: boolean,
   ) {
     const dataToUpdate: any = {
       progress: progress,

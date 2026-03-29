@@ -155,6 +155,7 @@ const Quizzes = () => {
         </div>
 
         <div className="flex items-center gap-4">
+          <QuizOnboarding />
           <Dialog>
             <DialogTrigger asChild>
               <Button className="h-14 px-8 bg-slate-900 text-white font-black uppercase tracking-widest rounded-3xl shadow-xl hover:scale-105 transition-all flex items-center gap-3">
@@ -175,7 +176,6 @@ const Quizzes = () => {
               </div>
             </DialogContent>
           </Dialog>
-          <QuizOnboarding />
         </div>
       </div>
 

@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import { Trash2, CheckCircle, Lock } from "lucide-react";
+import { Trash2, CheckCircle2, Lock, ShoppingBag, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { fetchCart, removeFromCart } from "@/store/slice/common/cartSlice";
@@ -16,7 +17,6 @@ export default function MyCartPage() {
   const { items, loading } = useSelector((state: RootState) => state.cart);
   const router = useRouter();
 
-  // Chỉ chọn 1 course
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const paymentSectionRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +27,6 @@ export default function MyCartPage() {
     });
   };
 
-  // Gọi API lấy giỏ hàng khi load trang
   useEffect(() => {
     dispatch(fetchCart());
   }, [dispatch]);
@@ -49,7 +48,7 @@ export default function MyCartPage() {
 
   const handleCheckout = () => {
     if (!selectedCourseId) {
-      alert("Vui lòng chọn một khóa học để thanh toán!");
+      toast.error("Vui lòng chọn một khóa học để thanh toán!");
       return;
     }
     router.push(`/payment/${selectedCourseId}`);
@@ -60,137 +59,185 @@ export default function MyCartPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold text-blue-700 mb-6">
-        🛒 Giỏ hàng của tôi
-      </h1>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-7xl mx-auto space-y-12 pb-24"
+    >
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-0">
+         <div className="space-y-4 text-center md:text-left">
+            <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter leading-none">
+              Giỏ hàng <span className="text-indigo-600">của bạn</span>
+            </h1>
+            <p className="text-slate-400 font-medium max-w-md tracking-tight">
+              {items.length} khóa học đang chờ bạn chinh phục. Hãy hoàn tất để bắt đầu hành trình ngay.
+            </p>
+         </div>
+      </header>
 
       {items.length === 0 ? (
-        <p className="text-gray-600 text-center">
-          Giỏ hàng của bạn đang trống.
-        </p>
+        <section className="bg-white rounded-[3.5rem] border border-slate-100 shadow-sm p-16 md:p-32 text-center space-y-8">
+           <div className="w-24 h-24 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto text-slate-200">
+              <ShoppingBag size={48} />
+           </div>
+           <div className="space-y-2">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">Giỏ hàng trống rỗng</h2>
+              <p className="text-slate-400 font-medium">Bạn chưa thêm khóa học nào. Khám phá kho tri thức ngay!</p>
+           </div>
+           <Button 
+             onClick={() => router.push("/courses")}
+             className="h-14 px-10 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 transition-all uppercase tracking-widest text-[10px]"
+           >
+              Khám phá khóa học
+           </Button>
+        </section>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
           {/* Danh sách khóa học */}
-          <div className="lg:col-span-2 space-y-4">
-            {items.map((item, index) => (
-              <Card
-                key={`${item.courseId}-${index}`}
-                className="hover:shadow-lg transition border-blue-100 cursor-pointer"
-              >
-                <CardContent className="flex flex-col md:flex-row items-center gap-4 p-4 relative">
-                  <div className="flex items-center gap-4 w-full md:w-auto">
-                    <input
-                      type="radio"
-                      name="selectedCourse"
-                      checked={selectedCourseId === item.courseId}
-                      onChange={() => handleSelectCourse(item.courseId)}
-                      className="w-5 h-5 cursor-pointer"
-                    />
+          <div className="lg:col-span-2 space-y-6">
+            <AnimatePresence mode="popLayout">
+              {items.map((item, index) => (
+                <motion.div
+                  key={item.courseId}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ delay: index * 0.1 }}
+                  onClick={() => handleSelectCourse(item.courseId)}
+                  className={`relative group cursor-pointer p-6 rounded-[2rem] border transition-all duration-500 overflow-hidden ${
+                    selectedCourseId === item.courseId 
+                    ? "bg-white border-indigo-500 shadow-2xl shadow-indigo-500/10 -translate-y-1" 
+                    : "bg-white border-slate-100 shadow-sm hover:border-slate-200"
+                  }`}
+                >
+                  <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                    <div className="flex items-center gap-6 w-full md:w-auto">
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                        selectedCourseId === item.courseId ? "bg-indigo-600 border-indigo-600" : "border-slate-200"
+                      }`}>
+                         {selectedCourseId === item.courseId && <div className="w-2 h-2 bg-white rounded-full" />}
+                      </div>
 
-                    <div className="relative w-full h-40 md:w-36 md:h-24 rounded-lg overflow-hidden border border-blue-100 shrink-0">
-                      <Image
-                        src={item.course?.thumbnail || "/images/default.jpg"}
-                        alt={item.course?.title || ""}
-                        fill
-                        className="object-cover"
-                      />
+                      <div className="relative aspect-video w-full md:w-48 rounded-2xl overflow-hidden border border-slate-100 shadow-inner group-hover:scale-[1.02] transition-transform duration-500">
+                        <Image
+                          src={item.course?.thumbnail || "/images/default.jpg"}
+                          alt={item.course?.title || ""}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors" />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="flex-1 w-full text-center md:text-left">
-                    <h2 className="font-semibold text-lg text-blue-800 line-clamp-2 md:line-clamp-none">
-                      {item.course?.title}
-                    </h2>
-                    <p className="text-sm text-gray-600 mt-1 md:mt-0">
-                      {(item.course?.instructor as any) || "Giảng viên ẩn danh"}
-                    </p>
-                    <p className="text-blue-600 font-bold mt-1 text-lg md:text-base">
-                      {item.course?.price?.toLocaleString()} LC
-                    </p>
-                  </div>
+                    <div className="flex-1 w-full text-center md:text-left space-y-3">
+                      <h2 className="text-xl font-black text-slate-900 tracking-tight line-clamp-2 md:line-clamp-none group-hover:text-indigo-600 transition-colors">
+                        {item.course?.title}
+                      </h2>
+                      <div className="flex items-center justify-center md:justify-start gap-3">
+                         <div className="px-3 py-1 bg-slate-50 rounded-full text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            {(item.course?.instructor as any) || "Instructor"}
+                         </div>
+                         <div className="text-indigo-600 font-black text-xl tracking-tighter">
+                            {item.course?.price?.toLocaleString()} <span className="text-[10px] uppercase font-black opacity-60">LC</span>
+                         </div>
+                      </div>
+                    </div>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemove(item.courseId)}
-                    className="absolute top-2 right-2 md:static md:top-auto md:right-auto hover:bg-red-50 hover:text-red-500 bg-white/80 md:bg-transparent shadow-sm md:shadow-none"
-                  >
-                    <Trash2 className="w-5 h-5 text-red-500" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemove(item.courseId);
+                      }}
+                      className="absolute top-0 right-0 md:static p-4 hover:bg-red-50 hover:text-red-500 text-slate-300 rounded-2xl transition-all group-hover:text-red-400"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
 
-          {/* Sidebar bên phải */}
-          <Card
+          {/* Checkout Section */}
+          <section
             ref={paymentSectionRef}
-            className="p-4 rounded-xl border border-blue-100 bg-white shadow-sm mt-6 mb-20 lg:mb-0"
+            className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] sticky top-32 space-y-10"
           >
-            <ul className="space-y-2 text-sm text-gray-700">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Truy cập không giới hạn</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Tài liệu và video chất lượng cao</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Cập nhật khóa học miễn phí</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-green-500" />
-                <span>Bảo mật thanh toán an toàn</span>
-              </div>
-            </ul>
-
-            <p className="mt-4 text-center text-sm text-blue-600 font-medium">
-              Chọn một khóa học để thanh toán!
-            </p>
-
-            <div className="mt-4 text-center space-y-1">
-              <p className="text-gray-700 text-sm">
-                Tạm tính: {subtotal.toLocaleString()} LC
-              </p>
-              <p className="text-blue-700 font-semibold text-lg">
-                Tổng cộng: {subtotal.toLocaleString()} LC
-              </p>
+            <div className="space-y-6">
+               <h3 className="text-2xl font-black text-slate-900 tracking-tight">Thông tin <span className="text-indigo-600 text-sm block uppercase tracking-widest mt-1">Giao dịch</span></h3>
+               <ul className="space-y-4">
+                 {[
+                   { text: "Truy cập trọn đời", icon: <CheckCircle2 className="text-emerald-500" /> },
+                   { text: "Tài liệu 4K chất lượng", icon: <CheckCircle2 className="text-emerald-500" /> },
+                   { text: "Hỗ trợ 24/7", icon: <CheckCircle2 className="text-emerald-500" /> },
+                   { text: "Thanh toán bảo mật", icon: <Lock className="text-emerald-500" /> }
+                 ].map((benefit, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm font-bold text-slate-600">
+                      <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
+                         {React.cloneElement(benefit.icon as React.ReactElement<any>, { size: 16 })}
+                      </div>
+                      <span>{benefit.text}</span>
+                    </li>
+                 ))}
+               </ul>
             </div>
 
-            <p className="mt-4 text-center text-xs text-gray-400">
-              Nhớ kiểm tra lại khóa học trước khi thanh toán 😉
-            </p>
+            <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-6">
+               <div className="flex justify-between items-center text-sm font-black text-slate-400 uppercase tracking-widest">
+                  <span>Tạm tính</span>
+                  <span className="text-slate-900 font-bold">{subtotal.toLocaleString()} LC</span>
+               </div>
+               <div className="pt-6 border-t border-slate-200 flex justify-between items-end">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tổng cộng</span>
+                  <div className="text-indigo-600 font-black text-4xl tracking-tighter">
+                     {subtotal.toLocaleString()} <span className="text-[10px] uppercase font-black opacity-60">LC</span>
+                  </div>
+               </div>
+            </div>
 
             <Button
+              disabled={!selectedCourseId}
               onClick={handleCheckout}
-              className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white transition"
+              className="w-full h-16 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 transition-all uppercase tracking-[0.2em] text-[11px] group disabled:opacity-50"
             >
-              Thanh toán
+              Tiến hành thanh toán
+              <ArrowRight className="ml-3 group-hover:translate-x-1 transition-transform" size={18} />
             </Button>
-          </Card>
+            
+            <p className="text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">
+               Vui lòng kiểm tra kỹ trước khi thanh toán
+            </p>
+          </section>
         </div>
       )}
 
-      {/* Mobile Sticky Payment Bar */}
-      {selectedCourseId && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-5px_15px_rgba(0,0,0,0.1)] lg:hidden flex items-center justify-between z-50 animate-in slide-in-from-bottom duration-300">
-          <div>
-            <p className="text-xs text-gray-500">Tạm tính</p>
-            <p className="text-blue-600 font-bold text-lg">
-              {subtotal.toLocaleString()} LC
-            </p>
-          </div>
-          <Button
-            onClick={handleScrollToPayment}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6"
+      {/* Mobile Sticky Action Bar */}
+      <AnimatePresence>
+        {selectedCourseId && (
+          <motion.div 
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-3xl border-t border-slate-100 shadow-[0_-20px_40px_rgba(0,0,0,0.05)] lg:hidden flex items-center justify-between z-50 rounded-t-[2.5rem]"
           >
-            Thanh toán ngay
-          </Button>
-        </div>
-      )}
-    </div>
+            <div className="space-y-1">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Tổng thanh toán</p>
+              <p className="text-indigo-600 font-black text-2xl tracking-tighter">
+                {subtotal.toLocaleString()} <span className="text-[10px] uppercase font-black opacity-60">LC</span>
+              </p>
+            </div>
+            <Button
+              onClick={handleScrollToPayment}
+              className="h-14 px-8 bg-indigo-600 hover:bg-indigo-50 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 uppercase tracking-widest text-[10px]"
+            >
+              Thanh toán ngay
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
+

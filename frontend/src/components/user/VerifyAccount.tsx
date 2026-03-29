@@ -45,8 +45,7 @@ const VerifyAccount = () => {
     try {
       await ActiveAccountApi(otp);
       dispatch(fetchUser());
-
-      toast.success("Xác thực tài khoản e-Learning thành công!");
+      toast.success("Xác thực tài khoản thành công!");
     } catch (error) {
       toast.error("Mã OTP không hợp lệ. Vui lòng thử lại.");
     }
@@ -55,89 +54,82 @@ const VerifyAccount = () => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 flex items-center gap-2 rounded-xl shadow-md transition-all">
-          <BookOpenCheck className="w-4 h-4" />
-          Xác thực tài khoản học viên
+        <Button className="h-12 px-8 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 transition-all uppercase tracking-widest text-[10px] flex items-center gap-3">
+          <BookOpenCheck className="w-5 h-5" />
+          Kích hoạt tài khoản
         </Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent className="bg-white rounded-2xl border border-indigo-100 shadow-xl">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-lg font-semibold text-indigo-700 mb-2 flex items-center gap-2">
-            <BookOpenCheck className="w-5 h-5 text-indigo-600" />
-            Xác thực tài khoản e-Learning
+      <AlertDialogContent className="sm:max-w-md rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl p-0 overflow-hidden">
+        <AlertDialogHeader className="p-10 pb-0 space-y-4">
+          <AlertDialogTitle className="text-3xl font-black text-slate-900 tracking-tighter flex items-center gap-3">
+             <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                <BookOpenCheck size={24} />
+             </div>
+             Xác thực <span className="text-indigo-600">tài khoản</span>
           </AlertDialogTitle>
-
-          <p className="mb-4 text-gray-600 leading-relaxed">
-            Vui lòng nhập <strong>mã OTP</strong> đã được gửi đến email của bạn
-            để kích hoạt tài khoản học tập. Mã OTP có hiệu lực trong{" "}
-            <b>5 phút</b>.
+          <p className="text-sm text-slate-400 font-medium tracking-tight leading-relaxed">
+            Vui lòng nhập <strong>mã OTP</strong> gồm 6 chữ số đã được gửi đến email của bạn. Mã có hiệu lực trong vòng <span className="text-indigo-600 font-bold">5 phút</span>.
           </p>
+        </AlertDialogHeader>
 
-          <div className="self-center flex justify-center">
+        <div className="px-10 py-8 flex justify-center">
             <InputOTP
               maxLength={6}
               onChange={setOtp}
               value={otp}
-              className="gap-2"
+              className="gap-3"
             >
-              <InputOTPGroup>
-                <InputOTPSlot
-                  index={0}
-                  className="border-2 border-indigo-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg text-lg"
-                />
-                <InputOTPSlot
-                  index={1}
-                  className="border-2 border-indigo-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg text-lg"
-                />
-                <InputOTPSlot
-                  index={2}
-                  className="border-2 border-indigo-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg text-lg"
-                />
+              <InputOTPGroup className="gap-2">
+                {[0, 1, 2].map((i) => (
+                   <InputOTPSlot
+                    key={i}
+                    index={i}
+                    className="w-12 h-16 border-2 border-slate-100 bg-slate-50 text-slate-900 font-black text-xl rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all"
+                  />
+                ))}
               </InputOTPGroup>
-              <InputOTPSeparator />
-              <InputOTPGroup>
-                <InputOTPSlot
-                  index={3}
-                  className="border-2 border-indigo-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg text-lg"
-                />
-                <InputOTPSlot
-                  index={4}
-                  className="border-2 border-indigo-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg text-lg"
-                />
-                <InputOTPSlot
-                  index={5}
-                  className="border-2 border-indigo-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg text-lg"
-                />
+              <InputOTPSeparator className="text-slate-200" />
+              <InputOTPGroup className="gap-2">
+                {[3, 4, 5].map((i) => (
+                   <InputOTPSlot
+                    key={i}
+                    index={i}
+                    className="w-12 h-16 border-2 border-slate-100 bg-slate-50 text-slate-900 font-black text-xl rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all"
+                  />
+                ))}
               </InputOTPGroup>
             </InputOTP>
-          </div>
-        </AlertDialogHeader>
+        </div>
 
-        <AlertDialogFooter className="mt-5 flex justify-between">
-          <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg">
-            Hủy
-          </AlertDialogCancel>
-
-          <div className="flex gap-2">
+        <AlertDialogFooter className="px-10 pb-10 sm:justify-start gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 w-full">
             <Button
+              variant="ghost"
               onClick={handleSendEmailActive}
-              className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 border border-indigo-300 rounded-lg"
+              className="h-14 flex-1 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold rounded-2xl transition-all text-xs"
             >
-              Gửi mã OTP
+              Gửi lại mã OTP
             </Button>
 
             <AlertDialogAction
               onClick={handleVerifyAccount}
-              className="bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white rounded-lg"
+              className="h-14 flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 transition-all uppercase tracking-widest text-[11px]"
             >
-              Xác nhận
+              Xác nhận ngay
             </AlertDialogAction>
+          </div>
+          
+          <div className="w-full flex justify-center">
+             <AlertDialogCancel className="h-10 px-6 bg-white border-none shadow-none text-slate-400 hover:text-slate-600 hover:bg-transparent transition-colors font-bold text-[10px] uppercase tracking-widest">
+                Đóng cửa sổ
+             </AlertDialogCancel>
           </div>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
 };
+
 
 export default VerifyAccount;

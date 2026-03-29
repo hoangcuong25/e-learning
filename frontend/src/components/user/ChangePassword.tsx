@@ -16,7 +16,6 @@ import { Lock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { changePassword } from "@/store/api/common/user.api";
 
-// Input có toggle ẩn/hiện mật khẩu
 const PasswordInput = ({
   label,
   value,
@@ -29,21 +28,21 @@ const PasswordInput = ({
   const [show, setShow] = useState(false);
 
   return (
-    <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
-      <div className="relative">
+    <div className="space-y-3">
+      <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</Label>
+      <div className="relative group/input">
         <Input
           type={show ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="pr-10 border-blue-300 focus:ring-blue-400 focus:border-blue-400 rounded-xl transition-all duration-200"
+          className="h-14 pr-12 bg-slate-50 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 font-bold transition-all"
         />
         <button
           type="button"
           onClick={() => setShow(!show)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors"
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
         >
-          {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {show ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
         </button>
       </div>
     </div>
@@ -95,20 +94,21 @@ const ChangePassword = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:opacity-90 text-white rounded-xl shadow-md transition-all duration-200 flex items-center gap-2">
-          <Lock className="w-4 h-4" />
+        <Button className="h-12 px-8 bg-white border border-slate-200 text-slate-900 font-black rounded-2xl shadow-sm hover:bg-slate-50 transition-all uppercase tracking-widest text-[10px] flex items-center gap-3">
+          <Lock className="w-4 h-4 text-indigo-600" />
           Đổi mật khẩu
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-md rounded-2xl bg-gradient-to-br from-blue-50 to-white border border-blue-100 shadow-xl">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-blue-700">
-            Đổi mật khẩu 🔒
+      <DialogContent className="sm:max-w-md rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl p-0 overflow-hidden">
+        <DialogHeader className="p-10 pb-0">
+          <DialogTitle className="text-3xl font-black text-slate-900 tracking-tighter">
+            Bảo mật <span className="text-indigo-600">tài khoản</span>
           </DialogTitle>
+          <p className="text-sm text-slate-400 font-medium tracking-tight">Vui lòng nhập mật khẩu mới để tăng cường bảo mật cho bạn.</p>
         </DialogHeader>
 
-        <form onSubmit={handleChangePassword} className="space-y-5 mt-2">
+        <form onSubmit={handleChangePassword} className="px-10 py-8 space-y-6 mt-2">
           <PasswordInput
             label="Mật khẩu hiện tại"
             value={currentPwd}
@@ -125,13 +125,13 @@ const ChangePassword = () => {
             onChange={setConfirmPwd}
           />
 
-          <DialogFooter>
+          <DialogFooter className="pt-4">
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl py-2 transition-all duration-200"
+              className="w-full h-16 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 transition-all uppercase tracking-[0.2em] text-[11px] disabled:opacity-50"
             >
-              {loading ? "Đang xử lý..." : "Xác nhận"}
+              {loading ? "Đang xử lý..." : "Cập nhật mật khẩu ngay"}
             </Button>
           </DialogFooter>
         </form>
@@ -139,5 +139,6 @@ const ChangePassword = () => {
     </Dialog>
   );
 };
+
 
 export default ChangePassword;

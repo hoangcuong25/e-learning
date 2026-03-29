@@ -1,10 +1,11 @@
 "use client";
 
 import React from "react";
-import { MessageCircle, Bot } from "lucide-react";
+import { MessageCircle, Bot, Info, Star, Sparkles, Layout } from "lucide-react";
 import LessonDiscussion from "./LessonDiscussion";
 import CourseRatingTab from "./CourseRatingTab";
 import LessonAiChat from "./LessonAiChat";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface LessonContentTabsProps {
   currentLesson: any;
@@ -14,13 +15,6 @@ interface LessonContentTabsProps {
   averageRating: any;
 }
 
-const tabClasses = {
-  base: "px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium border-b-2 transition-colors duration-200",
-  active: "border-blue-600 text-blue-600",
-  inactive:
-    "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
-};
-
 const LessonContentTabs: React.FC<LessonContentTabsProps> = ({
   currentLesson,
   activeTab,
@@ -28,122 +22,191 @@ const LessonContentTabs: React.FC<LessonContentTabsProps> = ({
   totalRating,
   averageRating,
 }) => {
+  const tabs = [
+    { id: "overview", label: "Tổng quan", icon: <Info size={14} /> },
+    { id: "qna", label: "Hỏi đáp", icon: <MessageCircle size={14} /> },
+    { id: "review", label: "Đánh giá", icon: <Star size={14} /> },
+    { id: "ai", label: "Trợ lý AI", icon: <Bot size={14} />, special: true },
+  ];
+
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 mt-8">
+    <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 px-2 md:px-6">
-        <nav className="flex space-x-2 md:space-x-4">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`${tabClasses.base} ${
-              activeTab === "overview" ? tabClasses.active : tabClasses.inactive
-            }`}
-          >
-            Tổng quan
-          </button>
+      <div className="px-8 pt-8 border-b border-slate-50">
+        <nav className="flex flex-wrap gap-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`relative px-6 py-4 rounded-t-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 overflow-hidden group ${
+                activeTab === tab.id
+                  ? "text-indigo-600"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                {tab.icon}
+                {tab.label}
+                {tab.special && (
+                  <Sparkles
+                    size={12}
+                    className="text-indigo-400 animate-pulse"
+                  />
+                )}
+              </span>
 
-          <button
-            onClick={() => setActiveTab("qna")}
-            className={`${tabClasses.base} ${
-              activeTab === "qna" ? tabClasses.active : tabClasses.inactive
-            }`}
-          >
-            Hỏi đáp
-          </button>
+              {activeTab === tab.id && (
+                <motion.div
+                  layoutId="activeTabBackground"
+                  className="absolute inset-0 bg-indigo-50 border-t-2 border-indigo-600 z-0"
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                />
+              )}
 
-          {/* TAB ĐÁNH GIÁ  */}
-          <button
-            onClick={() => setActiveTab("review")}
-            className={`${tabClasses.base} ${
-              activeTab === "review" ? tabClasses.active : tabClasses.inactive
-            }`}
-          >
-            Đánh giá
-          </button>
-
-          {/* TAB TRỢ LÝ AI */}
-          <button
-            onClick={() => setActiveTab("ai")}
-            className={`${tabClasses.base} flex items-center gap-1.5 ${
-              activeTab === "ai"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-blue-500 hover:border-blue-300"
-            }`}
-          >
-            <Bot size={14} />
-            Trợ lý AI
-          </button>
+              {activeTab !== tab.id && (
+                <div className="absolute inset-x-0 bottom-0 h-[2px] bg-slate-100 scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+              )}
+            </button>
+          ))}
         </nav>
       </div>
 
       {/* Tab Content */}
-      <div className="p-4 md:p-6">
-        {/* OVERVIEW */}
-        {activeTab === "overview" && (
-          <div id="overview-tab">
-            {currentLesson.chapter && (
-              <div className="mb-4 text-sm text-gray-500">
-                <span className="font-medium text-gray-700">Thuộc chương:</span>{" "}
-                <span className="text-gray-600">
-                  {currentLesson.chapter.title}
-                </span>
+      <div className="p-8 md:p-12 min-h-[400px]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: "circOut" }}
+          >
+            {/* OVERVIEW */}
+            {activeTab === "overview" && (
+              <div className="space-y-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="space-y-1">
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter">
+                      {currentLesson.title}
+                    </h2>
+                    {currentLesson.chapter && (
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                        <Layout size={12} className="text-indigo-600" />
+                        Bài học thuộc:{" "}
+                        <span className="text-slate-600">
+                          {currentLesson.chapter.title}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <Info size={14} className="text-indigo-600" />
+                    Lesson Details
+                  </div>
+                </div>
+
+                <div className="prose prose-slate max-w-none">
+                  {currentLesson.content ? (
+                    <div
+                      className="text-slate-600 leading-relaxed text-lg tracking-tight font-medium"
+                      dangerouslySetInnerHTML={{
+                        __html: currentLesson.content,
+                      }}
+                    />
+                  ) : (
+                    <div className="py-12 text-center bg-slate-50/50 border border-slate-50 rounded-3xl border-dashed">
+                      <p className="text-slate-400 italic">
+                        Chưa có mô tả chi tiết cho bài học này.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              {currentLesson.title}
-            </h2>
-
-            {currentLesson.content ? (
-              <div
-                className="prose max-w-none text-gray-700 leading-relaxed"
-                dangerouslySetInnerHTML={{
-                  __html: currentLesson.content,
-                }}
-              />
-            ) : (
-              <p className="text-gray-500">Chưa có mô tả cho bài học này.</p>
+            {/* Q&A */}
+            {activeTab === "qna" && (
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter">
+                      Hỏi & Đáp
+                    </h2>
+                    <p className="text-slate-400 font-medium tracking-tight">
+                      Cộng đồng học tập đang thảo luận về bài học này.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-amber-50 text-amber-600 rounded-2xl">
+                    <MessageCircle size={24} />
+                  </div>
+                </div>
+                <LessonDiscussion lessonId={currentLesson.id} />
+              </div>
             )}
-          </div>
-        )}
 
-        {/* Q&A */}
-        {activeTab === "qna" && (
-          <div id="qna-tab">
-            <div className="flex items-center gap-2 mb-4 text-xl font-semibold text-gray-800">
-              <MessageCircle size={20} className="text-orange-500" />
-              Hỏi đáp (Q&A)
-            </div>
+            {/* TAB ĐÁNH GIÁ (REVIEW) */}
+            {activeTab === "review" && (
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter">
+                      Phản hồi học viên
+                    </h2>
+                    <p className="text-slate-400 font-medium tracking-tight">
+                      Review thực tế từ những học viên đã tham gia.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-indigo-50 text-indigo-600 rounded-2xl">
+                    <Star size={24} fill="currentColor" />
+                  </div>
+                </div>
+                <CourseRatingTab
+                  totalRating={totalRating}
+                  averageRating={averageRating}
+                />
+              </div>
+            )}
 
-            <p className="text-gray-600 mb-6">
-              Bạn có thắc mắc gì về bài học này không? Hãy đăng câu hỏi của bạn!
-            </p>
+            {/* TAB TRỢ LÝ AI */}
+            {activeTab === "ai" && (
+              <div className="space-y-8">
+                <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden group">
+                  {/* Decorative Elements */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600 opacity-20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500 opacity-10 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/2" />
 
-            <LessonDiscussion lessonId={currentLesson.id} />
-          </div>
-        )}
+                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 mt-10">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-indigo-400">
+                          <Bot size={28} />
+                        </div>
+                        <h2 className="text-3xl font-black tracking-tighter ">
+                          Trợ lý AI
+                        </h2>
+                      </div>
+                      <p className="text-indigo-200/60 font-medium max-w-md tracking-tight leading-relaxed">
+                        Đặt câu hỏi bất kỳ về kiến thức trong video bài giảng.
+                        Tôi sẽ giúp bạn giải đáp mọi thắc mắc.
+                      </p>
+                    </div>
+                    <div className="px-6 py-3 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                      <Sparkles
+                        size={14}
+                        className="text-indigo-400 animate-pulse"
+                      />
+                      AI Powered Core
+                    </div>
+                  </div>
 
-        {/* TAB ĐÁNH GIÁ (REVIEW) */}
-        {activeTab === "review" && (
-          <CourseRatingTab
-            totalRating={totalRating}
-            averageRating={averageRating}
-          />
-        )}
-
-        {/* TAB TRỢ LÝ AI */}
-        {activeTab === "ai" && (
-          <div id="ai-tab">
-            <div className="flex items-center gap-2 mb-4 text-xl font-semibold text-gray-800">
-              <Bot size={20} className="text-blue-500" />
-              Trợ lý AI — Hỏi về nội dung bài học
-            </div>
-            <p className="text-sm text-gray-500 mb-4">
-              Đặt câu hỏi về kiến thức trong video bài giảng. AI sẽ truy xuất nội dung từ bài học và giải thích cho bạn.
-            </p>
-            <LessonAiChat lessonId={currentLesson.id} />
-          </div>
-        )}
+                  <div className="relative z-10 bg-white rounded-[2rem] p-2 text-slate-900 shadow-2xl">
+                    <LessonAiChat lessonId={currentLesson.id} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

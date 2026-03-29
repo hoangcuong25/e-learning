@@ -40,7 +40,6 @@ const EditProfile = () => {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  // 🔧 react-hook-form + zod
   const {
     register,
     handleSubmit,
@@ -58,7 +57,6 @@ const EditProfile = () => {
     },
   });
 
-  // 📷 Upload avatar preview
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -68,7 +66,6 @@ const EditProfile = () => {
     }
   };
 
-  // 📦 Submit form
   const onSubmit = async (data: ProfileFormValues) => {
     try {
       const formData = new FormData();
@@ -86,7 +83,6 @@ const EditProfile = () => {
     }
   };
 
-  // 🪄 Load dữ liệu user hiện tại
   useEffect(() => {
     if (user) {
       setValue("fullname", user.fullname || "");
@@ -104,162 +100,146 @@ const EditProfile = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-all duration-200">
+        <Button className="h-12 px-8 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-2xl shadow-xl shadow-slate-900/10 transition-all uppercase tracking-widest text-[10px]">
           Chỉnh sửa hồ sơ
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-lg rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-blue-100 shadow-lg">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-blue-600 text-center">
-            Cập nhật thông tin hồ sơ ✏️
+      <DialogContent className="sm:max-w-xl rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl p-0 overflow-hidden">
+        <DialogHeader className="p-10 pb-0">
+          <DialogTitle className="text-3xl font-black text-slate-900 tracking-tighter">
+            Cập nhật <span className="text-indigo-600">tài khoản</span>
           </DialogTitle>
+          <p className="text-sm text-slate-400 font-medium tracking-tight">Cá nhân hóa hồ sơ của bạn để nổi bật hơn trong cộng đồng.</p>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-2">
-          {/* Avatar */}
-          <div className="space-y-2">
-            <Label className="text-blue-700 font-medium">Ảnh đại diện</Label>
-            <div className="flex items-center gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="px-10 py-8 space-y-8 max-h-[70vh] overflow-y-auto scrollbar-hide">
+          {/* Avatar Section */}
+          <div className="flex items-center gap-8 p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+            <div className="relative group/avatar">
+               <div className="absolute -inset-1 bg-indigo-500 rounded-full blur opacity-20 group-hover/avatar:opacity-40 transition" />
               <Image
                 src={preview || "/default-avatar.png"}
                 alt="avatar"
-                className="w-20 h-20 rounded-full border-4 border-blue-200 object-cover shadow-sm"
-                width={80}
-                height={80}
+                className="relative w-24 h-24 rounded-full border-4 border-white object-cover shadow-xl"
+                width={96}
+                height={96}
               />
-              <div>
-                <input
-                  type="file"
-                  id="avatar"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                />
-                <label
-                  htmlFor="avatar"
-                  className="cursor-pointer px-3 py-1.5 text-sm rounded-md bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition-all"
-                >
-                  Chọn ảnh
-                </label>
-              </div>
+            </div>
+            <div className="space-y-3">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ảnh đại diện</p>
+              <input
+                type="file"
+                id="avatar"
+                className="hidden"
+                accept="image/*"
+                onChange={handleAvatarChange}
+              />
+              <label
+                htmlFor="avatar"
+                className="inline-flex cursor-pointer px-5 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl bg-white text-indigo-600 border border-indigo-100 hover:bg-indigo-50 transition-all shadow-sm"
+              >
+                Thay đổi ảnh
+              </label>
             </div>
           </div>
 
-          {/* Fullname */}
-          <div className="space-y-1">
-            <Label htmlFor="fullname" className="text-blue-700 font-medium">
-              Họ và tên <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="fullname"
-              placeholder="Nhập họ và tên"
-              className="border-blue-300 rounded-lg"
-              {...register("fullname")}
-            />
-            {errors.fullname && (
-              <p className="text-sm text-red-500">{errors.fullname.message}</p>
-            )}
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Fullname */}
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Họ và tên</Label>
+              <Input
+                placeholder="Nhập họ và tên"
+                className="h-14 bg-slate-50 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 font-bold transition-all"
+                {...register("fullname")}
+              />
+              {errors.fullname && (
+                <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest px-2">{errors.fullname.message}</p>
+              )}
+            </div>
+
+            {/* Email (Readonly) */}
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Địa chỉ Email</Label>
+              <Input
+                disabled
+                className="h-14 bg-slate-100 border-slate-200 rounded-2xl font-bold text-slate-400 cursor-not-allowed opacity-60"
+                value={user?.email || ""}
+              />
+            </div>
+
+            {/* Phone */}
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Số điện thoại</Label>
+              <Input
+                placeholder="Nhập số điện thoại"
+                className="h-14 bg-slate-50 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 font-bold transition-all"
+                {...register("phone")}
+              />
+              {errors.phone && (
+                <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest px-2">{errors.phone.message}</p>
+              )}
+            </div>
+
+            {/* DOB */}
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ngày sinh</Label>
+              <Input
+                type="date"
+                className="h-14 bg-slate-50 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 font-bold transition-all"
+                {...register("dob")}
+              />
+              {errors.dob && (
+                <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest px-2">{errors.dob.message}</p>
+              )}
+            </div>
           </div>
 
-          {/* Email (readonly) */}
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-blue-700 font-medium">
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              disabled
-              className="bg-gray-100 border-blue-300 text-gray-700 rounded-lg"
-              value={user?.email || ""}
-            />
+          <div className="grid md:grid-cols-2 gap-8">
+             {/* Gender */}
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Giới tính</Label>
+              <Select
+                value={watch("gender")}
+                onValueChange={(val) => setValue("gender", val as GenderEnum)}
+              >
+                <SelectTrigger className="h-14 bg-slate-50 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 font-bold ring-offset-0 transition-all">
+                  <SelectValue placeholder="Chọn giới tính" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
+                  {Object.values(GenderEnum).map((gen) => (
+                    <SelectItem key={gen} value={gen} className="rounded-xl font-bold text-slate-700 py-3">
+                      {GenderLabel[gen]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.gender && (
+                <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest px-2">{errors.gender.message}</p>
+              )}
+            </div>
+
+            {/* Address */}
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Địa chỉ</Label>
+              <Input
+                placeholder="Nhập địa chỉ"
+                className="h-14 bg-slate-50 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 font-bold transition-all"
+                {...register("address")}
+              />
+              {errors.address && (
+                <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest px-2">{errors.address.message}</p>
+              )}
+            </div>
           </div>
 
-          {/* Phone */}
-          <div className="space-y-1">
-            <Label htmlFor="phone" className="text-blue-700 font-medium">
-              Số điện thoại <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="phone"
-              placeholder="Nhập số điện thoại"
-              className="border-blue-300 rounded-lg"
-              {...register("phone")}
-            />
-            {errors.phone && (
-              <p className="text-sm text-red-500">{errors.phone.message}</p>
-            )}
-          </div>
-
-          {/* Address */}
-          <div className="space-y-1">
-            <Label htmlFor="address" className="text-blue-700 font-medium">
-              Địa chỉ <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="address"
-              placeholder="Nhập địa chỉ"
-              className="border-blue-300 rounded-lg"
-              {...register("address")}
-            />
-            {errors.address && (
-              <p className="text-sm text-red-500">{errors.address.message}</p>
-            )}
-          </div>
-
-          {/* Gender */}
-          <div className="space-y-1">
-            <Label className="text-blue-700 font-medium">
-              Giới tính <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={watch("gender")}
-              onValueChange={(val) => setValue("gender", val as GenderEnum)}
-            >
-              <SelectTrigger className="border-blue-300 rounded-lg">
-                <SelectValue placeholder="Chọn giới tính" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={GenderEnum.Male}>
-                  {GenderLabel[GenderEnum.Male]}
-                </SelectItem>
-                <SelectItem value={GenderEnum.Female}>
-                  {GenderLabel[GenderEnum.Female]}
-                </SelectItem>
-                <SelectItem value={GenderEnum.Other}>
-                  {GenderLabel[GenderEnum.Other]}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.gender && (
-              <p className="text-sm text-red-500">{errors.gender.message}</p>
-            )}
-          </div>
-
-          {/* DOB */}
-          <div className="space-y-1">
-            <Label htmlFor="dob" className="text-blue-700 font-medium">
-              Ngày sinh <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="dob"
-              type="date"
-              className="border-blue-300 rounded-lg"
-              {...register("dob")}
-            />
-            {errors.dob && (
-              <p className="text-sm text-red-500">{errors.dob.message}</p>
-            )}
-          </div>
-
-          <DialogFooter>
+          <DialogFooter className="pt-6 sm:justify-start">
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg py-2.5 shadow-md transition-all duration-200"
+              className="w-full h-16 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 transition-all uppercase tracking-[0.2em] text-[11px] disabled:opacity-50"
             >
-              {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
+              {isSubmitting ? "Đang xử lý..." : "Lưu thay đổi hồ sơ"}
             </Button>
           </DialogFooter>
         </form>
@@ -267,5 +247,6 @@ const EditProfile = () => {
     </Dialog>
   );
 };
+
 
 export default EditProfile;

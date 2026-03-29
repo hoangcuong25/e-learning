@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { getUserActivity } from "@/store/api/common/user.api";
 import dayjs from "dayjs";
 
-
 interface ActivityData {
   streak: number;
   activityMap: { date: string; count: number }[];
@@ -29,16 +28,20 @@ export default function ActivityHeatmap() {
   }, []);
 
   if (loading) {
-    return <div className="mt-8 bg-white shadow-md rounded-2xl p-6 border border-gray-100 animate-pulse h-64"></div>;
+    return (
+      <div className="mt-8 bg-white rounded-[2.5rem] p-10 border border-slate-100 animate-pulse h-72"></div>
+    );
   }
 
   const activityMap = data?.activityMap || [];
-  const activityDict = activityMap.reduce((acc, curr) => {
-    acc[curr.date] = curr.count;
-    return acc;
-  }, {} as Record<string, number>);
+  const activityDict = activityMap.reduce(
+    (acc, curr) => {
+      acc[curr.date] = curr.count;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
-  // Generate 365 days
   const today = dayjs();
   const days = [];
   for (let i = 364; i >= 0; i--) {
@@ -46,54 +49,69 @@ export default function ActivityHeatmap() {
   }
 
   const getHeatmapColor = (count: number) => {
-    if (count === 0) return "bg-gray-100";
-    if (count === 1) return "bg-green-200";
-    if (count <= 3) return "bg-green-400";
-    if (count <= 5) return "bg-green-600";
-    return "bg-green-800";
+    if (count === 0) return "bg-slate-50";
+    if (count === 1) return "bg-emerald-500/20";
+    if (count <= 3) return "bg-emerald-500/40";
+    if (count <= 5) return "bg-emerald-500/70";
+    return "bg-emerald-500";
   };
 
   return (
-    <div className="mt-8 bg-white shadow-md rounded-2xl p-6 border border-gray-100">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">Bản đồ hoạt động</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Mỗi ô vuông đại diện cho một ngày. Màu càng đậm chứng tỏ bạn càng hoạt động tích cực (hoàn thành bài học, nhiệm vụ) trong ngày đó.
+    <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm space-y-10 group">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+            Bản đồ học tập
+          </h2>
+          <p className="text-sm text-slate-400 font-medium max-w-lg leading-relaxed">
+            Mỗi ô vuông đại diện cho hành trình tri thức của bạn. Màu càng đậm
+            chứng tỏ sự nỗ lực và kiên trì không ngừng nghỉ.
           </p>
-        </div>
-        <div className="flex items-center gap-2 whitespace-nowrap bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100">
-          <span className="text-sm text-orange-800">Chuỗi học liên tiếp:</span>
-          <span className="text-lg font-bold text-orange-600">{data?.streak || 0} ngày 🔥</span>
         </div>
       </div>
 
-      <div className="flex-col hidden md:flex overflow-x-auto pb-4">
-        <div className="grid grid-flow-col gap-1" style={{ gridTemplateRows: 'repeat(7, 1fr)' }}>
-            {days.map((day) => {
+      <div className="inline-flex items-center gap-3 bg-orange-500 text-white px-6 py-3 rounded-2xl shadow-xl shadow-orange-500/20 transition-transform group-hover:scale-105 duration-500">
+        <span className="text-[10px] font-black uppercase tracking-widest">
+          Học liên tiếp:
+        </span>
+        <span className="text-xl font-black tracking-tighter">
+          {data?.streak || 0} ngày 🔥
+        </span>
+      </div>
+
+      <div className="flex-col hidden md:flex overflow-x-auto pb-4 scrollbar-hide">
+        <div
+          className="grid grid-flow-col gap-1.5"
+          style={{ gridTemplateRows: "repeat(7, 1fr)" }}
+        >
+          {days.map((day) => {
             const count = activityDict[day] || 0;
             return (
-                <div
-                    key={day}
-                    title={`${count} hoạt động vào ${dayjs(day).format('DD/MM/YYYY')}`}
-                    className={`w-3.5 h-3.5 rounded-sm cursor-pointer ${getHeatmapColor(count)}`}
-                />
+              <div
+                key={day}
+                title={`${count} hoạt động vào ${dayjs(day).format("DD/MM/YYYY")}`}
+                className={`w-4 h-4 rounded-[3px] transition-colors duration-500 cursor-pointer ${getHeatmapColor(count)} hover:ring-2 hover:ring-indigo-400`}
+              />
             );
-            })}
+          })}
         </div>
 
-        <div className="flex justify-end items-center mt-4 gap-2 text-xs text-gray-500">
+        <div className="flex justify-end items-center mt-8 gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
           <span>Ít</span>
-          <div className="w-3.5 h-3.5 rounded-sm bg-gray-100" />
-          <div className="w-3.5 h-3.5 rounded-sm bg-green-200" />
-          <div className="w-3.5 h-3.5 rounded-sm bg-green-400" />
-          <div className="w-3.5 h-3.5 rounded-sm bg-green-600" />
-          <div className="w-3.5 h-3.5 rounded-sm bg-green-800" />
+          <div className="flex gap-1.5">
+            <div className="w-4 h-4 rounded-[2px] bg-slate-50" />
+            <div className="w-4 h-4 rounded-[2px] bg-emerald-500/20" />
+            <div className="w-4 h-4 rounded-[2px] bg-emerald-500/40" />
+            <div className="w-4 h-4 rounded-[2px] bg-emerald-500/70" />
+            <div className="w-4 h-4 rounded-[2px] bg-emerald-500" />
+          </div>
           <span>Nhiều</span>
         </div>
       </div>
-      <div className="md:hidden text-center text-gray-500 text-sm">
-        Vui lòng xem trên màn hình lớn để thấy biểu đồ chi tiết.
+      <div className="md:hidden py-10 bg-slate-50 rounded-2xl text-center">
+        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+          Vui lòng xem trên màn hình lớn để thấy chi tiết
+        </p>
       </div>
     </div>
   );
