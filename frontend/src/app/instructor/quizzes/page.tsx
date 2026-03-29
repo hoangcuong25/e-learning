@@ -38,17 +38,19 @@ import QuizForm from "@/components/quiz/CreateQuiz";
 import { useRouter } from "next/navigation";
 import QuizOnboarding from "@/components/instructor/onboarding/QuizOnboarding";
 import AiQuizPreviewDialog from "@/components/quiz/AiQuizPreviewDialog";
+import { Badge } from "@/components/ui/badge";
 import {
   BookOpen,
   GraduationCap,
   Layers,
   Sparkles,
   Loader2,
+  Puzzle,
+  TrendingUp,
+  FileQuestion,
+  MoreVertical,
 } from "lucide-react";
-import {
-  generateQuizQuestionsByAi,
-  clearQuizState,
-} from "@/store/slice/course/quizSlice";
+import { generateQuizQuestionsByAi } from "@/store/slice/course/quizSlice";
 
 const Quizzes = () => {
   const router = useRouter();
@@ -58,9 +60,6 @@ const Quizzes = () => {
   // Redux state
   const { instructorQuizzes, loading } = useSelector(
     (state: RootState) => state.quiz,
-  );
-  const { instructorCourses } = useSelector(
-    (state: RootState) => state.courses,
   );
 
   // Local UI states
@@ -134,119 +133,188 @@ const Quizzes = () => {
     }
   };
 
-  if (loading) return <LoadingScreen />;
+  if (loading && instructorQuizzes.length === 0) return <LoadingScreen />;
+
+  const totalQuestions = instructorQuizzes.reduce(
+    (acc, q) => acc + (q._count?.questions || 0),
+    0,
+  );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <div className="step-quiz-header">
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
-            Quản lý{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Quiz
-            </span>
+    <div className="space-y-10 pb-10 overflow-x-hidden">
+      {/* Header Section */}
+      <div className="flex flex-col lg:flex-row justify-between lg:items-end gap-6">
+        <div>
+          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
+            Thư viện Quiz
           </h1>
-          <p className="text-slate-500 max-w-lg leading-relaxed">
-            Tạo và quản lý các bài kiểm tra chất lượng cao cho học viên của bạn.
-            Sử dụng AI để sinh câu hỏi nhanh chóng.
+          <p className="text-slate-500 mt-2 font-medium max-w-2xl">
+            Thiết kế các bài kiểm tra tương tác để đánh giá sự tiến bộ của học
+            viên một cách chính xác nhất.
           </p>
         </div>
 
-        <div className="flex gap-4 items-center">
-          <div className="step-create-quiz">
-            {/* Nút mở form tạo quiz */}
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl px-6 py-6 shadow-lg shadow-blue-200 transition-all active:scale-95">
-                  <PlusCircle className="w-5 h-5" /> Tạo Quiz Mới
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl w-full">
-                <DialogTitle className="text-lg font-semibold mb-2">
-                  Tạo Quiz Mới
+        <div className="flex items-center gap-4">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="h-14 px-8 bg-slate-900 text-white font-black uppercase tracking-widest rounded-3xl shadow-xl hover:scale-105 transition-all flex items-center gap-3">
+                <PlusCircle className="w-5 h-5" /> Tạo Quiz Mới
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl w-full rounded-[2.5rem] border-none p-0 overflow-hidden bg-white">
+              <div className="p-8 bg-slate-50 border-b border-slate-100">
+                <DialogTitle className="text-2xl font-black text-slate-900">
+                  Thiết lập Quiz
                 </DialogTitle>
-                <DialogDescription className="sr-only">
-                  Form để tạo bài kiểm tra mới cho bài học.
+                <DialogDescription className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">
+                  Gắn bài kiểm tra vào bài học tương ứng
                 </DialogDescription>
+              </div>
+              <div className="p-8">
                 <QuizForm />
-              </DialogContent>
-            </Dialog>
-          </div>
-
+              </div>
+            </DialogContent>
+          </Dialog>
           <QuizOnboarding />
         </div>
       </div>
 
-      {/* Danh sách quiz */}
-      <Card className="shadow-sm border border-gray-200 step-quiz-list">
-        <CardHeader className="border-b bg-slate-50/50 backdrop-blur-sm px-6 py-4">
-          <CardTitle className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Layers className="w-5 h-5 text-indigo-500" />
-            Danh sách Quiz ({instructorQuizzes.length})
-          </CardTitle>
-        </CardHeader>
+      {/* Stats Quickview */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <Card className="rounded-[2.5rem] border-none shadow-sm p-8 bg-white flex items-center gap-6 group">
+          <div className="p-4 bg-indigo-50 text-indigo-600 rounded-3xl group-hover:scale-110 transition-transform">
+            <Puzzle className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              Tổng số Quiz
+            </div>
+            <div className="text-2xl font-black text-slate-900">
+              {instructorQuizzes.length}
+            </div>
+          </div>
+        </Card>
+        <Card className="rounded-[2.5rem] border-none shadow-sm p-8 bg-white flex items-center gap-6 group">
+          <div className="p-4 bg-emerald-50 text-emerald-600 rounded-3xl group-hover:scale-110 transition-transform">
+            <FileQuestion className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              Tổng câu hỏi
+            </div>
+            <div className="text-2xl font-black text-slate-900">
+              {totalQuestions}
+            </div>
+          </div>
+        </Card>
+      </div>
 
-        <CardContent className="p-6">
-          {instructorQuizzes.length === 0 ? (
-            <p className="text-gray-500 italic text-center py-8">
-              Chưa có quiz nào được tạo.
+      {/* Quiz Grid List */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-8">
+        {instructorQuizzes.length === 0 ? (
+          <div className="col-span-full py-24 flex flex-col items-center justify-center bg-white rounded-[3rem] shadow-sm border-2 border-dashed border-slate-100 font-bold">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+              <Puzzle className="w-10 h-10 text-slate-200" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900">
+              Danh sách trống
+            </h3>
+            <p className="text-slate-400 mt-1">
+              Hãy bắt đầu bằng cách tạo bài kiểm tra đầu tiên của bạn.
             </p>
-          ) : (
-            <div className="grid gap-4">
-              {instructorQuizzes.map((quiz) => {
-                const courseTitle =
-                  quiz.lesson?.chapter?.course?.title || "Không rõ khóa học";
-                const lessonTitle = quiz.lesson?.title || "Không rõ bài học";
+          </div>
+        ) : (
+          instructorQuizzes.map((quiz) => {
+            const courseTitle =
+              quiz.lesson?.chapter?.course?.title || "Draft Course";
+            const lessonTitle = quiz.lesson?.title || "Unassigned Lesson";
 
-                return (
-                  <div
-                    key={quiz.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-6 border border-slate-100 rounded-2xl hover:border-indigo-200 hover:shadow-xl bg-white transition-all duration-300 group relative overflow-hidden"
-                  >
-                    {/* Background Decorative Element */}
-                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-50/30 rounded-full blur-2xl group-hover:bg-indigo-100/50 transition-colors" />
-
-                    {/* Thông tin Quiz */}
-                    <div className="relative z-10 flex-1 space-y-4">
-                      <div>
-                        <h3 className="font-bold text-slate-800 text-xl group-hover:text-blue-600 transition-colors flex items-center gap-2">
-                          <span className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-all">
-                            🧩
-                          </span>
-                          {quiz.title}
-                        </h3>
-
-                        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6">
-                          <div className="flex items-center gap-2 text-sm text-slate-600">
-                            <GraduationCap className="w-4 h-4 text-indigo-500" />
-                            <span className="font-medium">Khóa học:</span>
-                            <span className="text-slate-900 truncate max-w-[200px]">
-                              {quiz.lesson?.chapter?.course?.title || "N/A"}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-slate-600">
-                            <BookOpen className="w-4 h-4 text-emerald-500" />
-                            <span className="font-medium">Bài học:</span>
-                            <span className="text-slate-900 truncate max-w-[200px]">
-                              {quiz.lesson?.title || "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                          ❓ {quiz._count?.questions ?? 0} câu hỏi
-                        </div>
-                        <div className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-bold">
+            return (
+              <Card
+                key={quiz.id}
+                className="rounded-[3rem] border-none shadow-sm hover:shadow-2xl transition-all duration-500 bg-white overflow-hidden group border-2 border-transparent hover:border-indigo-100"
+              >
+                <CardContent className="p-8 space-y-8">
+                  {/* Card Top: Title and Badges */}
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="space-y-3 flex-1">
+                      <div className="flex flex-wrap gap-2">
+                        <Badge className="bg-indigo-50 text-indigo-600 border-none rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-tight">
                           #{quiz.id}
-                        </div>
+                        </Badge>
+                        <Badge className="bg-emerald-50 text-emerald-600 border-none rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-tight">
+                          Active
+                        </Badge>
                       </div>
+                      <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors">
+                        {quiz.title}
+                      </h3>
+                    </div>
+                    <div className="p-3 bg-slate-50 rounded-2xl">
+                      <Puzzle className="w-6 h-6 text-slate-200 group-hover:text-indigo-600 transition-colors" />
+                    </div>
+                  </div>
+
+                  {/* Course Context Metadata */}
+                  <div className="grid grid-cols-2 gap-4 p-5 bg-slate-50/50 rounded-3xl border border-slate-100/50">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <GraduationCap size={12} /> Course
+                      </span>
+                      <p className="text-xs font-bold text-slate-700 truncate">
+                        {courseTitle}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <BookOpen size={12} /> Lesson
+                      </span>
+                      <p className="text-xs font-bold text-slate-700 truncate">
+                        {lessonTitle}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* card Actions Footer */}
+                  <div className="flex flex-wrap items-center justify-between gap-6 pt-4 border-t border-slate-50">
+                    <div className="flex items-center gap-6">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          Questions
+                        </span>
+                        <span className="text-lg font-black text-slate-900">
+                          {quiz._count?.questions ?? 0}
+                        </span>
+                      </div>
+                      <div className="w-px h-8 bg-slate-100" />
+                      <Button
+                        variant="ghost"
+                        className="text-indigo-600 font-extrabold text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-50 rounded-xl"
+                        onClick={() =>
+                          router.push(`/instructor/quizzes/${quiz.id}`)
+                        }
+                      >
+                        Manage Questions <Eye size={16} />
+                      </Button>
                     </div>
 
-                    <div className="mt-6 sm:mt-0 relative z-10 flex flex-wrap items-center gap-3">
-                      {/* Sửa */}
+                    <div className="flex items-center gap-2">
+                      {/* AI Button */}
+                      <Button
+                        variant="outline"
+                        className="h-12 px-6 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-black uppercase tracking-widest rounded-2xl border-none shadow-lg shadow-amber-100 transition-transform active:scale-95 flex items-center gap-2"
+                        onClick={() => handleGenerateAi(quiz.id)}
+                        disabled={aiGeneratingId === quiz.id}
+                      >
+                        {aiGeneratingId === quiz.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Sparkles size={16} />
+                        )}
+                        AI Gen
+                      </Button>
+
+                      {/* Edit Dialog */}
                       <Dialog
                         open={editQuiz?.id === quiz.id}
                         onOpenChange={(open) =>
@@ -258,135 +326,100 @@ const Quizzes = () => {
                       >
                         <DialogTrigger asChild>
                           <Button
-                            variant="outline"
-                            className="flex items-center gap-2 text-slate-600 hover:bg-slate-50 border-slate-200 rounded-xl px-4"
+                            variant="ghost"
+                            size="icon"
+                            className="w-12 h-12 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-600 transition-all"
                           >
-                            <Pencil className="w-4 h-4" />
-                            Sửa
+                            <Pencil size={18} />
                           </Button>
                         </DialogTrigger>
-
-                        <DialogContent className="max-w-md">
-                          <DialogTitle className="text-lg font-semibold">
-                            ✏️ Chỉnh sửa tiêu đề Quiz
-                          </DialogTitle>
-                          <DialogDescription className="sr-only">
-                            Cập nhật tiêu đề của bài kiểm tra hiện tại.
-                          </DialogDescription>
-
-                          <div className="space-y-5 mt-4">
+                        <DialogContent className="rounded-[2.5rem] border-none p-8 overflow-hidden bg-white shadow-2xl max-w-md">
+                          <div className="space-y-6">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                              <DialogTitle className="text-2xl font-black text-slate-900">
+                                Chỉnh sửa Quiz
+                              </DialogTitle>
+                              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
+                                Cập nhật danh tính cho bài kiểm tra
+                              </p>
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
                                 Tiêu đề mới
                               </label>
                               <Input
                                 value={newTitle}
                                 onChange={(e) => setNewTitle(e.target.value)}
-                                placeholder="Nhập tiêu đề mới..."
+                                placeholder="Tên quiz của bạn..."
+                                className="h-14 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-indigo-200 transition-all font-bold px-6 outline-none"
                               />
                             </div>
-
-                            <div className="p-3 rounded-md bg-gray-50 border text-sm text-gray-700 space-y-1">
-                              <p>
-                                🏫 <strong>Khóa học:</strong> {courseTitle}
-                              </p>
-                              <p>
-                                📘 <strong>Bài học:</strong> {lessonTitle}
-                              </p>
+                            <div className="flex gap-4 pt-4">
+                              <Button
+                                variant="outline"
+                                className="flex-1 h-14 rounded-2xl font-bold text-slate-500 border-none bg-slate-50 hover:bg-slate-100"
+                                onClick={() => setEditQuiz(null)}
+                              >
+                                Đóng
+                              </Button>
+                              <Button
+                                className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-white bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-100"
+                                onClick={handleUpdate}
+                              >
+                                Cập nhật ngay
+                              </Button>
                             </div>
-                          </div>
-
-                          <div className="flex justify-end gap-2 mt-6">
-                            <Button
-                              variant="outline"
-                              onClick={() => setEditQuiz(null)}
-                            >
-                              Hủy
-                            </Button>
-                            <Button
-                              onClick={handleUpdate}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              Lưu thay đổi
-                            </Button>
                           </div>
                         </DialogContent>
                       </Dialog>
 
-                      {/* AI Generate */}
-                      <Button
-                        variant="outline"
-                        className="bg-amber-50 border-amber-200 text-amber-700 font-bold rounded-xl
-                px-5 py-2 hover:bg-amber-500 hover:border-amber-500 hover:text-white 
-                transition-all duration-300 shadow-sm hover:shadow-amber-200 flex items-center gap-2 group/ai"
-                        onClick={() => handleGenerateAi(quiz.id)}
-                        disabled={aiGeneratingId === quiz.id}
-                      >
-                        {aiGeneratingId === quiz.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Sparkles
-                            size={18}
-                            className="group-hover/ai:animate-pulse"
-                          />
-                        )}
-                        Thêm câu hỏi (AI)
-                      </Button>
-
-                      {/* Chi tiết */}
-                      <Button
-                        variant="outline"
-                        className="border-blue-500 border-2 hover:bg-blue-500 hover:text-white text-blue-500"
-                        onClick={() =>
-                          router.push(`/instructor/quizzes/${quiz.id}`)
-                        }
-                      >
-                        <Eye size={18} />
-                        Chi Tiết
-                      </Button>
-
-                      {/*  Xóa */}
+                      {/* Delete */}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
-                            variant="destructive"
-                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white"
+                            variant="ghost"
+                            size="icon"
+                            className="w-12 h-12 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-all"
                             onClick={() => setDeleteId(quiz.id)}
                           >
-                            <Trash2 className="w-4 h-4" />
-                            Xóa
+                            <Trash2 size={18} />
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="rounded-[2.5rem] border-none p-10 bg-white shadow-2xl">
                           <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Xác nhận xóa quiz
+                            <AlertDialogTitle className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+                              Cảnh báo xóa Quiz
                             </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Hành động này sẽ xóa vĩnh viễn quiz{" "}
-                              <strong>{quiz.title}</strong>. Bạn có chắc chắn
-                              muốn tiếp tục không?
+                            <AlertDialogDescription className="text-slate-500 font-medium py-4 text-base leading-relaxed">
+                              Bạn sắp xóa vĩnh viễn{" "}
+                              <span className="text-slate-900 font-black">
+                                "{quiz.title}"
+                              </span>
+                              . Hành động này không thể hoàn tác và mọi dữ liệu
+                              liên quan sẽ biến mất.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Hủy</AlertDialogCancel>
+                          <AlertDialogFooter className="gap-4">
+                            <AlertDialogCancel className="h-14 flex-1 rounded-2xl font-bold bg-slate-50 border-none hover:bg-slate-100 text-slate-500">
+                              Bỏ qua
+                            </AlertDialogCancel>
                             <AlertDialogAction
                               onClick={confirmDelete}
-                              className="bg-red-600 hover:bg-red-700"
+                              className="h-14 flex-1 rounded-2xl font-black uppercase tracking-widest bg-rose-600 hover:bg-rose-700 text-white shadow-xl shadow-rose-100"
                             >
-                              Xóa
+                              Xác nhận xóa
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
+      </div>
 
       {/* AI Preview Dialog */}
       {currentPreviewQuizId && (

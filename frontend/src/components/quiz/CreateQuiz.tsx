@@ -101,147 +101,151 @@ const QuizForm = () => {
     try {
       await dispatch(createQuiz(values)).unwrap();
       await dispatch(fetchInstructorQuizzes()).unwrap();
-      toast.success("Tạo quiz thành công");
+      toast.success("Hệ thống đã ghi nhận bài kiểm tra mới!");
     } catch {
-      toast.error("Có lỗi xảy ra");
+      toast.error("Không thể khởi tạo bài kiểm tra.");
     }
   };
 
   return (
-    <div className="w-full space-y-8 py-4">
-      <div className="space-y-2">
-        <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-          Tạo Quiz Mới
+    <div className="w-full max-w-4xl mx-auto space-y-12 py-8 px-4">
+      <div className="space-y-4 text-center md:text-left">
+        <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">
+          Thiết lập <span className="text-indigo-600">Bài kiểm tra</span>
         </h2>
-        <p className="text-slate-500 text-sm">
-          Thiết lập tiêu đề và vị trí bài kiểm tra trong khóa học của bạn.
+        <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">
+          Xây dựng cấu trúc & vị trí đánh giá kiến thức
         </p>
       </div>
 
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6 w-full"
-        >
-          {/* Chọn khóa học */}
-          <FormField
-            control={form.control}
-            name="courseId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-semibold">Chọn khóa học</FormLabel>
-                <Select
-                  onValueChange={(val) => field.onChange(Number(val))}
-                  value={field.value ? String(field.value) : ""}
-                >
-                  <FormControl>
-                    <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl h-12 focus:ring-2 focus:ring-blue-500 transition-all">
-                      <SelectValue placeholder="Chọn khóa học" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {instructorCourses.map((course) => (
-                      <SelectItem key={course.id} value={String(course.id)}>
-                        {course.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Chọn Chapter */}
-          <FormField
-            control={form.control}
-            name="chapterId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-semibold">
-                  Chọn chương (Chapter)
-                </FormLabel>
-                <Select
-                  disabled={!watchCourseId}
-                  onValueChange={(val) => field.onChange(Number(val))}
-                  value={field.value ? String(field.value) : ""}
-                >
-                  <FormControl>
-                    <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl h-12 focus:ring-2 focus:ring-blue-500 transition-all">
-                      <SelectValue placeholder="Chọn chương" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {chapters.map((ch) => (
-                      <SelectItem key={ch.id} value={String(ch.id)}>
-                        {ch.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Chọn Bài học */}
-          <FormField
-            control={form.control}
-            name="lessonId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-semibold">Chọn bài học</FormLabel>
-                <Select
-                  disabled={!watchChapterId}
-                  onValueChange={(val) => field.onChange(Number(val))}
-                  value={field.value ? String(field.value) : ""}
-                >
-                  <FormControl>
-                    <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl h-12 focus:ring-2 focus:ring-blue-500 transition-all">
-                      <SelectValue placeholder="Chọn bài học" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {lessons.map((lesson) => (
-                      <SelectItem key={lesson.id} value={String(lesson.id)}>
-                        {lesson.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Tiêu đề Quiz */}
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-semibold">Tiêu đề Quiz</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Nhập tiêu đề quiz (VD: Kiểm tra kiến thức chương 1)"
-                    {...field}
-                    className="bg-slate-50 border-slate-200 rounded-xl h-12 focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button
-            type="submit"
-            disabled={quizLoading || courseLoading}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-6 rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-95 disabled:opacity-50"
+      <div className="bg-white rounded-[2.5rem] border-2 border-slate-50 p-8 md:p-12 shadow-2xl shadow-indigo-100/20 shadow-slate-200/20">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-10"
           >
-            {quizLoading ? "Đang xử lý..." : "Xác nhận tạo Quiz"}
-          </Button>
-        </form>
-      </Form>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Chọn khóa học */}
+              <FormField
+                control={form.control}
+                name="courseId"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Khóa học mục tiêu</FormLabel>
+                    <Select
+                      onValueChange={(val) => field.onChange(Number(val))}
+                      value={field.value ? String(field.value) : ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-16 bg-slate-50/50 border-transparent focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none">
+                          <SelectValue placeholder="Chọn khóa học của bạn" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="rounded-2xl border-none shadow-2xl p-2 bg-white/80 backdrop-blur-xl">
+                        {instructorCourses.map((course) => (
+                          <SelectItem key={course.id} value={String(course.id)} className="rounded-xl font-bold text-slate-600 focus:bg-indigo-50 focus:text-indigo-600 py-3">
+                            {course.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-[10px] uppercase font-black tracking-widest text-rose-500 ml-4" />
+                  </FormItem>
+                )}
+              />
+
+              {/* Chọn Chapter */}
+              <FormField
+                control={form.control}
+                name="chapterId"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Chương mục (Chapter)</FormLabel>
+                    <Select
+                      disabled={!watchCourseId}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                      value={field.value ? String(field.value) : ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-16 bg-slate-50/50 border-transparent hover:border-slate-100 focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none disabled:opacity-50">
+                          <SelectValue placeholder="Chọn chương bối cảnh" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="rounded-2xl border-none shadow-2xl p-2 bg-white/80 backdrop-blur-xl">
+                        {chapters.map((ch) => (
+                          <SelectItem key={ch.id} value={String(ch.id)} className="rounded-xl font-bold text-slate-600 focus:bg-indigo-50 focus:text-indigo-600 py-3">
+                            {ch.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-[10px] uppercase font-black tracking-widest text-rose-500 ml-4" />
+                  </FormItem>
+                )}
+              />
+
+              {/* Chọn Bài học */}
+              <FormField
+                control={form.control}
+                name="lessonId"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Bài học liên quan</FormLabel>
+                    <Select
+                      disabled={!watchChapterId}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                      value={field.value ? String(field.value) : ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-16 bg-slate-50/50 border-transparent hover:border-slate-100 focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none disabled:opacity-50">
+                          <SelectValue placeholder="Gắn vào bài học cụ thể" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="rounded-2xl border-none shadow-2xl p-2 bg-white/80 backdrop-blur-xl">
+                        {lessons.map((lesson) => (
+                          <SelectItem key={lesson.id} value={String(lesson.id)} className="rounded-xl font-bold text-slate-600 focus:bg-indigo-50 focus:text-indigo-600 py-3">
+                            {lesson.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-[10px] uppercase font-black tracking-widest text-rose-500 ml-4" />
+                  </FormItem>
+                )}
+              />
+
+              {/* Tiêu đề Quiz */}
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Tên bài kiểm tra</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Ví dụ: Kiểm tra kiến thức Flexbox"
+                        {...field}
+                        className="h-16 bg-slate-50/50 border-transparent focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[10px] uppercase font-black tracking-widest text-rose-500 ml-4" />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="pt-8 flex justify-center">
+              <Button
+                type="submit"
+                disabled={quizLoading || courseLoading}
+                className="h-20 px-16 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black uppercase tracking-widest rounded-[2rem] shadow-2xl shadow-indigo-200 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+              >
+                {quizLoading ? "Đang xử lý hồ sơ..." : "Khởi tạo Bài kiểm tra"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 };

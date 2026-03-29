@@ -22,6 +22,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import Image from "next/image";
 import CourseTabs from "@/components/instructor/courseTabs/CourseTabs";
 import { formatDuration } from "@/lib/helpers";
+import { Badge } from "@/components/ui/badge";
 
 const CourseDetailPage = () => {
   const { id } = useParams();
@@ -38,194 +39,160 @@ const CourseDetailPage = () => {
   if (loading || !currentCourse) return <LoadingScreen />;
 
   return (
-    <div className="p-6 space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Nút quay lại */}
+    <div className="space-y-10 pb-10 overflow-x-hidden">
+      {/* ─── HEADER SECTION ───────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-6">
+        <div className="flex items-center gap-6">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => router.push("/instructor/courses")}
-            className="flex items-center gap-2 hover:bg-gray-100 transition-all"
+            className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 hover:bg-slate-50 transition-all text-slate-600 group"
           >
-            <ArrowLeft size={18} />
-            <span>Quay lại</span>
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           </Button>
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <Badge className="bg-indigo-50 text-indigo-600 border-none rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-tight">#{id}</Badge>
+              <div className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Course Hub</div>
+            </div>
+            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
+              {currentCourse.title}
+            </h1>
+          </div>
         </div>
       </div>
 
-      {/* Course Info */}
-      <Card className="shadow-md border border-gray-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <BookOpen size={20} /> Thông tin khóa học
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 text-gray-700">
-          {/* 🔹 Thumbnail + Title */}
-          <div className="sm:col-span-2 lg:col-span-3 flex flex-col md:flex-row items-start md:items-center gap-6 mb-4">
-            <div className="relative w-full md:w-64 aspect-video bg-gray-100 rounded-lg overflow-hidden shadow">
+      {/* ─── MAIN INFO CARD ───────────────────────────── */}
+      <Card className="rounded-[3rem] border-none shadow-sm bg-white overflow-hidden">
+        <CardContent className="p-0">
+          <div className="flex flex-col lg:flex-row">
+            {/* Thumbnail Column */}
+            <div className="lg:w-1/3 xl:w-1/4 relative bg-slate-900 aspect-video lg:aspect-auto">
               {currentCourse.thumbnail ? (
-                <Image
-                  src={currentCourse.thumbnail}
-                  alt={currentCourse.title}
-                  fill
-                  className="object-cover"
-                />
+                <>
+                  <Image
+                    src={currentCourse.thumbnail}
+                    alt={currentCourse.title}
+                    fill
+                    className="object-cover opacity-90"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent pointer-events-none" />
+                </>
               ) : (
-                <div className="flex items-center justify-center h-full text-gray-400 italic">
-                  Chưa có thumbnail
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-slate-50 italic gap-3">
+                  <BookOpen className="w-12 h-12 opacity-20" />
+                  <p className="text-xs font-bold uppercase tracking-widest">No preview</p>
                 </div>
               )}
             </div>
 
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {currentCourse.title}
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Mã khóa học: #{currentCourse.id}
-              </p>
-              <div className="mt-4">
-                {Array.isArray(currentCourse?.specializations) &&
-                  currentCourse.specializations.length > 0 && (
-                    <div className="sm:col-span-2 lg:col-span-3">
-                      <p className="text-gray-800 mb-1">Chuyên ngành</p>
-                      <div className="flex flex-wrap gap-2">
-                        {currentCourse.specializations.map((sp: any) => (
-                          <span
-                            key={sp.specialization.id}
-                            className="px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded-full border border-blue-200"
-                          >
-                            {sp.specialization.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+            {/* Content Column */}
+            <div className="flex-1 p-8 md:p-12 space-y-10">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900 mb-2 leading-tight">Thông tin tổng quan</h2>
+                  <p className="text-slate-400 font-medium text-sm">Cập nhật và quản lý thuộc tính khóa học hiện tại</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {Array.isArray(currentCourse?.specializations) &&
+                    currentCourse.specializations.map((sp: any) => (
+                      <Badge
+                        key={sp.specialization.id}
+                        className="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border-none rounded-xl px-4 py-2 text-xs font-bold transition-colors"
+                      >
+                        {sp.specialization.name}
+                      </Badge>
+                    ))}
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* 🔹 Ngày tạo */}
-          <div className="flex items-center gap-3">
-            <Clock className="text-blue-600" />
-            <div>
-              <p className="font-medium text-gray-800">Ngày tạo</p>
-              <p className="text-sm text-gray-500">
-                {new Date(currentCourse.createdAt).toLocaleDateString("vi-VN")}
-              </p>
-            </div>
-          </div>
+              {/* Statistics Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="space-y-4 group">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform">
+                      <DollarSign className="w-5 h-5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pricing</span>
+                      <span className="text-lg font-black text-slate-900">{currentCourse.price.toLocaleString()} LC</span>
+                    </div>
+                  </div>
+                </div>
 
-          {/* 🔹 Cập nhật */}
-          <div className="flex items-center gap-3">
-            <Calendar className="text-purple-600" />
-            <div>
-              <p className="font-medium text-gray-800">Cập nhật lần cuối</p>
-              <p className="text-sm text-gray-500">
-                {new Date(currentCourse.updatedAt).toLocaleDateString("vi-VN")}
-              </p>
-            </div>
-          </div>
+                <div className="space-y-4 group">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Enrollments</span>
+                      <span className="text-lg font-black text-slate-900">{currentCourse.totalRating.toLocaleString()} students</span>
+                    </div>
+                  </div>
+                </div>
 
-          {/* 🔹 Giá */}
-          <div className="flex items-center gap-3">
-            <DollarSign className="text-green-600" />
-            <div>
-              <p className="font-medium text-gray-800">Giá khóa học</p>
-              <p className="text-sm text-gray-500">
-                {currentCourse.price.toLocaleString()} LearnCoin
-              </p>
-            </div>
-          </div>
+                <div className="space-y-4 group">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl group-hover:scale-110 transition-transform">
+                      <Star className="w-5 h-5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rating</span>
+                      <span className="text-lg font-black text-slate-900">
+                        {currentCourse.averageRating > 0 ? currentCourse.averageRating.toFixed(1) : "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-          {/* 🔹 Trạng thái */}
-          <div className="flex items-center gap-3">
-            <CheckCircle
-              className={`${
-                currentCourse.isPublished
-                  ? "text-emerald-600"
-                  : "text-yellow-500"
-              }`}
-            />
-            <div>
-              <p className="font-medium text-gray-800">Trạng thái</p>
-              <p
-                className={`text-sm font-medium mt-0.5 ${
-                  currentCourse.isPublished
-                    ? "text-emerald-600"
-                    : "text-slate-500"
-                }`}
-              >
-                {currentCourse.isPublished ? "Đã xuất bản" : "Bản nháp"}
-              </p>
-            </div>
-          </div>
+                <div className="space-y-4 group">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-slate-900 text-white rounded-2xl group-hover:scale-110 transition-transform">
+                      <CheckCircle className={`w-5 h-5 ${currentCourse.isPublished ? "text-emerald-400" : "text-amber-400"}`} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</span>
+                      <span className={`text-lg font-black ${currentCourse.isPublished ? "text-emerald-600" : "text-slate-500"}`}>
+                        {currentCourse.isPublished ? "Public" : "Draft"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-          {/* 🔹 Lượt xem */}
-          <div className="flex items-center gap-3">
-            <Eye className="text-indigo-600" />
-            <div>
-              <p className="font-medium text-gray-800">Lượt xem</p>
-              <p className="text-sm text-gray-500">
-                {currentCourse.viewCount.toLocaleString()} lượt
-              </p>
-            </div>
-          </div>
+              {/* Description & Additional Meta */}
+              <div className="pt-8 border-t border-slate-50 grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">Course Description</h4>
+                  <div className="text-slate-600 text-sm leading-relaxed line-clamp-4 font-medium italic">
+                    {currentCourse.description ? (
+                      <div dangerouslySetInnerHTML={{ __html: currentCourse.description }} />
+                    ) : (
+                      "No detailed description provided for this course yet."
+                    )}
+                  </div>
+                </div>
 
-          {/* 🔹 Thời lượng */}
-          <div className="flex items-center gap-3">
-            <Clock className="text-orange-600" />
-            <div>
-              <p className="font-medium text-gray-800">Thời lượng</p>
-              <p className="text-sm text-gray-500">
-                {currentCourse.duration > 0
-                  ? formatDuration(currentCourse.duration)
-                  : "Chưa có"}
-              </p>
-            </div>
-          </div>
-
-          {/* 🔹 Đánh giá trung bình */}
-          <div className="flex items-center gap-3">
-            <Star className="text-yellow-500" />
-            <div>
-              <p className="font-medium text-gray-800">Đánh giá</p>
-              <p className="text-sm text-gray-500">
-                {currentCourse.averageRating > 0
-                  ? `${currentCourse.averageRating.toFixed(1)} ⭐`
-                  : "Chưa có đánh giá"}
-              </p>
-            </div>
-          </div>
-
-          {/* 🔹 Số lượt đánh giá */}
-          <div className="flex items-center gap-3">
-            <Users className="text-teal-600" />
-            <div>
-              <p className="font-medium text-gray-800">Lượt đánh giá</p>
-              <p className="text-sm text-gray-500">
-                {currentCourse.totalRating.toLocaleString()} lượt
-              </p>
-            </div>
-          </div>
-
-          {/* 🔹 Mô tả */}
-          <div className="sm:col-span-2 lg:col-span-3">
-            <p className="font-medium text-gray-800 mb-1">Mô tả</p>
-            <div className="text-gray-600 text-sm leading-relaxed">
-              {currentCourse.description ? (
-                <div
-                  className="prose max-w-none"
-                  dangerouslySetInnerHTML={{
-                    __html: currentCourse.description,
-                  }}
-                />
-              ) : (
-                "Chưa có mô tả cho khóa học này."
-              )}
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2"><Clock size={12} /> Creation Date</span>
+                    <p className="text-xs font-bold text-slate-900">{new Date(currentCourse.createdAt).toLocaleDateString("vi-VN")}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2"><Calendar size={12} /> Last Update</span>
+                    <p className="text-xs font-bold text-slate-900">{new Date(currentCourse.updatedAt).toLocaleDateString("vi-VN")}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2"><Eye size={12} /> Total Views</span>
+                    <p className="text-xs font-bold text-slate-900">{currentCourse.viewCount.toLocaleString()}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2"><Clock size={12} /> Duration</span>
+                    <p className="text-xs font-bold text-slate-900">{currentCourse.duration > 0 ? formatDuration(currentCourse.duration) : "0s"}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>

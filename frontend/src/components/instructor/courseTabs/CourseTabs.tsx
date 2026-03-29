@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BookOpen, MessageCircle, Star } from "lucide-react";
+import { BookOpen, MessageCircle, Star, Users, Settings } from "lucide-react";
 import LessonTabs from "./LessonTabs";
 import RatingTabs from "./RatingTabs";
 
@@ -12,47 +12,67 @@ interface CourseTabsProps {
 const CourseTabs = ({ currentCourse }: CourseTabsProps) => {
   const [activeTab, setActiveTab] = useState("lessons");
 
-  return (
-    <div className="space-y-6">
-      {/* Tabs Navigation */}
-      <div className="flex border-b border-gray-200">
-        <button
-          onClick={() => setActiveTab("lessons")}
-          className={`px-6 py-3 text-sm font-medium flex items-center gap-2 transition-colors border-b-2 ${
-            activeTab === "lessons"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-          }`}
-        >
-          <BookOpen size={18} />
-          Bài học
-        </button>
+  interface TabItem {
+    id: string;
+    label: string;
+    icon: any;
+    disabled?: boolean;
+  }
 
-        <button
-          onClick={() => setActiveTab("reviews")}
-          className={`px-6 py-3 text-sm font-medium flex items-center gap-2 transition-colors border-b-2 ${
-            activeTab === "reviews"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-          }`}
-        >
-          <Star size={18} />
-          Đánh giá
-        </button>
+  const tabs: TabItem[] = [
+    { id: "lessons", label: "Cấu trúc & Bài học", icon: BookOpen },
+    { id: "reviews", label: "Đánh giá & Phản hồi", icon: Star },
+  ];
+
+  return (
+    <div className="space-y-8">
+      {/* Tabs Navigation */}
+      <div className="flex items-center gap-2 p-1.5 bg-slate-100/50 backdrop-blur-sm rounded-[1.5rem] w-fit border border-slate-200/50 shadow-inner">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`
+                relative flex items-center gap-2.5 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300
+                ${
+                  isActive
+                    ? "bg-white text-indigo-600 shadow-sm"
+                    : "text-slate-400 hover:text-slate-600 hover:bg-white/50"
+                }
+              `}
+            >
+              <Icon
+                className={`w-4 h-4 ${isActive ? "text-indigo-600" : "text-slate-300"}`}
+              />
+              {tab.label}
+              {isActive && (
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-indigo-600 rounded-full" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab Content */}
-      <div className="mt-6">
+      <div className="transition-all duration-500 ease-in-out">
         {activeTab === "lessons" && (
-          <LessonTabs currentCourse={currentCourse} />
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <LessonTabs currentCourse={currentCourse} />
+          </div>
         )}
 
         {activeTab === "reviews" && (
-          <RatingTabs
-            courseId={currentCourse.id}
-            averageRating={currentCourse.averageRating}
-            totalRating={currentCourse.totalRating}
-          />
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <RatingTabs
+              courseId={currentCourse.id}
+              averageRating={currentCourse.averageRating}
+              totalRating={currentCourse.totalRating}
+            />
+          </div>
         )}
       </div>
     </div>

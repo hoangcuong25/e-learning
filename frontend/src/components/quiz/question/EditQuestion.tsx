@@ -81,7 +81,7 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
         })
       ).unwrap();
 
-      toast.success("Cập nhật câu hỏi và lựa chọn thành công!");
+      toast.success("Cấu trúc câu hỏi đã được cập nhật!");
       setOpen(false);
       onUpdated();
     } catch (error: any) {
@@ -128,9 +128,9 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
         await dispatch(deleteOption(id)).unwrap();
       }
       setOptions((prev) => prev.filter((opt) => opt.id !== id));
-      toast.success("Xóa lựa chọn thành công!");
+      toast.success("Đã loại bỏ lựa chọn!");
     } catch {
-      toast.error("Xóa lựa chọn thất bại!");
+      toast.error("Loại bỏ thất bại!");
     } finally {
       setDeleteConfirmId(null);
     }
@@ -140,128 +140,142 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
-            Sửa
+          <Button variant="ghost" size="icon" className="w-12 h-12 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition-all active:scale-95">
+            <Pencil className="w-5 h-5" />
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="max-w-2xl">
-          <DialogHeader className="pb-4 border-b">
-            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-                <Pencil className="text-blue-600 w-5 h-5" />
-                Chỉnh sửa câu hỏi & các lựa chọn
+        <DialogContent className="max-w-3xl rounded-[3rem] border-none p-0 overflow-hidden bg-white shadow-2xl">
+          <DialogHeader className="p-10 pb-0 flex flex-col items-center text-center">
+            <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-[2rem] flex items-center justify-center mb-6">
+              <Pencil className="w-10 h-10" />
+            </div>
+            <DialogTitle className="text-3xl font-black text-slate-900 tracking-tight">
+              Hiệu chỉnh Câu hỏi
             </DialogTitle>
-            <DialogDescription className="text-slate-500">
-               Cập nhật nội dung câu hỏi và quản lý các phương án trả lời bên dưới.
+            <DialogDescription className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
+               Cập nhật nội dung & cấu trúc đáp án
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="p-10 space-y-12">
             {/* 🧩 Câu hỏi */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <HelpCircle className="w-5 h-5 text-blue-500" />
-                <label className="font-bold text-slate-800">Nội dung câu hỏi</label>
+            <section className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shadow-lg shadow-slate-100">1</div>
+                <div>
+                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Nội dung câu hỏi</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Nội dung chính của bài kiểm tra</p>
+                </div>
               </div>
               <Textarea
                 {...register("questionText", { required: true })}
-                rows={3}
                 placeholder="Nhập nội dung câu hỏi..."
-                className="bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all text-lg p-4"
+                className="min-h-[120px] bg-slate-50 border-transparent focus:bg-white focus:border-indigo-200 rounded-[2rem] transition-all font-bold p-8 text-lg text-slate-900 leading-relaxed outline-none"
               />
-            </div>
+            </section>
 
             {/* 🧩 Quản lý lựa chọn */}
-            <div className="pt-6 space-y-4 border-t">
-              <div className="flex items-center gap-2">
-                <ListTodo className="w-5 h-5 text-emerald-500" />
-                <h3 className="font-bold text-slate-800">Danh sách các lựa chọn</h3>
+            <section className="space-y-8">
+              <div className="h-px bg-slate-100" />
+              
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-lg shadow-indigo-100">2</div>
+                <div>
+                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Đáp án & Lựa chọn</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Quản lý các phương án trả lời</p>
+                </div>
               </div>
               
-              <div className="flex w-full gap-2">
+              <div className="flex gap-4">
                 <Input
-                  placeholder="Thêm lựa chọn mới..."
+                  placeholder="Thêm một lựa chọn mới..."
                   value={newOptionText}
                   onChange={(e) => setNewOptionText(e.target.value)}
-                  className="bg-emerald-50/50 border-emerald-100 rounded-xl h-12 focus:ring-2 focus:ring-emerald-500 transition-all"
+                  className="h-16 bg-indigo-50/30 border-transparent focus:bg-white focus:border-indigo-200 rounded-2xl transition-all font-bold px-8 text-slate-900 outline-none"
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddOption())}
                 />
                 <Button
                   type="button"
                   onClick={handleAddOption}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 h-12 transition-all active:scale-95"
+                  className="h-16 bg-indigo-600 text-white font-black uppercase tracking-widest px-8 rounded-2xl shadow-xl shadow-indigo-100 transition-all active:scale-95"
                 >
-                  <PlusCircle className="w-4 h-4 mr-1" />
                   Thêm
                 </Button>
               </div>
 
               {/* Danh sách các option */}
-              <div className="space-y-3">
-                {options.map((opt) => (
+              <div className="grid grid-cols-1 gap-4">
+                {options.map((opt, index) => (
                   <div
-                    key={opt.id}
-                    className={`flex items-center justify-between border rounded-2xl p-3 transition-all ${
-                        opt.isCorrect 
-                          ? "bg-emerald-50 border-emerald-200 shadow-sm" 
-                          : "bg-white border-slate-100 hover:border-slate-200 shadow-none"
-                    }`}
+                    key={index}
+                    className={`flex items-center justify-between p-4 rounded-[1.5rem] border-2 transition-all duration-300 ${
+                       opt.isCorrect 
+                        ? "bg-emerald-50 border-emerald-500/20 shadow-lg shadow-emerald-50" 
+                        : "bg-white border-slate-50 hover:border-slate-100"
+                    } group/item`}
                   >
-                    <Input
-                      value={opt.text}
-                      onChange={(e) =>
-                        setOptions((prev) =>
-                          prev.map((o) =>
-                            o.id === opt.id ? { ...o, text: e.target.value } : o
-                          )
-                        )
-                      }
-                      className="border-none bg-transparent shadow-none focus-visible:ring-0 font-medium text-slate-700"
-                    />
-                    <div className="flex gap-1 items-center bg-white rounded-xl border border-slate-100 shadow-sm p-1">
-                      <Button
+                    <div className="flex items-center gap-4 flex-1 mr-4">
+                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black shrink-0 ${
+                         opt.isCorrect ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400"
+                       }`}>
+                         {String.fromCharCode(65 + index)}
+                       </div>
+                       <Input
+                         value={opt.text}
+                         onChange={(e) =>
+                           setOptions((prev) =>
+                             prev.map((o, idx) => (idx === index ? { ...o, text: e.target.value } : o))
+                           )
+                         }
+                         className="border-none bg-transparent shadow-none focus-visible:ring-0 font-bold text-slate-900"
+                       />
+                    </div>
+                    
+                    <div className="flex gap-2">
+                       <Button
                         type="button"
                         size="icon"
                         variant="ghost"
                         onClick={() => handleMarkCorrect(opt.id)}
-                        className={`rounded-lg transition-all ${
+                        className={`w-12 h-12 rounded-xl transition-all active:scale-90 ${
                             opt.isCorrect 
-                              ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-100" 
-                              : "text-slate-400 hover:bg-slate-50"
+                              ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" 
+                              : "text-slate-300 hover:bg-emerald-50 hover:text-emerald-500"
                         }`}
                       >
-                        <CheckCircle className="w-4 h-4" />
+                        <CheckCircle size={20} />
                       </Button>
                       <Button
                         type="button"
                         size="icon"
                         variant="ghost"
                         onClick={() => setDeleteConfirmId(opt.id)}
-                        className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                        className="w-12 h-12 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all active:scale-90"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 size={20} />
                       </Button>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
 
-            <DialogFooter className="pt-6 border-t mt-4 flex justify-end gap-3">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setOpen(false)}
-                className="rounded-xl px-6"
-              >
-                Hủy bỏ
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold px-10 rounded-2xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
-              >
-                {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
-              </Button>
+            <DialogFooter className="pt-10 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors"
+                >
+                  Hủy bỏ mọi thay đổi
+                </button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="h-16 h-px-12 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black uppercase tracking-widest px-12 rounded-2xl shadow-xl shadow-indigo-100 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                >
+                  {isSubmitting ? "Đang xử lý..." : "Cập nhật Câu hỏi"}
+                </Button>
             </DialogFooter>
           </form>
         </DialogContent>

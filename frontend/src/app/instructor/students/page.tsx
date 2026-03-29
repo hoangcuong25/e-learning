@@ -30,31 +30,32 @@ export default function InstructorStudentsPage() {
 
   const overviewChartData = [
     {
-      name: "Học viên",
+      name: "Số học viên",
       value: enrollmentStats?.totalStudents || 0,
-      color: "#3b82f6",
+      color: "#6366f1", // indigo-500
     },
     {
-      name: "Đăng ký",
+      name: "Lượt đăng ký",
       value: enrollmentStats?.totalEnrollments || 0,
-      color: "#22c55e",
+      color: "#10b981", // emerald-500
     },
     {
       name: "Hoàn thành",
       value: enrollmentStats?.completedEnrollmentsCount || 0,
-      color: "#8b5cf6",
+      color: "#8b5cf6", // violet-500
     },
   ];
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white border rounded-xl px-4 py-2 shadow-lg">
-          <p className="font-semibold text-gray-800">
+        <div className="bg-white/90 backdrop-blur-md border border-slate-100 rounded-2xl p-4 shadow-2xl">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
             {payload[0].payload.name}
           </p>
-          <p className="text-indigo-600 text-lg font-bold">
-            {payload[0].value}
+          <p className="text-xl font-black text-slate-900 tracking-tight">
+            {payload[0].value.toLocaleString()} 
+            <span className="text-xs font-bold text-slate-400 ml-1">đối tượng</span>
           </p>
         </div>
       );
@@ -64,36 +65,36 @@ export default function InstructorStudentsPage() {
 
   const stats = [
     {
-      title: "Tổng số học viên",
+      title: "Cộng đồng học viên",
       value: enrollmentStats?.totalStudents || 0,
       icon: Users,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      description: "Số học viên duy nhất",
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50",
+      description: "Học viên duy nhất",
     },
     {
-      title: "Tổng số đăng ký",
+      title: "Tổng lượt đăng ký",
       value: enrollmentStats?.totalEnrollments || 0,
       icon: BookOpen,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      description: "Tổng lượt đăng ký khóa học",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
+      description: "Tổng quan các khóa",
     },
     {
-      title: "Tiến độ trung bình",
+      title: "Tiến độ bình quân",
       value: `${enrollmentStats?.averageProgress || 0}%`,
       icon: TrendingUp,
-      color: "text-amber-500",
+      color: "text-amber-600",
       bgColor: "bg-amber-50",
-      description: "Tiến độ học tập trung bình",
+      description: "Toàn bộ lộ trình",
     },
     {
-      title: "Đã hoàn thành",
+      title: "Tỷ lệ tốt nghiệp",
       value: enrollmentStats?.completedEnrollmentsCount || 0,
       icon: CheckCircle,
-      color: "text-purple-500",
-      bgColor: "bg-purple-50",
-      description: "Số lượt hoàn thành khóa học",
+      color: "text-violet-600",
+      bgColor: "bg-violet-50",
+      description: "Hoàn thành 100%",
     },
   ];
 
@@ -103,125 +104,133 @@ export default function InstructorStudentsPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex h-[400px] items-center justify-center rounded-[2.5rem] bg-rose-50 border-2 border-dashed border-rose-100">
         <div className="text-center">
-          <p className="text-red-600">Lỗi: {error}</p>
+          <p className="text-rose-600 font-bold">Lỗi phân tích: {error}</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="flex min-h-screen bg-gray-50">
-      <main className="flex-1 space-y-8 overflow-y-auto">
-        {/* Header */}
-        <header>
-          <h1 className="text-3xl font-bold text-gray-800 mb-1">
-            Quản lý học viên
-          </h1>
-          <p className="text-gray-500">
-            Thống kê và theo dõi tiến độ học viên của bạn
-          </p>
-        </header>
+  const completionRate = enrollmentStats?.totalEnrollments
+    ? ((enrollmentStats.completedEnrollmentsCount / enrollmentStats.totalEnrollments) * 100).toFixed(1)
+    : 0;
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-          {stats.map(
-            ({ title, value, icon: Icon, color, bgColor, description }) => (
-              <Card key={title} className="hover:shadow-lg transition-all">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-500">
+  const avgCoursesPerStudent = enrollmentStats?.totalStudents
+    ? (enrollmentStats.totalEnrollments / enrollmentStats.totalStudents).toFixed(1)
+    : 0;
+
+  return (
+    <div className="space-y-10 pb-10 overflow-x-hidden">
+      {/* Header Section */}
+      <div>
+        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
+          Cộng đồng học viên
+        </h1>
+        <p className="text-slate-500 mt-2 font-medium">
+          Thống kê chi tiết về hành vi và tiến độ học tập của các học viên.
+        </p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        {stats.map(
+          ({ title, value, icon: Icon, color, bgColor, description }) => (
+            <Card key={title} className="rounded-[2.5rem] border-none shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden bg-white group">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 p-8">
+                <div className="space-y-1">
+                  <CardTitle className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">
                     {title}
                   </CardTitle>
-                  <div className={`p-2 rounded-lg ${bgColor}`}>
-                    <Icon className={`w-5 h-5 ${color}`} />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-semibold text-gray-800">
+                  <p className="text-2xl font-black text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
                     {value}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">{description}</p>
-                </CardContent>
-              </Card>
-            )
-          )}
+                </div>
+                <div className={`p-4 rounded-3xl ${bgColor} transition-transform group-hover:scale-110 duration-500`}>
+                  <Icon className={`w-6 h-6 ${color}`} />
+                </div>
+              </CardHeader>
+              <CardContent className="px-8 pb-8">
+                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tighter opacity-70 italic">{description}</p>
+              </CardContent>
+            </Card>
+          )
+        )}
+      </div>
+
+      {/* Analytics Visualization */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Detail Insights */}
+        <div className="lg:col-span-1 space-y-8">
+           <Card className="rounded-[2.5rem] border-none shadow-sm bg-indigo-600 text-white p-8 relative overflow-hidden group">
+              <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+              <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-80 mb-6">Tỷ lệ hoàn thành</h3>
+              <div className="flex items-end gap-2">
+                 <span className="text-5xl font-black tracking-tighter">{completionRate}%</span>
+                 <div className="mb-2 p-1 px-2 bg-white/20 rounded-lg text-[10px] font-black uppercase">Good</div>
+              </div>
+              <p className="text-sm font-medium opacity-80 mt-4 leading-relaxed">
+                 {enrollmentStats?.completedEnrollmentsCount || 0} trên tổng số {enrollmentStats?.totalEnrollments || 0} lượt đăng ký đã về đích.
+              </p>
+           </Card>
+
+           <Card className="rounded-[2.5rem] border-none shadow-sm bg-white p-8 group">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Mật độ học tập</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-4xl font-black text-slate-900 tracking-tight">{avgCoursesPerStudent}</span>
+                  <span className="text-xs font-bold text-slate-400 ml-2 italic">khóa/học viên</span>
+                </div>
+                <div className="p-4 bg-emerald-50 text-emerald-600 rounded-3xl group-hover:rotate-12 transition-transform">
+                   <TrendingUp className="w-6 h-6" />
+                </div>
+              </div>
+              <p className="text-xs text-slate-400 font-medium mt-4 leading-relaxed">
+                 Số lượng khóa học bình quân mà mỗi học viên tin tưởng lựa chọn từ bạn.
+              </p>
+           </Card>
         </div>
 
-        {/* Additional Info Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Thông tin chi tiết</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-semibold text-blue-900 mb-2">
-                  Tỷ lệ hoàn thành
-                </h3>
-                <p className="text-2xl font-bold text-blue-600">
-                  {enrollmentStats?.totalEnrollments
-                    ? (
-                        (enrollmentStats.completedEnrollmentsCount /
-                          enrollmentStats.totalEnrollments) *
-                        100
-                      ).toFixed(1)
-                    : 0}
-                  %
-                </p>
-                <p className="text-sm text-blue-700 mt-1">
-                  {enrollmentStats?.completedEnrollmentsCount || 0} /{" "}
-                  {enrollmentStats?.totalEnrollments || 0} đăng ký
-                </p>
+        {/* Chart View */}
+        <Card className="lg:col-span-2 rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
+           <CardHeader className="p-8 border-b border-slate-50">
+              <CardTitle className="text-xl font-black text-slate-900">Thống kê lưu lượng</CardTitle>
+              <p className="text-xs text-slate-400 font-bold mt-1">Sự phân bổ giữa học viên, đăng ký và hoàn thành</p>
+           </CardHeader>
+           <CardContent className="p-8">
+              <div className="h-72 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={overviewChartData} barSize={60}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 700}}
+                      dy={10}
+                    />
+                    <YAxis 
+                      hide
+                    />
+                    <Tooltip 
+                      content={<CustomTooltip />} 
+                      cursor={{fill: '#f8fafc'}}
+                    />
+                    <Bar
+                      dataKey="value"
+                      radius={[16, 16, 16, 16]}
+                      animationDuration={1500}
+                    >
+                      {overviewChartData.map((entry, index) => (
+                        <Cell key={index} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-
-              <div className="p-4 bg-green-50 rounded-lg">
-                <h3 className="font-semibold text-green-900 mb-2">
-                  Trung bình khóa học/học viên
-                </h3>
-                <p className="text-2xl font-bold text-green-600">
-                  {enrollmentStats?.totalStudents
-                    ? (
-                        enrollmentStats.totalEnrollments /
-                        enrollmentStats.totalStudents
-                      ).toFixed(1)
-                    : 0}
-                </p>
-                <p className="text-sm text-green-700 mt-1">
-                  Số khóa học trung bình mỗi học viên đăng ký
-                </p>
-              </div>
-            </div>
-          </CardContent>
+           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>📊 Thống kê học viên</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={overviewChartData} barSize={50}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar
-                    dataKey="value"
-                    radius={[12, 12, 0, 0]}
-                    animationDuration={800}
-                  >
-                    {overviewChartData.map((entry, index) => (
-                      <Cell key={index} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </main>
+      </div>
     </div>
   );
 }

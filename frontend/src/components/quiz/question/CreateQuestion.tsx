@@ -21,6 +21,8 @@ import { createQuestion } from "@/store/slice/course/question.slice";
 import { createManyOptions } from "@/store/slice/course/option.slice";
 import { toast } from "sonner";
 import { fetchQuizById } from "@/store/slice/course/quizSlice";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 interface CreateQuestionProps {
   quizId: number;
@@ -59,7 +61,7 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
       const result = await dispatch(createQuestion(payload)).unwrap();
 
       setCreatedQuestionId(result.id); // lưu id câu hỏi vừa tạo
-      toast.success("Câu hỏi đã được tạo thành công.");
+      toast.success("Nội dung câu hỏi đã được xác nhận!");
     } catch (error: any) {
       const msg = Array.isArray(error?.message) 
         ? error.message.join(", ") 
@@ -127,7 +129,7 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
       await dispatch(createManyOptions(payload)).unwrap();
       await dispatch(fetchQuizById(quizId)).unwrap();
 
-      toast.success("Các lựa chọn đã được lưu thành công!");
+      toast.success("Cấu trúc câu hỏi đã được hoàn thiện!");
       // Reset toàn bộ form
       setOptions([]);
       setOptionText("");
@@ -147,158 +149,170 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
-          <PlusCircle className="w-4 h-4" /> Tạo câu hỏi
+        <Button className="h-14 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-100 transition-all hover:scale-105 active:scale-95 flex items-center gap-3">
+          <PlusCircle className="w-5 h-5" /> Thêm Câu Hỏi
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl">
-        <DialogHeader className="pb-4 border-b">
-          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-            <PlusCircle className="text-blue-600" />
-            Tạo câu hỏi & đáp án
+      <DialogContent className="max-w-3xl rounded-[3rem] border-none p-0 overflow-hidden bg-white shadow-2xl">
+        <DialogHeader className="p-10 pb-0 flex flex-col items-center text-center">
+          <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-[2rem] flex items-center justify-center mb-6">
+            <HelpCircle className="w-10 h-10" />
+          </div>
+          <DialogTitle className="text-3xl font-black text-slate-900 tracking-tight">
+            Thiết kế Câu hỏi
           </DialogTitle>
-          <DialogDescription className="text-slate-500">
-             Thêm câu hỏi trắc nghiệm mới vào bài kiểm tra của bạn.
+          <DialogDescription className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
+             Xây dựng nội dung & đáp án trắc nghiệm
           </DialogDescription>
         </DialogHeader>
 
-        {/* PHẦN 1: TẠO CÂU HỎI */}
-        <section className={`transition-all duration-300 ${createdQuestionId ? "opacity-50 pointer-events-none grayscale-[0.5]" : ""}`}>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">1</span>
-            <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-blue-500" />
-                Nội dung câu hỏi
-            </h3>
-          </div>
-          
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4"
-          >
-            <div className="space-y-2">
+        <div className="p-10 space-y-12">
+          {/* STEP 1: QUESTION CONTENT */}
+          <section className={`space-y-6 transition-all duration-500 ${createdQuestionId ? "opacity-40 grayscale-[0.6] pointer-events-none" : ""}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shadow-lg shadow-slate-100">1</div>
+                <div>
+                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Nội dung câu hỏi</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Đặt câu hỏi rõ ràng & súc tích</p>
+                </div>
+              </div>
+              {createdQuestionId && <Badge className="bg-emerald-50 text-emerald-600 border-none rounded-lg px-2 py-1 text-[10px] font-black uppercase">Confirmed</Badge>}
+            </div>
+            
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <Textarea
                 {...register("questionText", { required: true })}
-                placeholder="Ví dụ: Để định vị phần tử trong CSS, ta sử dụng thuộc tính nào?"
-                rows={3}
+                placeholder="Ví dụ: Thuộc tính nào dùng để căn giữa phần tử trong Flexbox?"
+                className="min-h-[120px] bg-slate-50 border-transparent focus:bg-white focus:border-indigo-200 rounded-[2rem] transition-all font-bold p-8 text-lg text-slate-900 leading-relaxed outline-none"
                 disabled={!!createdQuestionId}
-                className="bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all text-lg p-4"
               />
-            </div>
 
-            {!createdQuestionId && (
-              <div className="flex justify-end gap-2">
+              {!createdQuestionId && (
+                <div className="flex justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setOpen(false)}
+                    className="h-14 rounded-2xl font-bold px-8 text-slate-400 hover:text-slate-600"
+                  >
+                    Bỏ qua
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="h-14 bg-slate-900 text-white font-black uppercase tracking-widest px-10 rounded-2xl shadow-xl transition-all active:scale-95"
+                  >
+                    {isSubmitting ? "Đang xử lý..." : "Xác nhận & Sang bước 2"}
+                  </Button>
+                </div>
+              )}
+            </form>
+          </section>
+
+          {/* STEP 2: OPTIONS MANAGEMENT */}
+          {createdQuestionId && (
+            <section className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+              <div className="h-px bg-slate-100" />
+              
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-lg shadow-indigo-100 animate-bounce">2</div>
+                <div>
+                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Đáp án & Lựa chọn</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Thêm ít nhất 2 phương án trả lời</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <Input
+                  placeholder="Nhập nội dung 1 phương án trả lời..."
+                  value={optionText}
+                  onChange={(e) => setOptionText(e.target.value)}
+                  className="h-16 bg-indigo-50/30 border-transparent focus:bg-white focus:border-indigo-200 rounded-2xl transition-all font-bold px-8 text-slate-900 outline-none"
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddOption())}
+                />
                 <Button
                   type="button"
-                  variant="ghost"
-                  onClick={() => setOpen(false)}
-                  className="rounded-xl"
+                  onClick={handleAddOption}
+                  className="h-16 bg-indigo-600 text-white font-black uppercase tracking-widest px-8 rounded-2xl shadow-xl shadow-indigo-100 transition-all active:scale-95"
                 >
-                  Hủy
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95"
-                >
-                  {isSubmitting ? "Đang lưu..." : "Xác nhận & Sang bước 2"}
+                  Thêm
                 </Button>
               </div>
-            )}
-          </form>
-        </section>
 
-        {/* PHẦN 2: TẠO CÁC LỰA CHỌN (OPTION) */}
-        {createdQuestionId && (
-          <section className="pt-6 border-t animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center gap-2 mb-6">
-              <span className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">2</span>
-              <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                  <ListTodo className="w-4 h-4 text-emerald-500" />
-                  Đáp án & Lựa chọn
-              </h3>
-            </div>
-
-            <div className="flex gap-2">
-              <Input
-                placeholder="Nhập nội dung đáp án..."
-                value={optionText}
-                onChange={(e) => setOptionText(e.target.value)}
-                className="bg-emerald-50/50 border-emerald-100 rounded-xl h-12 focus:ring-2 focus:ring-emerald-500 transition-all"
-                onKeyDown={(e) => e.key === "Enter" && handleAddOption()}
-              />
-              <Button
-                type="button"
-                onClick={handleAddOption}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 h-12 transition-all active:scale-95"
-              >
-                Thêm
-              </Button>
-            </div>
-
-            {/* Danh sách option */}
-            <div className="space-y-3 mt-6">
-              {options.map((opt) => (
-                <div
-                  key={opt.id}
-                  className={`flex items-center justify-between border rounded-2xl p-3 transition-all ${
-                     opt.isCorrect 
-                      ? "bg-emerald-50 border-emerald-200 shadow-sm" 
-                      : "bg-white border-slate-100 hover:border-slate-200 shadow-none"
-                  }`}
-                >
-                  <Input
-                    value={opt.text}
-                    onChange={(e) =>
-                      setOptions((prev) =>
-                        prev.map((o) =>
-                          o.id === opt.id ? { ...o, text: e.target.value } : o
-                        )
-                      )
-                    }
-                    className="border-none bg-transparent shadow-none focus-visible:ring-0 font-medium text-slate-700"
-                  />
-                  <div className="flex gap-1 items-center bg-white rounded-xl border border-slate-100 shadow-sm p-1">
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleMarkCorrect(opt.id)}
-                      className={`rounded-lg transition-all ${
-                          opt.isCorrect 
-                            ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-100" 
-                            : "text-slate-400 hover:bg-slate-50"
-                      }`}
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleDeleteOption(opt.id)}
-                      className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+              {/* Options List */}
+              <div className="grid grid-cols-1 gap-4">
+                {options.map((opt, index) => (
+                  <div
+                    key={opt.id}
+                    className={`flex items-center justify-between p-4 rounded-[1.5rem] border-2 transition-all duration-300 ${
+                       opt.isCorrect 
+                        ? "bg-emerald-50 border-emerald-500/20 shadow-lg shadow-emerald-50" 
+                        : "bg-white border-slate-50 hover:border-slate-100"
+                    } group/item`}
+                  >
+                    <div className="flex items-center gap-4 flex-1 mr-4">
+                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black shrink-0 ${
+                         opt.isCorrect ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400"
+                       }`}>
+                         {String.fromCharCode(65 + index)}
+                       </div>
+                       <Input
+                         value={opt.text}
+                         onChange={(e) =>
+                           setOptions((prev) =>
+                             prev.map((o) => (o.id === opt.id ? { ...o, text: e.target.value } : o))
+                           )
+                         }
+                         className="border-none bg-transparent shadow-none focus-visible:ring-0 font-bold text-slate-900"
+                       />
+                    </div>
+                    
+                    <div className="flex gap-2">
+                       <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleMarkCorrect(opt.id)}
+                        className={`w-12 h-12 rounded-xl transition-all active:scale-90 ${
+                            opt.isCorrect 
+                              ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" 
+                              : "text-slate-300 hover:bg-emerald-50 hover:text-emerald-500"
+                        }`}
+                      >
+                        <CheckCircle size={20} />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleDeleteOption(opt.id)}
+                        className="w-12 h-12 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all active:scale-90"
+                      >
+                        <Trash2 size={20} />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            <div className="flex justify-end pt-6">
-              <Button
-                type="button"
-                onClick={handleSaveOptions}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold px-10 py-6 rounded-2xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
-                disabled={isSavingOptions}
-              >
-                {isSavingOptions ? "Đang lưu..." : "Lưu tất cả & Hoàn tất"}
-              </Button>
-            </div>
-          </section>
-        )}
+              <div className="pt-8 border-t border-slate-50 flex items-center justify-between">
+                <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest italic animate-pulse">
+                   * Chọn 1 đáp án đúng bằng nút tích xanh
+                </p>
+                <Button
+                  type="button"
+                  onClick={handleSaveOptions}
+                  className="h-16 h-px-12 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black uppercase tracking-widest px-12 rounded-2xl shadow-xl shadow-indigo-100 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                  disabled={isSavingOptions}
+                >
+                  {isSavingOptions ? "Đang hoàn tất..." : "Lưu tất cả & Hoàn tất"}
+                </Button>
+              </div>
+            </section>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
