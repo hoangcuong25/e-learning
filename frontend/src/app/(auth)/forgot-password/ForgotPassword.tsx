@@ -8,7 +8,9 @@ import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import banner from "@public/elearning-banner.png";
+import logo from "@public/logo.png";
 
 export default function ForgotPassword() {
   axios.defaults.withCredentials = true;
@@ -94,155 +96,214 @@ export default function ForgotPassword() {
     }
   };
 
-  // ===== Animation variants =====
-  const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 sm:p-10 relative overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-100/50 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-100/50 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
+
       <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        className="bg-white rounded-2xl shadow-xl flex flex-col md:flex-row overflow-hidden w-full max-w-5xl border border-blue-100"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "circOut" }}
+        className="bg-white rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] flex flex-col md:flex-row overflow-hidden w-full max-w-5xl border border-slate-100 relative z-10"
       >
-        {/* Left Illustration */}
-        <div className="hidden md:flex md:w-1/2 bg-blue-100 items-center justify-center p-6">
-          <Image
-            src={banner}
-            alt="E-learning banner"
-            className="rounded-xl object-contain"
-            priority
-          />
+        {/* Left Illustration Section */}
+        <div className="hidden md:flex md:w-5/12 bg-slate-900 items-center justify-center p-12 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 opacity-90" />
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="grid-forgot" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid-forgot)" />
+            </svg>
+          </div>
+          
+          <div className="relative z-10 space-y-8 text-center max-w-xs">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            >
+              <Image
+                src={banner}
+                alt="E-learning banner"
+                className="rounded-3xl object-contain shadow-2xl transition-transform hover:scale-105 duration-700"
+                priority
+              />
+            </motion.div>
+            <div className="space-y-4 pt-4">
+               <h3 className="text-2xl font-black text-white leading-tight">Bảo vệ tài khoản của bạn</h3>
+               <p className="text-slate-400 text-sm font-medium">Chúng tôi sẽ giúp bạn khôi phục quyền truy cập một cách an toàn và nhanh chóng.</p>
+            </div>
+          </div>
         </div>
 
         {/* Right Form Area */}
-        <div className="w-full md:w-1/2 p-8">
-          {!isEmailSent && (
-            <motion.form
-              onSubmit={onSubmitEmail}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              className="space-y-5"
-            >
-              <h1 className="text-3xl font-bold text-center text-blue-600 mb-2">
-                Quên mật khẩu
-              </h1>
-              <p className="text-center text-gray-500 mb-6 text-sm">
-                Nhập email bạn đã đăng ký để nhận mã xác thực
-              </p>
+        <div className="w-full md:w-7/12 p-10 md:p-16 flex flex-col justify-center">
+          {/* Header */}
+          <div className="mb-12">
+            <Link href="/login" className="inline-block group mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-600 rounded-2xl group-hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100 text-white">
+                  <Image src={logo} alt="EduSmart Logo" width={32} height={32} className="invert brightness-0" />
+                </div>
+                <span className="text-xl font-black text-slate-900 tracking-tighter uppercase tracking-widest leading-none">EduSmart</span>
+              </div>
+            </Link>
 
-              <input
-                type="email"
-                placeholder="Nhập địa chỉ email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              />
+            {!isEmailSent && (
+              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+                <h2 className="text-4xl font-black text-slate-900 mb-2 tracking-tight">Quên mật khẩu?</h2>
+                <p className="text-slate-400 font-medium italic">Nhập email để nhận mã xác thực OTP 📧</p>
+              </motion.div>
+            )}
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-60"
+            {!isOtpSubmitted && isEmailSent && (
+              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+                <h2 className="text-4xl font-black text-slate-900 mb-2 tracking-tight">Xác thực OTP</h2>
+                <p className="text-slate-400 font-medium italic">Chúng tôi vừa gửi mã 6 chữ số đến {email} 📥</p>
+              </motion.div>
+            )}
+
+            {isOtpSubmitted && isEmailSent && (
+              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+                <h2 className="text-4xl font-black text-slate-900 mb-2 tracking-tight">Mật khẩu mới</h2>
+                <p className="text-slate-400 font-medium italic">Thiết lập mật khẩu bảo mật hơn cho tài khoản của bạn 🔑</p>
+              </motion.div>
+            )}
+          </div>
+
+          <div className="space-y-6">
+            {!isEmailSent && (
+              <motion.form
+                onSubmit={onSubmitEmail}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6"
               >
-                {isLoading ? "Đang xử lý..." : "Gửi mã OTP"}
-              </button>
-            </motion.form>
-          )}
+                <div className="space-y-1.5 group">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 group-focus-within:text-indigo-600 transition-colors">
+                    Email đã đăng ký
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="student@edusmart.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full pl-5 pr-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 transition-all duration-300 font-bold text-slate-900 placeholder:text-slate-300 outline-none"
+                  />
+                </div>
 
-          {!isOtpSubmitted && isEmailSent && (
-            <motion.form
-              onSubmit={onSubmitOTP}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              className="space-y-5"
-            >
-              <h1 className="text-3xl font-bold text-center text-blue-600 mb-2">
-                Xác minh OTP
-              </h1>
-              <p className="text-center text-gray-500 mb-6 text-sm">
-                Nhập mã 6 chữ số đã được gửi đến email của bạn
-              </p>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all duration-300 disabled:opacity-60 cursor-pointer overflow-hidden relative group"
+                >
+                  <div className="absolute inset-0 bg-indigo-600 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 pointer-events-none" />
+                  <span className="relative z-10">{isLoading ? "Đang xử lý..." : "Gửi mã xác nhận"}</span>
+                </motion.button>
+              </motion.form>
+            )}
 
-              <div className="flex justify-between mb-8" onPaste={handlePaste}>
-                {Array(6)
-                  .fill(0)
-                  .map((_, index) => (
+            {!isOtpSubmitted && isEmailSent && (
+              <motion.form
+                onSubmit={onSubmitOTP}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-8"
+              >
+                <div className="flex justify-between gap-3" onPaste={handlePaste}>
+                  {Array(6)
+                    .fill(0)
+                    .map((_, index) => (
+                      <input
+                        key={index}
+                        type="text"
+                        maxLength={1}
+                        placeholder="0"
+                        className="w-full aspect-square bg-slate-50 border border-slate-100 rounded-2xl text-center text-xl font-black text-slate-900 focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 transition-all duration-300 placeholder:text-slate-200 outline-none"
+                        ref={(e) => {
+                          inputRefs.current[index] = e;
+                        }}
+                        onInput={(e) => handleInput(e, index)}
+                        onKeyDown={(e) => handleKeyDown(e, index)}
+                      />
+                    ))}
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all duration-300 cursor-pointer overflow-hidden relative group"
+                >
+                  <div className="absolute inset-0 bg-indigo-600 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 pointer-events-none" />
+                  <span className="relative z-10">Xác nhận mã OTP</span>
+                </motion.button>
+              </motion.form>
+            )}
+
+            {isOtpSubmitted && isEmailSent && (
+              <motion.form
+                onSubmit={onSubmitNewPassword}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6"
+              >
+                <div className="space-y-1.5 group">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 group-focus-within:text-indigo-600 transition-colors">
+                    Mật khẩu mới an toàn
+                  </label>
+                  <div className="relative">
                     <input
-                      key={index}
-                      type="text"
-                      maxLength={1}
-                      className="w-12 h-12 bg-gray-100 border border-gray-300 rounded-lg text-center text-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                      ref={(e) => {
-                        inputRefs.current[index] = e;
-                      }}
-                      onInput={(e) => handleInput(e, index)}
-                      onKeyDown={(e) => handleKeyDown(e, index)}
+                      type={isShowPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      className="w-full pl-5 pr-12 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 transition-all duration-300 font-bold text-slate-900 placeholder:text-slate-300 outline-none"
                     />
-                  ))}
-              </div>
+                    <div
+                      onClick={() => setIsShowPassword(!isShowPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-indigo-600 cursor-pointer transition-colors"
+                    >
+                      {isShowPassword ? <FaRegEye size={18} /> : <FaRegEyeSlash size={18} />}
+                    </div>
+                  </div>
+                </div>
 
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all duration-300 cursor-pointer overflow-hidden relative group"
+                >
+                  <div className="absolute inset-0 bg-indigo-600 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 pointer-events-none" />
+                  <span className="relative z-10">Cập nhật mật khẩu</span>
+                </motion.button>
+              </motion.form>
+            )}
+            
+            <p className="mt-8 text-center text-xs font-bold text-slate-400">
+              Quay lại trang{" "}
+              <Link
+                href="/login"
+                className="text-indigo-600 font-black uppercase tracking-widest hover:text-indigo-700 transition-colors ml-2"
               >
-                Xác nhận OTP
-              </button>
-            </motion.form>
-          )}
-
-          {isOtpSubmitted && isEmailSent && (
-            <motion.form
-              onSubmit={onSubmitNewPassword}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              className="space-y-5"
-            >
-              <h1 className="text-3xl font-bold text-center text-blue-600 mb-2">
-                Mật khẩu mới
-              </h1>
-              <p className="text-center text-gray-500 mb-6 text-sm">
-                Nhập mật khẩu mới để hoàn tất quá trình đặt lại
-              </p>
-
-              <div className="relative">
-                <input
-                  type={isShowPassword ? "text" : "password"}
-                  placeholder="Nhập mật khẩu mới"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                />
-                {isShowPassword ? (
-                  <FaRegEye
-                    onClick={() => setIsShowPassword(false)}
-                    className="absolute top-3.5 right-3.5 cursor-pointer text-gray-600"
-                  />
-                ) : (
-                  <FaRegEyeSlash
-                    onClick={() => setIsShowPassword(true)}
-                    className="absolute top-3.5 right-3.5 cursor-pointer text-gray-600"
-                  />
-                )}
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-              >
-                Đổi mật khẩu
-              </button>
-            </motion.form>
-          )}
+                Đăng nhập
+              </Link>
+            </p>
+          </div>
         </div>
       </motion.div>
     </div>
   );
 }
+

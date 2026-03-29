@@ -44,11 +44,11 @@ const GoogleLoginForm = () => {
   return (
     <button
       onClick={() => login()}
-      className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg py-2 font-semibold text-gray-700
-                 shadow-md hover:shadow-lg transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer"
+      className="w-full flex items-center justify-center gap-3 bg-white border border-slate-100 rounded-2xl py-4 font-black text-slate-900 text-xs uppercase tracking-widest shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-indigo-50 cursor-pointer group relative overflow-hidden"
     >
-      <FcGoogle className="text-2xl" />
-      <span>Đăng nhập với Google</span>
+      <div className="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <FcGoogle className="text-2xl relative z-10 group-hover:scale-110 transition-transform duration-300" />
+      <span className="relative z-10">Tiếp tục với Google</span>
     </button>
   );
 };

@@ -109,134 +109,119 @@ const NotificationBell = () => {
     <div className="relative" ref={dropdownRef}>
       {/* 🔔 Bell Button */}
       <motion.button
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.1, rotate: 10 }}
+        whileTap={{ scale: 0.9 }}
         onClick={toggleDropdown}
-        className="
-          relative flex items-center gap-2
-          px-2 xl:px-3 py-1.5
-          bg-blue-100/50 border border-blue-200
-          rounded-full hover:bg-blue-100 transition
-        "
+        className="relative p-2.5 bg-slate-50 border border-slate-100 rounded-2xl hover:bg-white hover:border-indigo-100 transition-all duration-300 shadow-sm group"
       >
-        <Bell className="w-5 h-5 text-blue-600" />
-        <span className="max-xl:hidden text-blue-600 text-sm font-medium">
-          Thông báo
-        </span>
-
+        <Bell className="w-5 h-5 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+        
         {unreadCount > 0 && (
-          <span
-            className="absolute -top-1 -right-1 min-w-[1.25rem] h-5 px-1
-                     flex items-center justify-center
-                     text-[10px] font-bold text-white
-                     bg-red-500 rounded-full"
-          >
+          <span className="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1 flex items-center justify-center text-[10px] font-black text-white bg-indigo-600 rounded-full border-2 border-white shadow-lg shadow-indigo-100">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
       </motion.button>
 
-      {/* Dropdown */}
+      {/* Dropdown container */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 15, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="
-              absolute left-0 lg:left-auto lg:right-0 mt-2
-              w-80 lg:w-96
-              bg-white rounded-2xl
-              shadow-xl border border-gray-200
-              overflow-hidden z-50
-            "
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: "circOut" }}
+            className="absolute right-0 mt-4 w-80 lg:w-[420px] bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.15)] border border-slate-100 overflow-hidden z-50 origin-top-right mb-10"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50/50">
-              <h3 className="font-semibold text-gray-800">Thông báo</h3>
+            <div className="px-8 py-6 bg-slate-50/50 border-b border-slate-50 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Thông báo</h3>
+                <p className="text-[10px] font-bold text-slate-400 mt-0.5">{unreadCount} tin nhắn mới</p>
+              </div>
               {unreadCount > 0 && (
                 <button
                   onClick={() => dispatch(markAllAsRead())}
-                  className="text-xs text-blue-600 hover:underline font-medium"
+                  className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 transition-colors"
                 >
-                  Đánh dấu đã đọc hết
+                  Đọc hết
                 </button>
               )}
             </div>
 
-            {/* List */}
+            {/* List Container */}
             <div
               ref={scrollContainerRef}
-              className="max-h-[400px] overflow-y-auto custom-scrollbar"
+              className="max-h-[480px] overflow-y-auto custom-scrollbar"
             >
               {loading && notifications.length === 0 ? (
-                <div className="p-4 text-center text-gray-500 text-sm">
-                  Đang tải...
+                <div className="py-20 flex flex-col items-center justify-center space-y-4">
+                   <div className="w-12 h-12 border-4 border-slate-100 border-t-indigo-500 rounded-full animate-spin" />
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Đang cập nhật...</p>
                 </div>
               ) : notifications.length > 0 ? (
-                <div>
+                <div className="p-3 space-y-1">
                   {notifications.map((item) => (
                     <div
                       key={item.id}
                       onClick={() =>
                         handleClickNotification(item.id, item.isRead, item.link)
                       }
-                      className={`relative flex gap-3 p-4 cursor-pointer border-b group transition
-                        ${
-                          item.isRead
-                            ? "bg-white hover:bg-gray-50"
-                            : "bg-blue-50/60"
-                        }`}
+                      className={`relative flex gap-4 p-5 cursor-pointer rounded-3xl transition-all duration-300 group
+                        ${item.isRead ? "bg-white hover:bg-slate-50" : "bg-indigo-50/40 hover:bg-indigo-50/60"}`}
                     >
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center
-                        bg-blue-100 text-blue-600"
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm
+                        ${item.isRead ? "bg-slate-50 text-slate-400" : "bg-white text-indigo-600 shadow-indigo-100"}`}
                       >
-                        <Info className="w-5 h-5" />
+                        <Info className="w-6 h-6" />
                       </div>
 
-                      <div className="flex-1 pr-6">
-                        <p
-                          className={`text-sm ${
-                            !item.isRead && "font-semibold"
-                          }`}
-                        >
+                      <div className="flex-1 space-y-1 min-w-0 pr-6">
+                        <p className={`text-sm leading-tight transition-colors ${item.isRead ? "text-slate-600 font-medium" : "text-slate-900 font-black"}`}>
                           {item.title}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                        <p className="text-xs text-slate-400 font-medium line-clamp-2 leading-relaxed">
                           {item.message}
                         </p>
-                        <span className="text-[10px] text-gray-400 block mt-2">
+                        <span className="text-[10px] font-bold text-slate-300 block pt-1 uppercase tracking-wider">
                           {formatTime(item.createdAt)}
                         </span>
                       </div>
 
                       {!item.isRead && (
-                        <span className="absolute top-4 right-4 w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                        <div className="absolute top-6 right-6 w-2.5 h-2.5 bg-indigo-600 rounded-full shadow-lg shadow-indigo-100" />
                       )}
 
                       <button
                         onClick={(e) => handleDelete(e, item.id)}
-                        className="absolute bottom-2 right-2 p-1.5 text-gray-400 hover:text-red-500
-                                   opacity-0 group-hover:opacity-100 transition"
+                        className="absolute bottom-4 right-4 p-2 text-slate-300 hover:text-rose-500 bg-white shadow-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
 
-                  {hasMore && <div ref={loadMoreTriggerRef} className="h-1" />}
+                  {hasMore && <div ref={loadMoreTriggerRef} className="h-4" />}
                   {loadingMore && (
-                    <div className="p-4 text-center text-gray-500 text-sm">
-                      Đang tải thêm...
+                    <div className="py-6 flex justify-center">
+                       <div className="w-6 h-6 border-2 border-slate-100 border-t-indigo-500 rounded-full animate-spin" />
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="py-8 text-center text-gray-500">
-                  Chưa có thông báo
+                <div className="py-24 px-10 text-center space-y-4">
+                  <div className="w-16 h-16 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto">
+                     <Bell className="w-8 h-8 text-slate-200" />
+                  </div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-loose">
+                    Tuyệt vời! Bạn không có <br/> thông báo mới nào
+                  </p>
                 </div>
               )}
+            </div>
+            
+            <div className="px-8 py-5 bg-slate-50/30 border-t border-slate-50 text-center">
+               <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">EduSmart Intelligence</span>
             </div>
           </motion.div>
         )}
@@ -244,5 +229,6 @@ const NotificationBell = () => {
     </div>
   );
 };
+
 
 export default NotificationBell;
