@@ -195,6 +195,15 @@
 
     reports Report[]
 
+    // COMMUNITY
+    posts       Post[]
+    postLikes   PostLike[]
+    postComments PostComment[]
+
+    // FOLLOW
+    followers   Follow[] @relation("followers")
+    following   Follow[] @relation("following")
+
     user1Conversations Conversation[] @relation("User1Conversations")
     user2Conversations Conversation[] @relation("User2Conversations")
 
