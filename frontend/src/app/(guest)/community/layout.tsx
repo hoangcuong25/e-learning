@@ -43,16 +43,16 @@ export default function CommunityLayout({
     <div className="my-6 relative">
       <section className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* LEFT */}
-        <aside className="hidden lg:block lg:col-span-3 sticky top-64 self-start">
+        <aside className="hidden lg:block lg:col-span-3 sticky top-24 self-start">
           <CommunitySidebar />
         </aside>
         <MobileCommunitySidebar />
 
         {/* CENTER (page content) */}
-        <main className="lg:col-span-6 space-y-6">{children}</main>
+        <main className="lg:col-span-6 space-y-5">{children}</main>
 
         {/* RIGHT */}
-        <aside className="hidden lg:block lg:col-span-3 sticky top-64 self-start">
+        <aside className="hidden lg:block lg:col-span-3 sticky top-24 self-start">
           <FollowSuggestions />
         </aside>
       </section>

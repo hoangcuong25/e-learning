@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Image as ImageIcon, Video, X } from "lucide-react";
+import { Image as ImageIcon, Video, X, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -41,22 +41,18 @@ export default function CreatePostDialog({
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     setIsUploading(true);
     try {
       const uploadPromises = Array.from(files).map((file) =>
-        uploadMedia({ file, type: "image" })
+        uploadMedia({ file, type: "image" }),
       );
       const results = await Promise.all(uploadPromises);
-
       const newMedia = results.map((res) => ({
         url: res.secure_url || res.url,
         type: "IMAGE" as const,
       }));
-
       setMedia((prev) => [...prev, ...newMedia]);
     } catch (error) {
-      console.error(error);
       toast.error("Lỗi khi tải ảnh lên");
     } finally {
       setIsUploading(false);
@@ -67,22 +63,18 @@ export default function CreatePostDialog({
   const handleUploadVideo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     setIsUploading(true);
     try {
       const uploadPromises = Array.from(files).map((file) =>
-        uploadMedia({ file, type: "video" })
+        uploadMedia({ file, type: "video" }),
       );
       const results = await Promise.all(uploadPromises);
-
       const newMedia = results.map((res) => ({
         url: res.secure_url,
         type: "VIDEO" as const,
       }));
-
       setMedia((prev) => [...prev, ...newMedia]);
     } catch (error) {
-      console.error(error);
       toast.error("Lỗi khi tải video lên");
     } finally {
       setIsUploading(false);
@@ -100,12 +92,10 @@ export default function CreatePostDialog({
     try {
       await dispatch(createPost({ content, media })).unwrap();
       toast.success("Bài viết đã được tạo thành công!");
-
       setContent("");
       setMedia([]);
       onOpenChange(false);
     } catch (error) {
-      console.error("Failed to submit post:", error);
       toast.error("Lỗi khi tạo bài viết");
     } finally {
       setIsSubmitting(false);
@@ -114,9 +104,11 @@ export default function CreatePostDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-800 text-slate-100 shadow-2xl rounded-2xl">
         <DialogHeader>
-          <DialogTitle>Tạo bài viết mới</DialogTitle>
+          <DialogTitle className="text-slate-100 font-black tracking-tight text-lg">
+            Tạo bài viết mới
+          </DialogTitle>
         </DialogHeader>
 
         <div className="my-4">
@@ -129,7 +121,7 @@ export default function CreatePostDialog({
             {media.map((item, index) => (
               <div
                 key={index}
-                className="relative group bg-gray-100 rounded-md overflow-hidden aspect-square"
+                className="relative group bg-slate-800 rounded-xl overflow-hidden aspect-square border border-slate-700"
               >
                 {item.type === "IMAGE" ? (
                   <Image
@@ -147,18 +139,18 @@ export default function CreatePostDialog({
                 )}
                 <button
                   onClick={() => removeMedia(index)}
-                  className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-red-500 transition-colors"
+                  className="absolute top-1.5 right-1.5 bg-black/60 text-white rounded-full p-1 hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
                 >
-                  <X size={14} />
+                  <X size={12} />
                 </button>
               </div>
             ))}
           </div>
         )}
 
-        <div className="flex justify-between items-center border-t pt-4">
-          <div className="flex gap-4">
-            {/* Image Upload Trigger */}
+        <div className="flex justify-between items-center border-t border-slate-800 pt-4">
+          <div className="flex gap-3">
+            {/* Image Upload */}
             <div>
               <input
                 type="file"
@@ -171,16 +163,16 @@ export default function CreatePostDialog({
               />
               <label
                 htmlFor="image-upload"
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-green-50 text-green-600 cursor-pointer transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-emerald-400 hover:bg-emerald-500/10 cursor-pointer transition-colors ${
                   isUploading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                <ImageIcon size={20} />
-                <span className="text-sm font-medium">Ảnh</span>
+                <ImageIcon size={16} />
+                <span>Ảnh</span>
               </label>
             </div>
 
-            {/* Video Upload Trigger */}
+            {/* Video Upload */}
             <div>
               <input
                 type="file"
@@ -193,37 +185,45 @@ export default function CreatePostDialog({
               />
               <label
                 htmlFor="video-upload"
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-rose-400 hover:bg-rose-500/10 cursor-pointer transition-colors ${
                   isUploading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                <Video size={20} />
-                <span className="text-sm font-medium">Video</span>
+                <Video size={16} />
+                <span>Video</span>
               </label>
             </div>
 
             {isUploading && (
-              <span className="flex items-center gap-2 text-sm text-gray-500 animate-pulse">
+              <span className="flex items-center gap-2 text-sm text-slate-500 animate-pulse">
+                <Loader2 size={14} className="animate-spin" />
                 Đang tải lên...
               </span>
             )}
           </div>
 
           <div className="flex gap-2">
-            <Button
-              variant="outline"
+            <button
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting || isUploading}
+              className="px-4 py-2 text-sm font-black text-slate-400 bg-slate-800 hover:bg-slate-700 rounded-xl uppercase tracking-widest transition-all disabled:opacity-50"
             >
               Hủy
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={handleSubmit}
               disabled={!content.trim() || isSubmitting || isUploading}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="px-5 py-2 text-sm font-black text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Đang xử lý..." : "Đăng bài"}
-            </Button>
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 size={14} className="animate-spin" />
+                  Đang xử lý...
+                </span>
+              ) : (
+                "Đăng bài"
+              )}
+            </button>
           </div>
         </div>
       </DialogContent>

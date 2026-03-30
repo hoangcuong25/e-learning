@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Bold,
   Italic,
@@ -28,30 +26,55 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
 }
 
+type ToolbarButtonProps = {
+  onClick: () => void;
+  isActive?: boolean;
+  title?: string;
+  children: React.ReactNode;
+};
+
+function ToolbarButton({ onClick, isActive, title, children }: ToolbarButtonProps) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      className={`
+        w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-all duration-150
+        ${
+          isActive
+            ? "bg-indigo-600/30 text-indigo-300 border border-indigo-500/40"
+            : "text-slate-400 hover:text-slate-100 hover:bg-slate-700 border border-transparent"
+        }
+      `}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Divider() {
+  return <div className="w-px h-5 bg-slate-700 self-center mx-0.5" />;
+}
+
 export default function RichTextEditor({
   value,
   onChange,
 }: RichTextEditorProps) {
-  const [linkUrl, setLinkUrl] = useState("");
-
   const editor = useEditor({
     extensions: [
       StarterKit,
       Underline,
-      Link.configure({
-        openOnClick: false,
-      }),
-      TextAlign.configure({
-        types: ["heading", "paragraph"],
-      }),
+      Link.configure({ openOnClick: false }),
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
-    content: value || "<p>Nhập vào đây...</p>",
+    content: value || "<p></p>",
     immediatelyRender: false,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose-base lg:prose-lg focus:outline-none min-h-[250px] p-4 border rounded-md bg-white",
+          "prose prose-invert prose-sm focus:outline-none min-h-[180px] px-4 py-3 text-slate-200 leading-relaxed",
       },
     },
   });
@@ -64,123 +87,117 @@ export default function RichTextEditor({
 
   if (!editor) return null;
 
-  const setLink = () => {
-    if (linkUrl === "") {
-      editor.chain().focus().unsetLink().run();
-      return;
-    }
-    editor.chain().focus().setLink({ href: linkUrl }).run();
-    setLinkUrl("");
-  };
-
   return (
-    <div className="space-y-3">
+    <div className="rounded-xl border border-slate-700 bg-slate-800 overflow-hidden transition-all focus-within:border-indigo-500/60 focus-within:ring-2 focus-within:ring-indigo-500/20">
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-1 border-b pb-2">
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
+      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 border-b border-slate-700 bg-slate-800/80">
+        {/* Text formatting */}
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={
-            editor.isActive("bold")
-              ? "bg-blue-100 border-blue-400 text-blue-600"
-              : "hover:bg-gray-100"
-          }
+          isActive={editor.isActive("bold")}
+          title="Đậm"
         >
-          <Bold size={16} />
-        </Button>
+          <Bold size={14} />
+        </ToolbarButton>
 
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={
-            editor.isActive("italic")
-              ? "bg-blue-100 border-blue-400 text-blue-600"
-              : "hover:bg-gray-100"
-          }
+          isActive={editor.isActive("italic")}
+          title="Nghiêng"
         >
-          <Italic size={16} />
-        </Button>
+          <Italic size={14} />
+        </ToolbarButton>
 
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className={
-            editor.isActive("underline")
-              ? "bg-blue-100 border-blue-400 text-blue-600"
-              : "hover:bg-gray-100"
-          }
+          isActive={editor.isActive("underline")}
+          title="Gạch chân"
         >
-          <UnderlineIcon size={16} />
-        </Button>
+          <UnderlineIcon size={14} />
+        </ToolbarButton>
 
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          className={
-            editor.isActive("codeBlock")
-              ? "bg-blue-100 border-blue-400 text-blue-600"
-              : "hover:bg-gray-100"
-          }
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleCode().run()}
+          isActive={editor.isActive("code")}
+          title="Code"
         >
-          <Code size={16} />
-        </Button>
+          <Code size={14} />
+        </ToolbarButton>
 
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
+        <Divider />
+
+        {/* Lists */}
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          isActive={editor.isActive("bulletList")}
+          title="Danh sách"
+        >
+          <List size={14} />
+        </ToolbarButton>
+
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          isActive={editor.isActive("orderedList")}
+          title="Danh sách số"
+        >
+          <ListOrdered size={14} />
+        </ToolbarButton>
+
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          isActive={editor.isActive("blockquote")}
+          title="Trích dẫn"
+        >
+          <Quote size={14} />
+        </ToolbarButton>
+
+        <Divider />
+
+        {/* Alignment */}
+        <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          isActive={editor.isActive({ textAlign: "left" })}
+          title="Căn trái"
         >
-          <AlignLeft size={16} />
-        </Button>
+          <AlignLeft size={14} />
+        </ToolbarButton>
 
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
+        <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          isActive={editor.isActive({ textAlign: "center" })}
+          title="Căn giữa"
         >
-          <AlignCenter size={16} />
-        </Button>
+          <AlignCenter size={14} />
+        </ToolbarButton>
 
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
+        <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          isActive={editor.isActive({ textAlign: "right" })}
+          title="Căn phải"
         >
-          <AlignRight size={16} />
-        </Button>
+          <AlignRight size={14} />
+        </ToolbarButton>
 
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
+        <Divider />
+
+        {/* History */}
+        <ToolbarButton
           onClick={() => editor.chain().focus().undo().run()}
+          title="Hoàn tác"
         >
-          <RotateCcw size={16} />
-        </Button>
+          <RotateCcw size={14} />
+        </ToolbarButton>
 
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
+        <ToolbarButton
           onClick={() => editor.chain().focus().redo().run()}
+          title="Làm lại"
         >
-          <RotateCw size={16} />
-        </Button>
+          <RotateCw size={14} />
+        </ToolbarButton>
       </div>
 
-      {/* Editor content */}
-      <div className="max-w-[750px] bg-white prose prose-sm">
+      {/* Editor content area */}
+      <div className="bg-slate-800">
         <EditorContent editor={editor} />
       </div>
     </div>

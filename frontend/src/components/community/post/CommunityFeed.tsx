@@ -7,14 +7,13 @@ import {
   MessageCircle,
   Share2,
   MoreHorizontal,
-  Flag,
-  Copy,
   X,
 } from "lucide-react";
 import Image from "next/image";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/vi";
+import { motion } from "framer-motion";
 
 dayjs.extend(relativeTime);
 dayjs.locale("vi");
@@ -46,20 +45,16 @@ export default function CommunityFeed() {
   const [sharePostId, setSharePostId] = useState<number | null>(null);
   const [shareCaption, setShareCaption] = useState("");
 
-  // Edit State
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<any | null>(null);
 
   const view = searchParams.get("view");
 
   useEffect(() => {
-    // My posts
     if (view === "my_posts" && user) {
       dispatch(fetchAllPosts({ authorId: user.id }));
       return;
     }
-
-    // Default fetch
     dispatch(fetchAllPosts({}));
   }, [dispatch, view, user]);
 
@@ -94,7 +89,6 @@ export default function CommunityFeed() {
 
   const confirmShare = async () => {
     if (sharePostId === null) return;
-
     try {
       await dispatch(
         sharePost({ id: sharePostId, content: shareCaption })
@@ -125,34 +119,48 @@ export default function CommunityFeed() {
 
   if (loading && posts.length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-8 text-center text-gray-500 shadow-sm">
-        Đang tải bảng tin...
+      <div className="bg-slate-900 rounded-2xl p-10 text-center border border-slate-800 shadow-lg">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mx-auto mb-3" />
+        <p className="text-slate-500 text-sm font-medium">
+          Đang tải bảng tin...
+        </p>
       </div>
     );
   }
 
   if (!loading && posts.length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-8 text-center text-gray-500 shadow-sm">
-        Chưa có bài viết nào. Hãy là người đầu tiên chia sẻ!
+      <div className="bg-slate-900 rounded-2xl p-12 text-center border-2 border-dashed border-slate-800 shadow-lg">
+        <div className="w-16 h-16 bg-indigo-600/10 rounded-3xl flex items-center justify-center mx-auto mb-4">
+          <MessageCircle className="w-8 h-8 text-indigo-500/50" />
+        </div>
+        <p className="text-slate-400 font-semibold">
+          Chưa có bài viết nào.
+        </p>
+        <p className="text-slate-600 text-sm mt-1">
+          Hãy là người đầu tiên chia sẻ!
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {posts.map((post) => (
-        <article
+    <div className="space-y-5">
+      {posts.map((post, idx) => (
+        <motion.article
           key={post.id}
-          className="bg-white rounded-2xl p-6 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: idx * 0.05, duration: 0.4 }}
+          className="bg-slate-900 rounded-2xl border border-slate-800 shadow-lg overflow-hidden hover:border-slate-700 transition-all duration-300"
         >
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between px-5 pt-5">
             <div
-              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+              className="flex items-center gap-3 cursor-pointer group"
               onClick={() => router.push(`/community/user/${post.author?.id}`)}
             >
-              <div className="w-10 h-10 rounded-full bg-blue-100 overflow-hidden relative">
+              <div className="w-10 h-10 rounded-full bg-indigo-600/20 border border-indigo-500/30 overflow-hidden relative flex-shrink-0">
                 {post.author?.avatar ? (
                   <Image
                     src={post.author.avatar}
@@ -161,19 +169,17 @@ export default function CommunityFeed() {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white font-bold">
+                  <div className="w-full h-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm">
                     {post.author?.fullname?.[0] || "U"}
                   </div>
                 )}
               </div>
               <div>
-                <p className="font-semibold text-gray-800">
+                <p className="font-bold text-slate-100 text-sm group-hover:text-indigo-400 transition-colors">
                   {post.author?.fullname || "Người dùng ẩn danh"}
                 </p>
-                <p className="text-xs text-gray-500">
-                  {post.createdAt
-                    ? dayjs(post.createdAt).fromNow()
-                    : "Vừa xong"}
+                <p className="text-xs text-slate-500">
+                  {post.createdAt ? dayjs(post.createdAt).fromNow() : "Vừa xong"}
                 </p>
               </div>
             </div>
@@ -186,65 +192,56 @@ export default function CommunityFeed() {
           </div>
 
           {/* Content */}
-          <div className="text-gray-700 whitespace-pre-wrap">
+          <div className="px-5 pt-4 pb-2">
             <div
-              className="prose max-w-none text-sm"
-              dangerouslySetInnerHTML={{
-                __html: post.content,
-              }}
+              className="prose prose-invert prose-sm max-w-none text-slate-300 leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: post.content }}
             />
           </div>
 
-          {/* Shared Post Content */}
+          {/* Shared Post */}
           {post.type === "SHARE" && post.originalPost && (
-            <div
-              className="mt-3 border border-gray-200 rounded-xl overflow-hidden hover:border-blue-200 transition-colors cursor-pointer"
-              onClick={() =>
-                router.push(`/community/post/${post.originalPost.id}`)
-              }
-            >
-              <div className="p-4 bg-gray-50/50">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 overflow-hidden relative">
-                    {post.originalPost.author?.avatar ? (
-                      <Image
-                        src={post.originalPost.author.avatar}
-                        alt={post.originalPost.author.fullname || "User"}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white text-xs font-bold">
-                        {post.originalPost.author?.fullname?.[0] || "U"}
-                      </div>
-                    )}
+            <div className="mx-5 mb-3">
+              <div
+                className="border border-slate-700 rounded-xl overflow-hidden hover:border-indigo-500/40 transition-colors cursor-pointer bg-slate-800/50"
+                onClick={() =>
+                  router.push(`/community/post/${post.originalPost.id}`)
+                }
+              >
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-full bg-indigo-600/20 overflow-hidden relative border border-indigo-500/30 flex-shrink-0">
+                      {post.originalPost.author?.avatar ? (
+                        <Image
+                          src={post.originalPost.author.avatar}
+                          alt={post.originalPost.author.fullname || "User"}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-indigo-600 text-white text-xs font-bold">
+                          {post.originalPost.author?.fullname?.[0] || "U"}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-200 text-xs">
+                        {post.originalPost.author?.fullname || "Người dùng ẩn danh"}
+                      </p>
+                      <p className="text-[10px] text-slate-500">
+                        {post.originalPost.createdAt
+                          ? dayjs(post.originalPost.createdAt).fromNow()
+                          : "Vừa xong"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-800 text-sm">
-                      {post.originalPost.author?.fullname ||
-                        "Người dùng ẩn danh"}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {post.originalPost.createdAt
-                        ? dayjs(post.originalPost.createdAt).fromNow()
-                        : "Vừa xong"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-gray-700 text-sm">
                   <div
-                    className="prose max-w-none line-clamp-3"
-                    dangerouslySetInnerHTML={{
-                      __html: post.originalPost.content,
-                    }}
+                    className="prose prose-invert prose-xs max-w-none text-slate-400 line-clamp-3 text-sm"
+                    dangerouslySetInnerHTML={{ __html: post.originalPost.content }}
                   />
                 </div>
-              </div>
 
-              {/* Original Post Media */}
-              {post.originalPost.media &&
-                post.originalPost.media.length > 0 && (
+                {post.originalPost.media && post.originalPost.media.length > 0 && (
                   <div
                     className={`grid gap-0.5 ${
                       post.originalPost.media.length === 1
@@ -257,7 +254,7 @@ export default function CommunityFeed() {
                       .map((media: any, index: number) => (
                         <div
                           key={index}
-                          className="relative aspect-video bg-gray-100"
+                          className="relative aspect-video bg-slate-800"
                         >
                           {media.type === "IMAGE" ? (
                             <Image
@@ -277,13 +274,14 @@ export default function CommunityFeed() {
                       ))}
                   </div>
                 )}
+              </div>
             </div>
           )}
 
           {/* Media */}
           {post.media && post.media.length > 0 && (
             <div
-              className={`grid gap-2 mt-4 ${
+              className={`mx-5 mb-3 grid gap-1.5 rounded-xl overflow-hidden ${
                 post.media.length === 1
                   ? "grid-cols-1"
                   : post.media.length === 2
@@ -294,14 +292,14 @@ export default function CommunityFeed() {
               {post.media.map((media: any, index: number) => (
                 <div
                   key={index}
-                  className="relative aspect-video rounded-xl overflow-hidden bg-gray-100"
+                  className="relative aspect-video bg-slate-800 rounded-xl overflow-hidden"
                 >
                   {media.type === "IMAGE" ? (
                     <Image
                       src={media.url}
                       alt="Post media"
                       fill
-                      className="object-cover"
+                      className="object-cover hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
                     <video
@@ -315,54 +313,63 @@ export default function CommunityFeed() {
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex items-center justify-between border-t border-gray-100 pt-3 mt-4 text-gray-500 text-sm">
+          {/* Action Bar */}
+          <div className="flex items-center justify-between px-5 py-3 border-t border-slate-800 mt-1">
             <button
               onClick={() => handleLike(post.id)}
-              className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-colors ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 post.isLiked
-                  ? "text-red-500 hover:bg-red-50"
-                  : "hover:text-blue-600 hover:bg-blue-50"
+                  ? "text-red-400 bg-red-500/10 hover:bg-red-500/20"
+                  : "text-slate-500 hover:text-slate-300 hover:bg-slate-800"
               }`}
             >
-              <Heart size={18} className={post.isLiked ? "fill-current" : ""} />
+              <Heart
+                size={16}
+                className={post.isLiked ? "fill-current" : ""}
+              />
               <span>{post._count?.likes || 0}</span>
             </button>
 
             <button
               onClick={() => toggleComments(post.id)}
-              className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-colors ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 expandedComments.has(post.id)
-                  ? "text-blue-600 bg-blue-50"
-                  : "hover:text-blue-600 hover:bg-blue-50"
+                  ? "text-indigo-400 bg-indigo-500/10"
+                  : "text-slate-500 hover:text-slate-300 hover:bg-slate-800"
               }`}
             >
-              <MessageCircle size={18} />
+              <MessageCircle size={16} />
               <span>{post._count?.comments || 0}</span>
             </button>
 
             <button
               onClick={() => handleShare(post.id)}
-              className="flex items-center gap-2 px-2 py-1 rounded-lg hover:text-blue-600 hover:bg-blue-50 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-all duration-200"
             >
-              <Share2 size={18} />
+              <Share2 size={16} />
               <span>Chia sẻ</span>
             </button>
           </div>
 
           {/* Comment Section */}
           {expandedComments.has(post.id) && (
-            <CommentSection postId={post.id} isExpanded={true} />
+            <div className="px-5 pb-5">
+              <CommentSection postId={post.id} isExpanded={true} />
+            </div>
           )}
-        </article>
+        </motion.article>
       ))}
 
       {/* Share Dialog */}
       {shareDialogOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl"
+          >
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-gray-800">
+              <h3 className="text-lg font-black text-slate-100 tracking-tight">
                 Chia sẻ bài viết
               </h3>
               <button
@@ -371,21 +378,21 @@ export default function CommunityFeed() {
                   setShareCaption("");
                   setSharePostId(null);
                 }}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all"
               >
-                <X size={24} />
+                <X size={18} />
               </button>
             </div>
 
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.15em]">
                 Thêm lời nhắn (không bắt buộc)
               </label>
               <textarea
                 value={shareCaption}
                 onChange={(e) => setShareCaption(e.target.value)}
                 placeholder="Bạn nghĩ gì về bài viết này?"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 resize-none transition-all"
                 rows={4}
               />
             </div>
@@ -397,18 +404,18 @@ export default function CommunityFeed() {
                   setShareCaption("");
                   setSharePostId(null);
                 }}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-5 py-2.5 text-sm font-black text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all uppercase tracking-widest"
               >
                 Hủy
               </button>
               <button
                 onClick={confirmShare}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-5 py-2.5 text-sm font-black text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-widest"
               >
                 Chia sẻ
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 

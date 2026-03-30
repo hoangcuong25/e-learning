@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useDebounce } from "use-debounce";
 import { fetchAllPosts } from "@/store/slice/community/postSlice";
-import { Button } from "@/components/ui/button";
+import CreatePostDialog from "./post/CreatePostDialog";
 
 export default function CommunitySidebar() {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,10 +34,6 @@ export default function CommunitySidebar() {
   const queryFromUrl = searchParams.get("search") || "";
 
   const [openCreatePost, setOpenCreatePost] = useState(false);
-  const [openFollowModal, setOpenFollowModal] = useState(false);
-  const [followModalType, setFollowModalType] = useState<
-    "followers" | "following"
-  >("followers");
   const [showSearch, setShowSearch] = useState(false);
   const [keyword, setKeyword] = useState("");
 
@@ -58,14 +54,12 @@ export default function CommunitySidebar() {
       params.search = debouncedKeyword.trim();
     }
 
-    // My posts
     if (currentView === "my_posts" && user) {
       params.authorId = user.id;
     }
 
     dispatch(fetchAllPosts(params));
 
-    // Sync URL (không tạo history mới)
     const urlParams = new URLSearchParams(searchParams.toString());
 
     if (debouncedKeyword?.trim()) {
@@ -97,17 +91,17 @@ export default function CommunitySidebar() {
     <button
       onClick={onClick}
       className={`
-        flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-all rounded-lg
+        flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 rounded-xl
         ${
           currentView === value
-            ? "bg-blue-50 text-blue-600 font-semibold shadow-sm"
-            : "text-gray-600 hover:bg-gray-50 hover:text-blue-600"
+            ? "bg-indigo-600/20 text-indigo-400 border border-indigo-500/30"
+            : "text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-transparent"
         }
       `}
     >
       <Icon
-        size={18}
-        className={currentView === value ? "text-blue-600" : "text-gray-400"}
+        size={16}
+        className={currentView === value ? "text-indigo-400" : "text-slate-500"}
       />
       {label}
     </button>
@@ -126,125 +120,124 @@ export default function CommunitySidebar() {
   }) => (
     <button
       onClick={onToggle}
-      className="flex items-center justify-between w-full px-2 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider hover:text-gray-600 transition-colors"
+      className="flex items-center justify-between w-full px-2 py-2 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] hover:text-slate-300 transition-colors"
     >
       <div className="flex items-center gap-2">
-        <Icon size={14} />
+        <Icon size={12} />
         {label}
       </div>
-      {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      {isOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
     </button>
   );
 
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-xl border border-gray-100 space-y-8">
-      <div className="flex flex-col gap-6">
-        {/* Navigation Sections */}
-        <div className="space-y-4">
-          {/* Posts Section */}
-          <div className="space-y-1">
-            <SectionHeader
-              label="Bài viết"
-              icon={FileText}
-              isOpen={isPostsOpen}
-              onToggle={() => setIsPostsOpen(!isPostsOpen)}
-            />
-            <AnimatePresence initial={false}>
-              {isPostsOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden space-y-1"
-                >
-                  <NavItem
-                    value="explore"
-                    label="Khám phá"
-                    icon={Compass}
-                    onClick={() => changeView("explore")}
-                  />
-                  <NavItem
-                    value="my_posts"
-                    label="Bài viết của tôi"
-                    icon={UserCircle}
-                    onClick={() => changeView("my_posts")}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Following Section */}
-          <div className="space-y-1">
-            <SectionHeader
-              label="Theo dõi"
-              icon={Users}
-              isOpen={isFollowingOpen}
-              onToggle={() => setIsFollowingOpen(!isFollowingOpen)}
-            />
-            <AnimatePresence initial={false}>
-              {isFollowingOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden space-y-1"
-                >
-                  <NavItem
-                    value="followers"
-                    label="Người theo dõi"
-                    icon={UserPlus}
-                    onClick={() => {
-                      setFollowModalType("followers");
-                      setOpenFollowModal(true);
-                    }}
-                  />
-                  <NavItem
-                    value="following"
-                    label="Đang theo dõi"
-                    icon={UserCheck}
-                    onClick={() => {
-                      setFollowModalType("following");
-                      setOpenFollowModal(true);
-                    }}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+    <div className="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-xl space-y-6">
+      {/* Navigation Sections */}
+      <div className="space-y-4">
+        {/* Posts Section */}
+        <div className="space-y-1">
+          <SectionHeader
+            label="Bài viết"
+            icon={FileText}
+            isOpen={isPostsOpen}
+            onToggle={() => setIsPostsOpen(!isPostsOpen)}
+          />
+          <AnimatePresence initial={false}>
+            {isPostsOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden space-y-1"
+              >
+                <NavItem
+                  value="explore"
+                  label="Khám phá"
+                  icon={Compass}
+                  onClick={() => changeView("explore")}
+                />
+                <NavItem
+                  value="my_posts"
+                  label="Bài viết của tôi"
+                  icon={UserCircle}
+                  onClick={() => changeView("my_posts")}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-col gap-2">
-          {/* Search Toggle */}
-          <Button
-            onClick={() => setShowSearch(!showSearch)}
-            className={`
-                flex items-center gap-2 justify-start
-                border-blue-600 transition-colors
-                ${
-                  showSearch
-                    ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
-                }
-              `}
-          >
-            <Search size={16} />
-            Tìm kiếm
-          </Button>
+        {/* Following Section */}
+        <div className="space-y-1">
+          <SectionHeader
+            label="Theo dõi"
+            icon={Users}
+            isOpen={isFollowingOpen}
+            onToggle={() => setIsFollowingOpen(!isFollowingOpen)}
+          />
+          <AnimatePresence initial={false}>
+            {isFollowingOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden space-y-1"
+              >
+                <NavItem
+                  value="followers"
+                  label="Người theo dõi"
+                  icon={UserPlus}
+                  onClick={() => changeView("followers")}
+                />
+                <NavItem
+                  value="following"
+                  label="Đang theo dõi"
+                  icon={UserCheck}
+                  onClick={() => changeView("following")}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
 
-          {/* Inline Search Input */}
+      {/* Divider */}
+      <div className="border-t border-slate-800" />
+
+      {/* Actions */}
+      <div className="flex flex-col gap-2">
+        {/* Search Toggle */}
+        <button
+          onClick={() => setShowSearch(!showSearch)}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all duration-200 ${
+            showSearch
+              ? "bg-indigo-600/20 text-indigo-400 border border-indigo-500/30"
+              : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
+          }`}
+        >
+          <Search size={14} />
+          Tìm kiếm
+        </button>
+
+        {/* Inline Search Input */}
+        <AnimatePresence>
           {showSearch && (
-            <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="relative">
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="relative mt-1">
                 <input
                   type="text"
                   placeholder="Nhập từ khóa..."
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  className="w-full pl-3 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-4 pr-8 py-2.5 text-sm bg-slate-800 border border-slate-700 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
                   autoFocus
                 />
                 {keyword && (
@@ -257,29 +250,35 @@ export default function CommunitySidebar() {
                       params.delete("search");
                       router.push(`/community?${params.toString()}`);
                     }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                   >
                     <X size={14} />
                   </button>
                 )}
               </div>
-            </div>
+            </motion.div>
           )}
+        </AnimatePresence>
 
-          <Button
-            onClick={() => setOpenCreatePost(true)}
-            className="
-                flex items-center gap-2 justify-start
-                bg-blue-600 text-white
-                hover:bg-blue-700
-                border-blue-600
-              "
-          >
-            <Plus size={16} />
-            Tạo bài viết
-          </Button>
-        </div>
+        {/* Create Post Button */}
+        <button
+          onClick={() => setOpenCreatePost(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-black uppercase tracking-widest transition-all duration-200 shadow-lg shadow-indigo-600/20"
+        >
+          <Plus size={14} />
+          Tạo bài viết
+        </button>
       </div>
+
+      {/* Create Post Dialog */}
+      {user && (
+        <CreatePostDialog
+          open={openCreatePost}
+          onOpenChange={setOpenCreatePost}
+          userAvatar={user.avatar}
+          userName={user.fullname}
+        />
+      )}
     </div>
   );
 }
