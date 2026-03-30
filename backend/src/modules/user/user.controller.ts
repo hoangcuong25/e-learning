@@ -65,13 +65,13 @@ export class UserController {
     return this.userService.getActivity(req.user.id);
   }
 
-  // @Get("wall/:id")
-  // @UseGuards(OptionalJwtAuthGuard)
-  // @ResponseMessage("get user wall")
-  // @ApiResponse({ status: 200, description: "User wall retrieved successfully" })
-  // getWall(@Param("id") id: string, @Req() req) {
-  //   return this.userService.getWall(+id, req.user?.id);
-  // }
+  @Get("wall/:id")
+  @UseGuards(OptionalJwtAuthGuard)
+  @ResponseMessage("get user wall")
+  @ApiResponse({ status: 200, description: "User wall retrieved successfully" })
+  getWall(@Param("id") id: string, @Req() req) {
+    return this.userService.getWall(+id, req.user?.id);
+  }
 
   @Patch("profile")
   @ResponseMessage("update profile")

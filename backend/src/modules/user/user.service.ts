@@ -25,7 +25,7 @@ import { UserPaginationQueryDto } from "./dto/user-pagination.dto";
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly cloudinaryService: CloudinaryService
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async clearRefreshTokenInDatabase(userId: number) {
@@ -296,16 +296,19 @@ export class UserService {
     let currentDate = dayjs();
 
     if (activityObj[today]) {
-        // Valid, streak count from today
+      // Valid, streak count from today
     } else if (activityObj[yesterday]) {
-        // Valid, streak count from yesterday
-        currentDate = currentDate.subtract(1, "day");
+      // Valid, streak count from yesterday
+      currentDate = currentDate.subtract(1, "day");
     } else {
-        // No streak
-        return {
-            streak: 0,
-            activityMap: Object.keys(activityObj).map((date) => ({ date, count: activityObj[date] })),
-        };
+      // No streak
+      return {
+        streak: 0,
+        activityMap: Object.keys(activityObj).map((date) => ({
+          date,
+          count: activityObj[date],
+        })),
+      };
     }
 
     while (true) {
@@ -320,14 +323,17 @@ export class UserService {
 
     return {
       streak,
-      activityMap: Object.keys(activityObj).map((date) => ({ date, count: activityObj[date] })),
+      activityMap: Object.keys(activityObj).map((date) => ({
+        date,
+        count: activityObj[date],
+      })),
     };
   }
 
   async updateProfile(
     userId: number,
     updateUserDto: any,
-    avatar?: Express.Multer.File
+    avatar?: Express.Multer.File,
   ) {
     // 1. Kiểm tra người dùng tồn tại
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -374,7 +380,7 @@ export class UserService {
 
     const isOldPasswordValid = await comparePasswordHelper(
       oldPassword,
-      user.password
+      user.password,
     );
     if (!isOldPasswordValid)
       throw new BadRequestException("Mật khẩu cũ không chính xác");
@@ -402,54 +408,54 @@ export class UserService {
     });
   }
 
-  // async getWall(targetUserId: number, currentUserId?: number) {
-  //   if (!targetUserId) {
-  //     throw new BadRequestException("Cần cung cấp ID người dùng");
-  //   }
+  async getWall(targetUserId: number, currentUserId?: number) {
+    if (!targetUserId) {
+      throw new BadRequestException("Cần cung cấp ID người dùng");
+    }
 
-  //   const [user, isFollowing] = await Promise.all([
-  //     this.prisma.user.findUnique({
-  //       where: { id: targetUserId },
-  //       select: {
-  //         id: true,
-  //         fullname: true,
-  //         email: true,
-  //         avatar: true,
-  //         gender: true,
-  //         dob: true,
-  //         address: true,
-  //         phone: true,
-  //         role: true,
-  //         isVerified: true,
-  //         createdAt: true,
-  //         updatedAt: true,
-  //         _count: {
-  //           select: {
-  //             followers: true,
-  //             following: true,
-  //           },
-  //         },
-  //       },
-  //     }),
-  //     currentUserId
-  //       ? this.prisma.follow.findUnique({
-  //           where: {
-  //             followerId_followingId: {
-  //               followerId: currentUserId,
-  //               followingId: targetUserId,
-  //             },
-  //           },
-  //         })
-  //       : null,
-  //   ]);
+    const [user, isFollowing] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: targetUserId },
+        select: {
+          id: true,
+          fullname: true,
+          email: true,
+          avatar: true,
+          gender: true,
+          dob: true,
+          address: true,
+          phone: true,
+          role: true,
+          isVerified: true,
+          createdAt: true,
+          updatedAt: true,
+          _count: {
+            select: {
+              followers: true,
+              following: true,
+            },
+          },
+        },
+      }),
+      currentUserId
+        ? this.prisma.follow.findUnique({
+            where: {
+              followerId_followingId: {
+                followerId: currentUserId,
+                followingId: targetUserId,
+              },
+            },
+          })
+        : null,
+    ]);
 
-  //   if (!user) {
-  //     throw new NotFoundException("Không tìm thấy người dùng");
-  //   }
+    if (!user) {
+      throw new NotFoundException("Không tìm thấy người dùng");
+    }
 
-  //   return {
-  //     ...user,
-  //     isFollowing: !!isFollowing,
-  //   };
-  // }
+    return {
+      ...user,
+      isFollowing: !!isFollowing,
+    };
+  }
 }
