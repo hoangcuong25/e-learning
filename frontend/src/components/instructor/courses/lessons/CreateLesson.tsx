@@ -117,8 +117,8 @@ const CreateLesson = ({
     selectedVideo instanceof FileList && selectedVideo.length > 0
       ? selectedVideo[0].name
       : selectedVideo instanceof File
-      ? selectedVideo.name
-      : "";
+        ? selectedVideo.name
+        : "";
 
   // Logic hiển thị nút
   const isLoading = isSubmitting || processState !== "idle";
@@ -161,7 +161,7 @@ const CreateLesson = ({
 
           {/* Rich Text Editor */}
           <div>
-            <Label>Nội dung bài học</Label>
+            <Label className="mb-2">Nội dung bài học</Label>
             <RichTextEditor
               value={watch("content")}
               onChange={(val) => setValue("content", val)}

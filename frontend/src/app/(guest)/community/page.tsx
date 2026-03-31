@@ -6,16 +6,24 @@ import ChatContainer from "@/components/community/chat/ChatContainer";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
-export default function CommunityPage() {
+function CommunityPageContent() {
   const searchParams = useSearchParams();
   const view = searchParams.get("view");
 
   return (
     <div className="space-y-6">
       <CommunityGate />
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div className="h-40 bg-slate-900/50 rounded-2xl animate-pulse" />}>
         {view === "chat" ? <ChatContainer /> : <CommunityFeed />}
       </Suspense>
     </div>
+  );
+}
+
+export default function CommunityPage() {
+  return (
+    <Suspense fallback={<div className="h-60 bg-slate-900/50 rounded-2xl animate-pulse" />}>
+      <CommunityPageContent />
+    </Suspense>
   );
 }
