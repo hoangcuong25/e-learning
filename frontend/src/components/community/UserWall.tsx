@@ -16,7 +16,6 @@ import {
   UserPlus,
   UserCheck,
   MessageCircle,
-  Users,
   FileText,
   GraduationCap,
   Crown,
@@ -34,9 +33,7 @@ interface UserProfileProps {
 
 export default function UserWall({ userId }: UserProfileProps) {
   const dispatch = useDispatch<AppDispatch>();
-  const { posts, loading: postsLoading } = useSelector(
-    (state: RootState) => state.post,
-  );
+  const { posts } = useSelector((state: RootState) => state.post);
   const {
     user: currentUser,
     userWatching,
@@ -46,9 +43,7 @@ export default function UserWall({ userId }: UserProfileProps) {
   const router = useRouter();
 
   const [followModalOpen, setFollowModalOpen] = useState(false);
-  const [followType, setFollowType] = useState<"followers" | "following">(
-    "followers",
-  );
+  const [followType, setFollowType] = useState<"followers" | "following">("followers");
   const [isFollowLoading, setIsFollowLoading] = useState(false);
 
   const profileUserId = posts[0]?.author?.id;
@@ -98,40 +93,28 @@ export default function UserWall({ userId }: UserProfileProps) {
 
   const getRoleBadge = (role?: string) => {
     if (role === "INSTRUCTOR")
-      return {
-        label: "Giảng viên",
-        icon: GraduationCap,
-        color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-      };
+      return { label: "Giảng viên", icon: GraduationCap, color: "text-amber-400 bg-amber-500/10 border-amber-500/20" };
     if (role === "ADMIN")
-      return {
-        label: "Quản trị viên",
-        icon: Crown,
-        color: "text-rose-400 bg-rose-500/10 border-rose-500/20",
-      };
-    return {
-      label: "Học viên",
-      icon: User,
-      color: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
-    };
+      return { label: "Quản trị viên", icon: Crown, color: "text-rose-400 bg-rose-500/10 border-rose-500/20" };
+    return { label: "Học viên", icon: User, color: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20" };
   };
 
-  // ─── Loading state ─────────────────────────────────────────
+  // ─── Loading ──────────────────────────────────────────────
   if (userLoading && posts.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-6 space-y-5">
-        {/* Skeleton header */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 animate-pulse">
-          <div className="flex gap-6 items-start">
-            <div className="w-24 h-24 rounded-full bg-slate-800 flex-shrink-0" />
-            <div className="flex-1 space-y-3 pt-2">
-              <div className="h-5 bg-slate-800 rounded-lg w-48" />
-              <div className="h-3 bg-slate-800 rounded-lg w-32" />
-              <div className="flex gap-4 mt-4">
-                <div className="h-8 bg-slate-800 rounded-lg w-24" />
-                <div className="h-8 bg-slate-800 rounded-lg w-24" />
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-pulse">
+          <div className="h-28 bg-slate-800" />
+          <div className="px-8 pb-8">
+            <div className="flex items-end justify-between -mt-12 mb-5">
+              <div className="w-24 h-24 rounded-full bg-slate-700 border-4 border-slate-900" />
+              <div className="flex gap-2 pb-1">
+                <div className="h-10 w-24 bg-slate-800 rounded-xl" />
+                <div className="h-10 w-24 bg-slate-800 rounded-xl" />
               </div>
             </div>
+            <div className="h-5 bg-slate-800 rounded-lg w-48 mb-3" />
+            <div className="h-3 bg-slate-800 rounded-full w-32" />
           </div>
         </div>
         <div className="bg-slate-900 border border-slate-800 rounded-2xl h-40 animate-pulse" />
@@ -139,7 +122,7 @@ export default function UserWall({ userId }: UserProfileProps) {
     );
   }
 
-  // ─── Not found ─────────────────────────────────────────────
+  // ─── Not found ────────────────────────────────────────────
   if (!userLoading && !userWatching) {
     return (
       <div className="max-w-4xl mx-auto px-6">
@@ -147,9 +130,7 @@ export default function UserWall({ userId }: UserProfileProps) {
           <div className="w-16 h-16 bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-4">
             <User className="w-8 h-8 text-slate-600" />
           </div>
-          <p className="text-slate-400 font-semibold">
-            Không tìm thấy người dùng
-          </p>
+          <p className="text-slate-400 font-semibold">Không tìm thấy người dùng</p>
         </div>
       </div>
     );
@@ -160,14 +141,14 @@ export default function UserWall({ userId }: UserProfileProps) {
 
   return (
     <div className="max-w-4xl mx-auto px-6 space-y-6">
-      {/* ─── Profile Header ─────────────────────────────────── */}
+      {/* ─── Profile Card ────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl"
       >
-        {/* Cover gradient */}
+        {/* Cover */}
         <div className="h-28 relative bg-gradient-to-r from-slate-800 via-indigo-950/60 to-slate-800 overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/15 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/4" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-600/10 rounded-full blur-[50px] translate-y-1/2 -translate-x-1/4" />
@@ -180,96 +161,85 @@ export default function UserWall({ userId }: UserProfileProps) {
         </div>
 
         <div className="px-8 pb-8">
-          {/* Avatar — positioned over cover */}
-          <div className="flex flex-col md:flex-row gap-6 items-start md:items-end -mt-12">
+          {/* Row: Avatar (left) + Action buttons (right) */}
+          <div className="flex items-end justify-between -mt-12 mb-5">
+            {/* Avatar */}
             <div className="relative flex-shrink-0">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-slate-900 shadow-2xl bg-indigo-600/20">
+              <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-slate-900 shadow-xl bg-gradient-to-br from-indigo-500 to-blue-600">
                 {userWatching?.avatar ? (
                   <Image
                     src={userWatching.avatar}
                     alt={userWatching.fullname || "User"}
                     fill
-                    className="object-cover rounded-full"
+                    className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-indigo-600 text-white text-3xl font-black">
-                    {userWatching?.fullname?.[0] || "U"}
+                  <div className="w-full h-full flex items-center justify-center text-white text-3xl font-black">
+                    {userWatching?.fullname?.[0]?.toUpperCase() || "U"}
                   </div>
                 )}
               </div>
-              {/* Role badge dot */}
-              <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-slate-900 rounded-full border-2 border-slate-900 flex items-center justify-center">
-                <RoleIcon size={14} className={roleBadge.color.split(" ")[0]} />
-              </div>
-            </div>
-
-            {/* Name */}
-            <div className="flex-1 pt-4 md:pt-0 flex flex-col md:flex-row md:items-end justify-between gap-4 w-full">
-              <div className="mb-2">
-                <h1 className="text-2xl font-black text-white tracking-tight mb-4">
-                  {userWatching?.fullname || "Người dùng ẩn danh"}
-                </h1>
-                <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider border ${roleBadge.color}`}
-                  >
-                    <RoleIcon size={11} />
-                    {roleBadge.label}
-                  </span>
-                  {userWatching?.email && (
-                    <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
-                      <Mail size={11} />
-                      {userWatching.email}
-                    </span>
-                  )}
+              {/* Role dot */}
+              <div className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full border-2 border-slate-900 flex items-center justify-center bg-slate-900">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${roleBadge.color.split(" ").slice(1).join(" ")}`}>
+                  <RoleIcon size={11} className={roleBadge.color.split(" ")[0]} />
                 </div>
               </div>
             </div>
+
+            {/* Action buttons — always show when not own profile */}
+            {!isOwnProfile && (
+              <div className="flex items-center gap-2 pb-1">
+                <button
+                  onClick={handleMessageClick}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-black text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 uppercase tracking-widest transition-all duration-200"
+                >
+                  <MessageCircle size={14} />
+                  Nhắn tin
+                </button>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleFollowToggle}
+                  disabled={isFollowLoading}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all duration-200 disabled:opacity-60 ${
+                    userWatching?.isFollowing
+                      ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
+                      : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20"
+                  }`}
+                >
+                  {userWatching?.isFollowing ? (
+                    <><UserCheck size={14} />Đã theo dõi</>
+                  ) : (
+                    <><UserPlus size={14} />Theo dõi</>
+                  )}
+                </motion.button>
+              </div>
+            )}
           </div>
 
-          {/* Action buttons */}
-          {!isOwnProfile && currentUser && (
-            <div className="flex items-center gap-2 mt-8">
-              <button
-                onClick={handleMessageClick}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-black text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 uppercase tracking-wide transition-all duration-200"
-              >
-                <MessageCircle size={14} />
-                Nhắn tin
-              </button>
-
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={handleFollowToggle}
-                disabled={isFollowLoading}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-black uppercase tracking-wide transition-all duration-200 disabled:opacity-60 ${
-                  userWatching?.isFollowing
-                    ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-                    : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20"
-                }`}
-              >
-                {userWatching?.isFollowing ? (
-                  <>
-                    <UserCheck size={14} />
-                    Đã theo dõi
-                  </>
-                ) : (
-                  <>
-                    <UserPlus size={14} />
-                    Theo dõi
-                  </>
-                )}
-              </motion.button>
+          {/* Name & meta — below avatar */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-black text-white tracking-tight">
+              {userWatching?.fullname || "Người dùng ẩn danh"}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider border ${roleBadge.color}`}>
+                <RoleIcon size={11} />
+                {roleBadge.label}
+              </span>
+              {userWatching?.email && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
+                  <Mail size={11} />
+                  {userWatching.email}
+                </span>
+              )}
             </div>
-          )}
+          </div>
 
-          {/* Stats row */}
-          <div className="flex items-center gap-1 mt-6 border-t border-slate-800 pt-5">
+          {/* Stats */}
+          <div className="flex items-center gap-1 border-t border-slate-800 pt-5">
             <button
-              onClick={() => {
-                setFollowType("followers");
-                setFollowModalOpen(true);
-              }}
+              onClick={() => { setFollowType("followers"); setFollowModalOpen(true); }}
               className="flex flex-col items-center px-6 py-3 rounded-xl hover:bg-slate-800 transition-all duration-200 group"
             >
               <span className="text-xl font-black text-white group-hover:text-indigo-400 transition-colors">
@@ -283,10 +253,7 @@ export default function UserWall({ userId }: UserProfileProps) {
             <div className="w-px h-10 bg-slate-800" />
 
             <button
-              onClick={() => {
-                setFollowType("following");
-                setFollowModalOpen(true);
-              }}
+              onClick={() => { setFollowType("following"); setFollowModalOpen(true); }}
               className="flex flex-col items-center px-6 py-3 rounded-xl hover:bg-slate-800 transition-all duration-200 group"
             >
               <span className="text-xl font-black text-white group-hover:text-indigo-400 transition-colors">
@@ -300,9 +267,7 @@ export default function UserWall({ userId }: UserProfileProps) {
             <div className="w-px h-10 bg-slate-800" />
 
             <div className="flex flex-col items-center px-6 py-3">
-              <span className="text-xl font-black text-white">
-                {posts.length}
-              </span>
+              <span className="text-xl font-black text-white">{posts.length}</span>
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em] mt-0.5">
                 Bài viết
               </span>
@@ -311,20 +276,18 @@ export default function UserWall({ userId }: UserProfileProps) {
         </div>
       </motion.div>
 
-      {/* ─── Posts Section ──────────────────────────────────── */}
+      {/* ─── Posts ───────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.15 }}
         className="space-y-5"
       >
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl">
-            <FileText size={14} className="text-indigo-400" />
-            <h2 className="text-xs font-black text-slate-300 uppercase tracking-[0.15em]">
-              Bài viết của {userWatching?.fullname || "người dùng"}
-            </h2>
-          </div>
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl w-fit">
+          <FileText size={13} className="text-indigo-400" />
+          <h2 className="text-[11px] font-black text-slate-300 uppercase tracking-[0.15em]">
+            Bài viết của {userWatching?.fullname || "người dùng"}
+          </h2>
         </div>
         <CommunityFeed />
       </motion.div>

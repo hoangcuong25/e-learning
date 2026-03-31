@@ -8,9 +8,10 @@ import {
   followUser,
   unfollowUser,
 } from "@/store/slice/community/followSlice";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Users } from "lucide-react";
+import { Users, UserPlus, UserCheck } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
 
 export default function FollowSuggestions() {
   const dispatch = useDispatch<AppDispatch>();
@@ -30,82 +31,117 @@ export default function FollowSuggestions() {
     } else {
       await dispatch(followUser(userId));
     }
-
     dispatch(fetchFollowSuggestions({ page: 1, limit: 5 }));
   };
 
   return (
-    <aside className="hidden lg:block lg:col-span-3 space-y-8">
-      <div className="space-y-8">
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h3 className="font-semibold text-gray-800 mb-3">Gợi ý theo dõi</h3>
-
-          {loading && (
-            <div className="flex justify-center py-4">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            </div>
-          )}
-
-          {!loading && suggestions.length === 0 && (
-            <div className="text-center py-6 text-gray-500">
-              <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Chưa có gợi ý theo dõi</p>
-            </div>
-          )}
-
-          {!loading && suggestions.length > 0 && (
-            <ul className="space-y-3">
-              {suggestions.map((user: any) => (
-                <li
-                  key={user.id}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <div className="flex items-center justify-between gap-3 flex-1 min-w-0">
-                    <Link
-                      href={`/community/user/${user.id}`}
-                      className="flex items-center gap-3 flex-1 min-w-0 group cursor-pointer"
-                    >
-                      {/* Avatar */}
-                      <Avatar className="w-10 h-10 flex-shrink-0">
-                        <AvatarImage
-                          src={user.avatar}
-                          alt={user.fullname || "User avatar"}
-                        />
-                        <AvatarFallback>
-                          {user.fullname?.charAt(0).toUpperCase() || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-
-                      {/* User Info */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-gray-800 font-medium text-sm truncate group-hover:text-blue-600 transition-colors">
-                          {user.fullname || "Unknown User"}
-                        </p>
-                        {user.email && (
-                          <p className="text-gray-500 text-xs truncate">
-                            {user.email}
-                          </p>
-                        )}
-                      </div>
-                    </Link>
-                  </div>
-                  {/* Follow Button */}
-                  <button
-                    onClick={() => handleFollowToggle(user.id)}
-                    className={`text-sm font-medium px-3 py-1 rounded-lg transition-colors flex-shrink-0 ${
-                      user.isFollowing
-                        ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        : "bg-blue-600 text-white hover:bg-blue-700"
-                    }`}
-                  >
-                    {user.isFollowing ? "Đang theo dõi" : "Theo dõi"}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <div className="w-6 h-6 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
+          <Users size={12} className="text-indigo-400" />
         </div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+          Gợi ý theo dõi
+        </p>
       </div>
-    </aside>
+
+      {/* Loading skeletons */}
+      {loading && (
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex items-center justify-between gap-3 animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-slate-800 flex-shrink-0" />
+                <div className="space-y-1.5">
+                  <div className="h-2.5 bg-slate-800 rounded w-24" />
+                  <div className="h-2 bg-slate-800 rounded w-16" />
+                </div>
+              </div>
+              <div className="h-7 w-16 bg-slate-800 rounded-lg" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!loading && suggestions.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-6 text-slate-600">
+          <Users className="w-8 h-8 mb-2 opacity-40" />
+          <p className="text-xs font-medium">Chưa có gợi ý</p>
+        </div>
+      )}
+
+      {/* Suggestions list */}
+      {!loading && suggestions.length > 0 && (
+        <ul className="space-y-2">
+          {suggestions.map((user: any, i: number) => (
+            <motion.li
+              key={user.id}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="flex items-center justify-between gap-2"
+            >
+              {/* Avatar + Info */}
+              <Link
+                href={`/community/user/${user.id}`}
+                className="flex items-center gap-2.5 flex-1 min-w-0 group"
+              >
+                <div className="relative w-9 h-9 rounded-full overflow-hidden bg-indigo-600/20 border border-indigo-500/20 flex-shrink-0">
+                  {user.avatar ? (
+                    <Image
+                      src={user.avatar}
+                      alt={user.fullname || "User"}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-indigo-400 font-black text-sm">
+                      {user.fullname?.[0]?.toUpperCase() || "U"}
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-slate-300 truncate group-hover:text-indigo-400 transition-colors">
+                    {user.fullname || "Unknown"}
+                  </p>
+                  {user.email && (
+                    <p className="text-[11px] text-slate-600 truncate">
+                      {user.email}
+                    </p>
+                  )}
+                </div>
+              </Link>
+
+              {/* Follow button */}
+              <button
+                onClick={() => handleFollowToggle(user.id)}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wide transition-all flex-shrink-0 ${
+                  user.isFollowing
+                    ? "bg-slate-800 text-slate-400 hover:bg-slate-700 border border-slate-700"
+                    : "bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white border border-indigo-500/30"
+                }`}
+              >
+                {user.isFollowing ? (
+                  <><UserCheck size={11} />Đang theo dõi</>
+                ) : (
+                  <><UserPlus size={11} />Theo dõi</>
+                )}
+              </button>
+            </motion.li>
+          ))}
+        </ul>
+      )}
+
+      {/* Divider + footer hint */}
+      {!loading && suggestions.length > 0 && (
+        <div className="pt-1 border-t border-slate-800">
+          <p className="text-[10px] text-slate-600 text-center font-medium">
+            Khám phá thêm người dùng trong cộng đồng
+          </p>
+        </div>
+      )}
+    </div>
   );
 }

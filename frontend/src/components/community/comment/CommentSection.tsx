@@ -13,6 +13,8 @@ import CommentInput from "./CommentInput";
 import CommentItem from "./CommentItem";
 import { toast } from "sonner";
 import { incrementCommentCount } from "@/store/slice/community/postSlice";
+import { MessageCircle, Trash2, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CommentSectionProps {
   postId: number;
@@ -43,18 +45,10 @@ export default function CommentSection({
       toast.error("Bạn cần đăng nhập để bình luận");
       return;
     }
-
     try {
-      await dispatch(
-        createComment({
-          content,
-          postId,
-          parentId,
-        })
-      ).unwrap();
+      await dispatch(createComment({ content, postId, parentId })).unwrap();
       dispatch(incrementCommentCount(postId));
       toast.success("Đã thêm bình luận");
-      // Refresh comments
       dispatch(fetchCommentsByPost({ postId }));
     } catch (error: any) {
       toast.error(error?.message || "Lỗi khi thêm bình luận");
@@ -67,12 +61,7 @@ export default function CommentSection({
 
   const handleEdit = async (commentId: number, content: string) => {
     try {
-      await dispatch(
-        updateComment({
-          id: commentId,
-          payload: { content },
-        })
-      ).unwrap();
+      await dispatch(updateComment({ id: commentId, payload: { content } })).unwrap();
       toast.success("Đã cập nhật bình luận");
       dispatch(fetchCommentsByPost({ postId }));
     } catch (error: any) {
@@ -101,7 +90,7 @@ export default function CommentSection({
   };
 
   return (
-    <div className="space-y-4 border-t border-gray-100 pt-4">
+    <div className="space-y-4 pt-4 border-t border-slate-800">
       {/* Comment Input */}
       <CommentInput
         postId={postId}
@@ -112,12 +101,21 @@ export default function CommentSection({
 
       {/* Comments List */}
       {loading && comments.length === 0 ? (
-        <div className="text-center text-sm text-gray-500 py-4">
-          Đang tải bình luận...
+        <div className="space-y-3">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="flex gap-2.5 animate-pulse">
+              <div className="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-14 bg-slate-800 rounded-2xl" />
+                <div className="h-2 bg-slate-800 rounded w-20 ml-1" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : comments.length === 0 ? (
-        <div className="text-center text-sm text-gray-500 py-4">
-          Chưa có bình luận nào. Hãy là người đầu tiên!
+        <div className="flex flex-col items-center justify-center py-6 text-slate-600">
+          <MessageCircle size={24} className="mb-2 opacity-40" />
+          <p className="text-xs font-medium">Chưa có bình luận. Hãy là người đầu tiên!</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -133,59 +131,64 @@ export default function CommentSection({
                 onDelete={handleDelete}
                 userAvatar={user?.avatar}
                 userName={user?.fullname}
-                depth={1} // Start at depth 1 for top-level comments
+                depth={1}
               />
             ))}
         </div>
       )}
 
-      {/* Custom Delete Confirmation Modal */}
-      {deleteDialogOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setDeleteDialogOpen(false);
-              setCommentToDelete(null);
-            }
-          }}
-        >
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteDialogOpen && (
           <div
-            className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setDeleteDialogOpen(false);
+                setCommentToDelete(null);
+              }
+            }}
           >
-            {/* Header */}
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Xác nhận xóa bình luận
-              </h3>
-              <p className="text-sm text-gray-500 mt-2">
-                Bạn có chắc muốn xóa bình luận này? Hành động này không thể hoàn
-                tác.
-              </p>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-shrink-0">
+                  <Trash2 size={16} className="text-red-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-100 tracking-tight mb-1">
+                    Xác nhận xóa bình luận
+                  </h3>
+                  <p className="text-sm text-slate-400 leading-relaxed">
+                    Bạn có chắc muốn xóa bình luận này? Hành động này không thể hoàn tác.
+                  </p>
+                </div>
+              </div>
 
-            {/* Footer */}
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setDeleteDialogOpen(false);
-                  setCommentToDelete(null);
-                }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Xóa
-              </button>
-            </div>
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  onClick={() => { setDeleteDialogOpen(false); setCommentToDelete(null); }}
+                  className="px-4 py-2 text-sm font-black text-slate-400 bg-slate-800 hover:bg-slate-700 rounded-xl uppercase tracking-widest transition-all"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 text-sm font-black text-white bg-red-600 hover:bg-red-500 rounded-xl uppercase tracking-widest transition-all shadow-lg shadow-red-600/20"
+                >
+                  Xóa
+                </button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

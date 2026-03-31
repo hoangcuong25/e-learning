@@ -35,47 +35,61 @@ export default function CommentInput({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (content.trim()) {
+        onSubmit(content);
+        setContent("");
+      }
+    }
+    if (e.key === "Escape" && onCancel) {
+      onCancel();
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="flex gap-3 items-start">
-      <div className="w-8 h-8 rounded-full bg-blue-100 overflow-hidden relative flex-shrink-0">
+    <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
+      {/* Avatar */}
+      <div className="relative w-8 h-8 rounded-full overflow-hidden bg-indigo-600/20 border border-indigo-500/20 flex-shrink-0">
         {userAvatar ? (
-          <Image
-            src={userAvatar}
-            alt={userName || "User"}
-            fill
-            className="object-cover"
-          />
+          <Image src={userAvatar} alt={userName || "User"} fill className="object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white text-xs font-bold">
-            {userName?.[0] || "U"}
+          <div className="w-full h-full flex items-center justify-center bg-indigo-600 text-white text-xs font-black">
+            {userName?.[0]?.toUpperCase() || "U"}
           </div>
         )}
       </div>
-      <div className="flex-1 flex gap-2">
+
+      {/* Input + actions */}
+      <div className="flex-1 flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 focus-within:border-indigo-500/60 focus-within:ring-1 focus-within:ring-indigo-500/20 transition-all">
         <input
           type="text"
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 bg-transparent text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none"
         />
-        <button
-          type="submit"
-          disabled={!content.trim()}
-          className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <Send size={16} />
-        </button>
+
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800"
+            className="text-xs text-slate-600 hover:text-slate-400 font-semibold transition-colors flex-shrink-0"
           >
             Hủy
           </button>
         )}
+
+        <button
+          type="submit"
+          disabled={!content.trim()}
+          className="p-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all flex-shrink-0"
+        >
+          <Send size={12} />
+        </button>
       </div>
     </form>
   );
