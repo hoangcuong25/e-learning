@@ -251,7 +251,6 @@ const AdminCoupons = () => {
                             dispatch(fetchAllCoupons({}));
                             toast.success("Đã cập nhật coupon!");
                           }}
-                          onCancel={() => toast.info("Đã hủy chỉnh sửa")}
                         />
                        </div>
                     </DialogContent>
