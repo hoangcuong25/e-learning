@@ -35,6 +35,12 @@ export class AuthService {
       return null;
     }
 
+    if (user.isBlocked) {
+      throw new UnauthorizedException(
+        "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.",
+      );
+    }
+
     const isValidPassword = await comparePasswordHelper(pass, user.password);
 
     if (!isValidPassword) {

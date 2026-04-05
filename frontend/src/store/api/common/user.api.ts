@@ -69,3 +69,11 @@ export const getUserDetailForAdmin = async (userId: number) => {
     throw error;
   }
 };
+export const toggleBlockUser = async (userId: number, isBlocked: boolean) => {
+  try {
+    const response = await axiosClient.patch(`/user/admin/toggle-block/${userId}`, { isBlocked });
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};

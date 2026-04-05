@@ -280,36 +280,6 @@ const DashboardPage = () => {
             </ResponsiveContainer>
           )}
         </div>
-
-        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10 pt-8 border-t border-slate-800/50">
-          {chartData.map((item, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col gap-1.5 p-4 rounded-3xl bg-slate-950/50 border border-slate-800"
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-2 h-2 rounded-full"
-                  style={{
-                    backgroundColor: item.color,
-                    boxShadow: `0 0 10px ${item.color}`,
-                  }}
-                />
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
-                  {item.name}
-                </p>
-              </div>
-              <p className="text-lg font-black text-white tracking-tighter ml-4">
-                {loading
-                  ? "..."
-                  : ((item.value / (overview?.totalUsers || 1)) * 100).toFixed(
-                      1,
-                    )}{" "}
-                %
-              </p>
-            </div>
-          ))}
-        </div>
       </motion.div>
     </div>
   );

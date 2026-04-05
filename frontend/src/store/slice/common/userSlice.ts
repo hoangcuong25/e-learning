@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getUser, getAllUsers, getUserWall, getUserDetailForAdmin } from "@/store/api/common/user.api";
+import { getUser, getAllUsers, getUserWall, getUserDetailForAdmin, toggleBlockUser } from "@/store/api/common/user.api";
 import { LogoutApi } from "@/store/api/common/auth.api";
 import { setLoggingOut } from "@/lib/axiosClient";
 import axios from "axios";
@@ -78,6 +78,15 @@ export const fetchStudentDetailForAdmin = createAsyncThunk(
   }
 );
 
+// 🔒 Async action: Toggle user block status
+export const toggleBlockUserStatus = createAsyncThunk(
+  "user/toggleBlockUserStatus",
+  async ({ userId, isBlocked }: { userId: number; isBlocked: boolean }) => {
+    const response = await toggleBlockUser(userId, isBlocked);
+    return response;
+  }
+);
+
 // 🧩 Slice
 const userSlice = createSlice({
   name: "user",
@@ -144,6 +153,19 @@ const userSlice = createSlice({
       .addCase(fetchStudentDetailForAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Error fetching student detail";
+      })
+      .addCase(toggleBlockUserStatus.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(toggleBlockUserStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.studentDetail && state.studentDetail.id === action.payload.id) {
+          state.studentDetail.isBlocked = action.payload.isBlocked;
+        }
+      })
+      .addCase(toggleBlockUserStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message ?? "Error toggling block status";
       });
   },
 });

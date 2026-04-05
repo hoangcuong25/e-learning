@@ -108,6 +108,17 @@ export class UserController {
     return this.userService.getUserDetailForAdmin(+id);
   }
 
+  @Patch("admin/toggle-block/:id")
+  @ResponseMessage("toggle user block status")
+  @ApiResponse({ status: 200, description: "User block status toggled successfully" })
+  @Roles("ADMIN")
+  toggleBlockUser(
+    @Param("id") id: string,
+    @Body("isBlocked") isBlocked: boolean,
+  ) {
+    return this.userService.toggleBlockUser(+id, isBlocked);
+  }
+
   @Delete("delete-user/:id")
   @ResponseMessage("delete user")
   @ApiResponse({ status: 200, description: "User deleted successfully" })

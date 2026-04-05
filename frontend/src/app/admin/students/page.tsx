@@ -91,9 +91,6 @@ const StudentPage = () => {
         </motion.div>
 
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-6 py-3 bg-slate-900 border border-slate-800 text-slate-400 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">
-            <Download size={14} /> Xuất CSV
-          </button>
           <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20">
             Thêm mới
           </button>

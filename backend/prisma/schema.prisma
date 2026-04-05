@@ -154,6 +154,7 @@
     address   String?
     role      UserRole  @default(USER)
     phone     String?
+    isBlocked Boolean @default(false)
 
     isVerified             Boolean   @default(false)
     resetOtp               String?

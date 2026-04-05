@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -527,5 +528,25 @@ export class UserService {
         totalSpent,
       },
     };
+  }
+
+  async toggleBlockUser(userId: number, isBlocked: boolean) {
+    if (!userId) {
+      throw new BadRequestException("Cần cung cấp ID người dùng");
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException("Không tìm thấy người dùng");
+    }
+
+    if (user.role === "ADMIN") {
+      throw new ForbiddenException("Không thể khóa tài khoản quản trị viên");
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { isBlocked },
+    });
   }
 }
