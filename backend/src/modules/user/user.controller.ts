@@ -100,6 +100,14 @@ export class UserController {
     return this.userService.updatePassword(req.user.id, body);
   }
 
+  @Get("admin/get-user-detail/:id")
+  @ResponseMessage("get user detail for admin")
+  @ApiResponse({ status: 200, description: "User detail retrieved successfully" })
+  @Roles("ADMIN")
+  getUserDetailForAdmin(@Param("id") id: string) {
+    return this.userService.getUserDetailForAdmin(+id);
+  }
+
   @Delete("delete-user/:id")
   @ResponseMessage("delete user")
   @ApiResponse({ status: 200, description: "User deleted successfully" })

@@ -20,6 +20,7 @@ import { Search, Loader2, User as UserIcon, Mail, Phone, Calendar, ArrowRight, F
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -30,6 +31,7 @@ const formatCurrency = (amount: number) => {
 
 const StudentPage = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const { users, loading } = useSelector((state: RootState) => state.user);
 
   const studentList = users?.data || [];
@@ -215,8 +217,11 @@ const StudentPage = () => {
                         </div>
                       </TableCell>
                       <TableCell className="py-5 text-right px-6">
-                        <button className="p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-500 hover:text-white hover:bg-indigo-600 hover:border-indigo-500 transition-all hover:scale-110 shadow-lg">
-                           <ArrowRight size={16} />
+                        <button 
+                          onClick={() => router.push(`/admin/students/${student.id}`)}
+                          className="p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-500 hover:text-white hover:bg-indigo-600 hover:border-indigo-500 transition-all hover:scale-110 shadow-lg group/btn"
+                        >
+                           <ArrowRight size={16} className="group-hover/btn:translate-x-0.5 transition-transform" />
                         </button>
                       </TableCell>
                     </TableRow>

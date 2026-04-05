@@ -61,3 +61,11 @@ export const getUserActivity = async () => {
     throw error;
   }
 };
+export const getUserDetailForAdmin = async (userId: number) => {
+  try {
+    const response = await axiosClient.get(`/user/admin/get-user-detail/${userId}`);
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};

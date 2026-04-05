@@ -458,4 +458,74 @@ export class UserService {
       isFollowing: !!isFollowing,
     };
   }
+  async getUserDetailForAdmin(userId: number) {
+    if (!userId) {
+      throw new BadRequestException("Cần cung cấp ID người dùng");
+    }
+
+    const [user, enrollments] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          fullname: true,
+          email: true,
+          avatar: true,
+          gender: true,
+          dob: true,
+          address: true,
+          phone: true,
+          role: true,
+          isVerified: true,
+          walletBalance: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+
+      this.prisma.enrollment.findMany({
+        where: { userId },
+        include: {
+          course: {
+            select: {
+              id: true,
+              title: true,
+              thumbnail: true,
+              price: true,
+              type: true,
+              instructor: {
+                select: { id: true, fullname: true, avatar: true },
+              },
+            },
+          },
+        },
+        orderBy: { enrolledAt: "desc" },
+      }),
+    ]);
+
+    if (!user) {
+      throw new NotFoundException("Không tìm thấy người dùng");
+    }
+
+    // Tính toán thêm một số stats nhanh
+    const totalSpent = enrollments.reduce((acc, curr) => {
+      // Giả sử amount trong transaction hoặc lấy từ course price (tạm thời)
+      // Trong thực tế nên join với Transaction để chính xác hơn
+      return acc + (curr.course.type === "PAID" ? curr.course.price : 0);
+    }, 0);
+
+    const completedCount = enrollments.filter(
+      (e) => e.progress === 100 || e.completedAt !== null,
+    ).length;
+
+    return {
+      ...user,
+      enrollments,
+      stats: {
+        totalCourses: enrollments.length,
+        completedCourses: completedCount,
+        totalSpent,
+      },
+    };
+  }
 }

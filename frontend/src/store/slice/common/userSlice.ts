@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getUser, getAllUsers, getUserWall } from "@/store/api/common/user.api";
+import { getUser, getAllUsers, getUserWall, getUserDetailForAdmin } from "@/store/api/common/user.api";
 import { LogoutApi } from "@/store/api/common/auth.api";
 import { setLoggingOut } from "@/lib/axiosClient";
 import axios from "axios";
@@ -19,6 +19,7 @@ interface UserState {
       pageSize: number;
     };
   } | null;
+  studentDetail: any | null;
 }
 
 const initialState: UserState = {
@@ -27,6 +28,7 @@ const initialState: UserState = {
   error: null,
   userWatching: null,
   users: null,
+  studentDetail: null,
 };
 
 // 🪄 Async action: Fetch user
@@ -63,6 +65,15 @@ export const fetchUserWall = createAsyncThunk(
   "user/fetchUserWall",
   async (userId: number) => {
     const response = await getUserWall(userId);
+    return response;
+  }
+);
+
+// 👨‍🎓 Async action: Fetch student detail for admin
+export const fetchStudentDetailForAdmin = createAsyncThunk(
+  "user/fetchStudentDetailForAdmin",
+  async (userId: number) => {
+    const response = await getUserDetailForAdmin(userId);
     return response;
   }
 );
@@ -121,6 +132,18 @@ const userSlice = createSlice({
       .addCase(fetchUserWall.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Error fetching user wall";
+      })
+      .addCase(fetchStudentDetailForAdmin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStudentDetailForAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.studentDetail = action.payload;
+      })
+      .addCase(fetchStudentDetailForAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message ?? "Error fetching student detail";
       });
   },
 });
