@@ -38,10 +38,8 @@ export default function CommunityFeed() {
   const router = useRouter();
   const { posts, loading } = useSelector((state: RootState) => state.post);
   const { user } = useSelector((state: RootState) => state.user);
-  const [expandedComments, setExpandedComments] = useState<Set<number>>(
-    new Set()
-  );
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
   const [sharePostId, setSharePostId] = useState<number | null>(null);
   const [shareCaption, setShareCaption] = useState("");
 
@@ -66,17 +64,7 @@ export default function CommunityFeed() {
     dispatch(toggleLikePost(id));
   };
 
-  const toggleComments = (postId: number) => {
-    setExpandedComments((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
-      return newSet;
-    });
-  };
+
 
   const handleShare = (postId: number) => {
     if (!user) {
@@ -192,12 +180,18 @@ export default function CommunityFeed() {
           </div>
 
           {/* Content */}
-          <div className="px-5 pt-4 pb-2">
+          <div
+            className="px-5 pt-4 pb-2 cursor-pointer group/content"
+            onClick={() => router.push(`/community/post/${post.id}`)}
+          >
             <div
-              className="prose prose-invert prose-sm max-w-none text-slate-300 leading-relaxed"
+              className={`prose prose-invert prose-sm max-w-none text-slate-300 leading-relaxed group-hover/content:text-slate-100 transition-colors ${
+                post.type === "SHARE" ? "mb-1" : ""
+              }`}
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
           </div>
+
 
           {/* Shared Post */}
           {post.type === "SHARE" && post.originalPost && (
@@ -331,16 +325,13 @@ export default function CommunityFeed() {
             </button>
 
             <button
-              onClick={() => toggleComments(post.id)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                expandedComments.has(post.id)
-                  ? "text-indigo-400 bg-indigo-500/10"
-                  : "text-slate-500 hover:text-slate-300 hover:bg-slate-800"
-              }`}
+              onClick={() => router.push(`/community/post/${post.id}`)}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-all duration-200"
             >
               <MessageCircle size={16} />
               <span>{post._count?.comments || 0}</span>
             </button>
+
 
             <button
               onClick={() => handleShare(post.id)}
@@ -351,12 +342,7 @@ export default function CommunityFeed() {
             </button>
           </div>
 
-          {/* Comment Section */}
-          {expandedComments.has(post.id) && (
-            <div className="px-5 pb-5">
-              <CommentSection postId={post.id} isExpanded={true} />
-            </div>
-          )}
+
         </motion.article>
       ))}
 

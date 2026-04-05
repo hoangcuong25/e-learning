@@ -4,18 +4,16 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
-  Users,
   Compass,
   UserCircle,
-  UserPlus,
-  UserCheck,
   Plus,
   Search,
   X,
-  MessageSquare,
 } from "lucide-react";
+
 import { AnimatePresence, motion } from "framer-motion";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -29,8 +27,12 @@ export default function CommunitySidebar() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
-  const currentView = searchParams.get("view") || "explore";
+  const viewParam = searchParams.get("view");
+  const currentView = viewParam || "explore";
+  const isProfilePage = user && pathname === `/community/user/${user.id}`;
+  const isExplorePage = pathname === "/community" && (!viewParam || viewParam === "explore");
   const queryFromUrl = searchParams.get("search") || "";
 
   const [openCreatePost, setOpenCreatePost] = useState(false);
@@ -38,7 +40,6 @@ export default function CommunitySidebar() {
   const [keyword, setKeyword] = useState("");
 
   const [isPostsOpen, setIsPostsOpen] = useState(true);
-  const [isFollowingOpen, setIsFollowingOpen] = useState(true);
 
   const [debouncedKeyword] = useDebounce(keyword, 500);
 
@@ -87,25 +88,36 @@ export default function CommunitySidebar() {
     label: string;
     icon: any;
     onClick: () => void;
-  }) => (
-    <button
-      onClick={onClick}
-      className={`
+  }) => {
+    const isActive =
+      (value === "explore" && isExplorePage) ||
+      (value === "my_posts" && isProfilePage) ||
+      (value !== "explore" &&
+        value !== "my_posts" &&
+        currentView === value &&
+        pathname === "/community");
+
+    return (
+      <button
+        onClick={onClick}
+        className={`
         flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 rounded-xl
         ${
-          currentView === value
+          isActive
             ? "bg-indigo-600/20 text-indigo-400 border border-indigo-500/30"
             : "text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-transparent"
         }
       `}
-    >
-      <Icon
-        size={16}
-        className={currentView === value ? "text-indigo-400" : "text-slate-500"}
-      />
-      {label}
-    </button>
-  );
+      >
+        <Icon
+          size={16}
+          className={isActive ? "text-indigo-400" : "text-slate-500"}
+        />
+
+        {label}
+      </button>
+    );
+  };
 
   const SectionHeader = ({
     label,
@@ -161,41 +173,7 @@ export default function CommunitySidebar() {
                   value="my_posts"
                   label="Bài viết của tôi"
                   icon={UserCircle}
-                  onClick={() => changeView("my_posts")}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Following Section */}
-        <div className="space-y-1">
-          <SectionHeader
-            label="Theo dõi"
-            icon={Users}
-            isOpen={isFollowingOpen}
-            onToggle={() => setIsFollowingOpen(!isFollowingOpen)}
-          />
-          <AnimatePresence initial={false}>
-            {isFollowingOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden space-y-1"
-              >
-                <NavItem
-                  value="followers"
-                  label="Người theo dõi"
-                  icon={UserPlus}
-                  onClick={() => changeView("followers")}
-                />
-                <NavItem
-                  value="following"
-                  label="Đang theo dõi"
-                  icon={UserCheck}
-                  onClick={() => changeView("following")}
+                  onClick={() => user && router.push(`/community/user/${user.id}`)}
                 />
               </motion.div>
             )}
@@ -245,7 +223,7 @@ export default function CommunitySidebar() {
                     onClick={() => {
                       setKeyword("");
                       const params = new URLSearchParams(
-                        searchParams.toString()
+                        searchParams.toString(),
                       );
                       params.delete("search");
                       router.push(`/community?${params.toString()}`);
