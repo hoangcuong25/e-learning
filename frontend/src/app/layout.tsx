@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import SocketInitializer from "@/components/SocketInitializer";
 import FloatingChatWidget from "@/components/community/chat/FloatingChatWidget";
+import MissionTracker from "@/components/mission/MissionTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         <Provider store={store}>
           <SocketInitializer />
+          <MissionTracker />
           <GoogleOAuthProvider
             clientId={process.env.NEXT_PUBLIC_AUTH_CLIENT_ID ?? ""}
           >

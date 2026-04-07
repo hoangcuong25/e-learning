@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { LogOut, ShoppingCart, User, BookOpen, Wallet, Target } from "lucide-react";
@@ -9,34 +9,13 @@ import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { logoutUser } from "@/store/slice/common/userSlice";
-import { updateMissionProgress, fetchDailyMissions } from "@/store/slice/mission/missionSlice";
 
 const UserSidebar = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user, loading } = useSelector((state: RootState) => state.user);
+  const { user } = useSelector((state: RootState) => state.user);
   const router = useRouter();
   const pathname = usePathname();
   
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    dispatch(fetchDailyMissions());
-    timerRef.current = setInterval(() => {
-      dispatch(updateMissionProgress(1))
-        .unwrap()
-        .then((res) => {
-           if (res.totalReward && res.totalReward > 0) {
-             toast.success(`🎉 Chúc mừng! Bạn vừa hoàn thành nhiệm vụ và nhận được ${new Intl.NumberFormat('vi-VN').format(res.totalReward)} Learncoin!`);
-           }
-        })
-        .catch((error) => console.error("Lỗi cập nhật nhiệm vụ:", error));
-    }, 60000);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [dispatch, user]);
 
   const handleLogout = async () => {
     dispatch(logoutUser());

@@ -14,7 +14,7 @@ import RichTextEditor from "@/components/RichTextEditor";
 import { uploadMedia } from "@/store/api/common/cloudinary.api";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/store";
-import { createPost } from "@/store/slice/community/postSlice";
+import { createPost, fetchAllPosts } from "@/store/slice/community/postSlice";
 import { toast } from "sonner";
 
 interface CreatePostDialogProps {
@@ -91,6 +91,7 @@ export default function CreatePostDialog({
     setIsSubmitting(true);
     try {
       await dispatch(createPost({ content, media })).unwrap();
+      await dispatch(fetchAllPosts({})).unwrap();
       toast.success("Bài viết đã được tạo thành công!");
       setContent("");
       setMedia([]);

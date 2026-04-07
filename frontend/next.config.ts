@@ -23,6 +23,11 @@ const nextConfig = {
         hostname: "qr.sepay.vn",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "api.dicebear.com",
+        pathname: "/**",
+      },
     ],
     domains: ["res.cloudinary.com"],
   },
