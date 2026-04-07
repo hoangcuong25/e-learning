@@ -911,7 +911,7 @@
   }
 
   // ┌─────────────────────────────────────────────────────────────────────────┐
-  // │ 13. MISSION & REWARD MODULE                                             │
+  // │ 13. REWARD MODULE                                                       │
   // └─────────────────────────────────────────────────────────────────────────┘
 
   model Mission {
@@ -954,4 +954,101 @@
 
     @@unique([userId, missionId, date])
     @@index([userId, date])
+  }
+
+  enum AlgorithmDifficulty {
+    EASY
+    MEDIUM
+    HARD
+  }
+
+  enum AlgorithmStatus {
+    PENDING
+    ACCEPTED
+    WRONG_ANSWER
+    TIME_LIMIT_EXCEEDED
+    MEMORY_LIMIT_EXCEEDED
+    RUNTIME_ERROR
+    COMPILATION_ERROR
+  }
+
+  enum AlgorithmLanguage {
+    JAVASCRIPT
+    TYPESCRIPT
+    PYTHON
+    JAVA
+    CPP
+    C
+  }
+
+  model AlgorithmCategory {
+    id          Int      @id @default(autoincrement())
+    name        String   @unique @db.VarChar(100)
+    slug        String   @unique @db.VarChar(100)
+    description String?  @db.Text
+
+    problems    AlgorithmProblem[]
+
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+  }
+
+  model AlgorithmProblem {
+    id            Int                @id @default(autoincrement())
+    title         String             @db.VarChar(255)
+    slug          String             @unique @db.VarChar(255)
+    description   String             @db.Text
+    difficulty    AlgorithmDifficulty @default(EASY)
+    
+    timeLimit     Int                @default(1000) // ms
+    memoryLimit   Int                @default(256)  // MB
+
+    categoryId    Int
+    category      AlgorithmCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+    testCases     AlgorithmTestCase[]
+    submissions   AlgorithmSubmission[]
+
+    createdAt     DateTime           @default(now())
+    updatedAt     DateTime           @updatedAt
+
+    @@index([categoryId])
+  }
+
+  model AlgorithmTestCase {
+    id             Int              @id @default(autoincrement())
+    problemId      Int
+    problem        AlgorithmProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+    input          String           @db.Text
+    expectedOutput String           @db.Text
+    isSample       Boolean          @default(false)
+
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
+
+    @@index([problemId])
+  }
+
+  model AlgorithmSubmission {
+    id            Int               @id @default(autoincrement())
+    problemId     Int
+    problem       AlgorithmProblem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+    userId        Int
+    user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    code          String            @db.Text
+    language      AlgorithmLanguage
+    status        AlgorithmStatus   @default(PENDING)
+
+    executionTime Int?              // ms
+    memoryUsed    Int?              // KB
+    errorMessage  String?           @db.Text
+
+    createdAt     DateTime          @default(now())
+    updatedAt     DateTime          @updatedAt
+
+    @@index([problemId])
+    @@index([userId])
   }
