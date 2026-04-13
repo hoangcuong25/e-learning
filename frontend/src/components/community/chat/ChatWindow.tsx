@@ -408,7 +408,7 @@ export default function ChatWindow({ onBack }: ChatWindowProps) {
       <div className="p-6 bg-white border-t border-slate-50 z-20">
         <form
           onSubmit={handleSend}
-          className="max-w-4xl mx-auto flex items-end gap-3 bg-slate-50 rounded-[2.5rem] p-3 pl-5 border border-slate-100 focus-within:bg-white focus-within:shadow-xl focus-within:border-indigo-100 transition-all duration-300"
+          className="max-w-5xl mx-auto flex items-end gap-3 bg-slate-50 rounded-[2.5rem] p-3 pl-5 border border-slate-100 focus-within:bg-white focus-within:shadow-xl focus-within:border-indigo-100 transition-all duration-300"
         >
           <div className="flex items-center self-center h-12 gap-1 border-r border-slate-200 pr-2 mr-2">
             <button
@@ -483,7 +483,7 @@ export default function ChatWindow({ onBack }: ChatWindowProps) {
               }
               rows={1}
               disabled={isUploading}
-              className="w-full bg-transparent border-none focus:ring-0 text-slate-900 font-medium placeholder:text-slate-300 py-3 scrollbar-hide resize-none min-h-[48px] max-h-40"
+              className="px-2 w-full bg-transparent border-none focus:ring-0 text-slate-900 font-medium placeholder:text-slate-300 py-3 scrollbar-hide resize-none min-h-[48px] max-h-40"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();

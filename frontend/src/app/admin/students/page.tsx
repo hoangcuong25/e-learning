@@ -89,12 +89,6 @@ const StudentPage = () => {
             Tổng số {paginationData?.total || 0} học viên đang tham gia nền tảng.
           </p>
         </motion.div>
-
-        <div className="flex items-center gap-3">
-          <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20">
-            Thêm mới
-          </button>
-        </div>
       </div>
 
       {/* Main Table Card */}
@@ -117,18 +111,7 @@ const StudentPage = () => {
               className="w-full pl-12 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 transition-all font-medium text-sm"
             />
           </div>
-
-          <div className="flex items-center gap-3">
-             <button className="p-3 bg-slate-950 border border-slate-800 rounded-2xl text-slate-500 hover:text-white hover:bg-slate-900 transition-all">
-                <Filter size={18} />
-             </button>
-             <div className="w-px h-8 bg-slate-800 mx-1" />
-             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-               Sắp xếp: <span className="text-indigo-400">Mới nhất</span>
-             </p>
-          </div>
         </div>
-
         <div className="overflow-x-auto relative z-10 p-2">
           {loading && (!studentList || studentList.length === 0) ? (
             <div className="flex flex-col items-center justify-center py-24 space-y-4">
@@ -189,12 +172,12 @@ const StudentPage = () => {
                           {student.isVerified ? (
                             <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
                               <Badge className="bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
-                                Verified
+                                Đã xác thực
                               </Badge>
                             </motion.div>
                           ) : (
                             <Badge className="bg-slate-800 text-slate-500 border border-slate-700 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
-                              Pending
+                              Chờ xác thực
                             </Badge>
                           )}
                         </AnimatePresence>

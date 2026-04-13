@@ -16,7 +16,7 @@ interface MiniChatBoxProps {
 export default function MiniChatBox({ onClose }: MiniChatBoxProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { currentConversation, conversations } = useSelector(
-    (state: RootState) => state.chat
+    (state: RootState) => state.chat,
   );
   const [view, setView] = useState<"list" | "chat">("list");
 
@@ -36,12 +36,12 @@ export default function MiniChatBox({ onClose }: MiniChatBoxProps) {
   const totalUnreadCount = useMemo(() => {
     return conversations.reduce(
       (acc, conv) => acc + (conv.unreadCount || 0),
-      0
+      0,
     );
   }, [conversations]);
 
   return (
-    <div className="w-[350px] h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+    <div className="w-[450px] h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
       {/* Custom Header for List View */}
       {view === "list" && (
         <div className="p-3 border-b border-gray-100 flex items-center justify-between bg-white z-10">

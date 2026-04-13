@@ -54,8 +54,7 @@ const NavbarUser = () => {
   const menuItems = [
     { label: "Trang chủ", path: "/" },
     { label: "Khóa học", path: "/courses" },
-    { label: "Cộng đồng", path: "/community" },
-    { label: "Smart Hub", path: "/smart-hub" },
+    { label: "Cộng đồng", path: "/community" },,
   ];
 
   if (loading) return <LoadingScreen />;

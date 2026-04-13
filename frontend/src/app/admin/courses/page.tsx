@@ -130,12 +130,6 @@ const CoursesPage = () => {
             Tổng số {pagination?.total || 0} khóa học đang được vận hành trên hệ thống.
           </p>
         </motion.div>
-
-        <div className="flex items-center gap-3">
-          <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20">
-            Tạo khóa học
-          </button>
-        </div>
       </div>
 
       {/* Main Content Card */}
@@ -285,7 +279,7 @@ const CoursesPage = () => {
                                   : "bg-slate-800 text-slate-500 border-slate-700"
                               }`}
                             >
-                              {course.isPublished ? "Published" : "Draft"}
+                              {course.isPublished ? "Đã xuất bản" : "Bản nháp"}
                             </Badge>
                           </TableCell>
                           <TableCell className="py-5 text-right px-6">
