@@ -26,17 +26,25 @@ interface LessonTabsProps {
 const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
   const router = useRouter();
 
-  const [selectedLessonDetail, setSelectedLessonDetail] = useState<any | null>(null);
+  const [selectedLessonDetail, setSelectedLessonDetail] = useState<any | null>(
+    null,
+  );
   const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
-  const [selectedLessonForQuestions, setSelectedLessonForQuestions] = useState<any | null>(null);
+  const [selectedLessonForQuestions, setSelectedLessonForQuestions] = useState<
+    any | null
+  >(null);
 
   return (
     <div className="space-y-8">
       {/* ─── CHAPTERS CONTAINER ────────────────────────── */}
       <div className="flex items-center justify-between px-2">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Cấu trúc chương trình</h2>
-          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Quản lý và sắp xếp lộ trình học tập</p>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+            Cấu trúc chương trình
+          </h2>
+          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">
+            Quản lý và sắp xếp lộ trình học tập
+          </p>
         </div>
         <CreateChapter courseId={currentCourse.id} />
       </div>
@@ -56,8 +64,12 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <Badge className="bg-indigo-100 text-indigo-700 border-none rounded-lg px-2 py-0.5 text-[10px] font-black uppercase tracking-tight">Chapter</Badge>
-                      <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">ID: {chapter.id}</span>
+                      <Badge className="bg-indigo-100 text-indigo-700 border-none rounded-lg px-2 py-0.5 text-[10px] font-black uppercase tracking-tight">
+                        Chương mục
+                      </Badge>
+                      <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                        ID: {chapter.id}
+                      </span>
                     </div>
                     <h3 className="text-xl font-black text-slate-900 leading-tight">
                       {chapter.title}
@@ -71,10 +83,10 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                 </div>
 
                 <div className="flex items-center gap-3 w-full md:w-auto">
-                   <CreateLesson
-                      courseId={currentCourse.id}
-                      chapterId={chapter.id}
-                    />
+                  <CreateLesson
+                    courseId={currentCourse.id}
+                    chapterId={chapter.id}
+                  />
                 </div>
               </div>
 
@@ -96,13 +108,16 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                               {lesson.title}
                             </h4>
                             <div className="flex items-center gap-4 mt-1">
-                               <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
-                                 <Video size={12} className="text-indigo-400" /> {formatDuration(lesson.duration || 0)}
-                               </span>
-                               <span className="w-1 h-1 bg-slate-200 rounded-full" />
-                               <span className="text-[10px] font-bold text-slate-400">
-                                 {new Date(lesson.updatedAt).toLocaleDateString("vi-VN")}
-                               </span>
+                              <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                                <Video size={12} className="text-indigo-400" />{" "}
+                                {formatDuration(lesson.duration || 0)}
+                              </span>
+                              <span className="w-1 h-1 bg-slate-200 rounded-full" />
+                              <span className="text-[10px] font-bold text-slate-400">
+                                {new Date(lesson.updatedAt).toLocaleDateString(
+                                  "vi-VN",
+                                )}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -121,7 +136,9 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                             size="sm"
                             variant="ghost"
                             className="h-10 rounded-xl text-indigo-600 font-black uppercase tracking-widest text-[10px] px-4 hover:bg-slate-900 hover:text-white transition-all"
-                            onClick={() => setSelectedLessonForQuestions(lesson)}
+                            onClick={() =>
+                              setSelectedLessonForQuestions(lesson)
+                            }
                           >
                             <MessageCircle size={14} className="mr-2" />
                             Phản hồi
@@ -153,13 +170,17 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                                 <span className="text-xs font-black text-indigo-900 truncate">
                                   {quiz.title}
                                 </span>
-                                <Badge className="bg-indigo-600 text-white border-none rounded-lg px-2 py-0.5 text-[8px] font-black uppercase tracking-widest">Quiz Active</Badge>
+                                <Badge className="bg-indigo-600 text-white border-none rounded-lg px-2 py-0.5 text-[8px] font-black uppercase tracking-widest">
+                                  Quiz Active
+                                </Badge>
                               </div>
                               <Button
                                 size="sm"
                                 variant="outline"
                                 className="h-9 rounded-xl border-indigo-200 text-indigo-600 font-black text-[10px] hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
-                                onClick={() => router.push(`/instructor/quizzes/${quiz.id}`)}
+                                onClick={() =>
+                                  router.push(`/instructor/quizzes/${quiz.id}`)
+                                }
                               >
                                 Edit Quiz
                               </Button>
@@ -172,7 +193,9 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                 ) : (
                   <div className="py-12 flex flex-col items-center justify-center bg-slate-50/50 rounded-[2rem] border-2 border-dashed border-slate-100">
                     <BookOpen className="w-10 h-10 text-slate-200 mb-4" />
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Chương này chưa có bài học</p>
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">
+                      Chương này chưa có bài học
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -181,9 +204,13 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
         </div>
       ) : (
         <div className="py-24 flex flex-col items-center justify-center bg-white rounded-[3rem] shadow-sm border-2 border-dashed border-slate-100 font-bold">
-           <BookOpen className="w-12 h-12 text-slate-200 mb-6" />
-           <h3 className="text-xl font-black text-slate-900">Giáo trình đang trống</h3>
-           <p className="text-slate-400 mt-1 font-medium italic">Hãy bắt đầu xây dựng chương đầu tiên cho khóa học.</p>
+          <BookOpen className="w-12 h-12 text-slate-200 mb-6" />
+          <h3 className="text-xl font-black text-slate-900">
+            Giáo trình đang trống
+          </h3>
+          <p className="text-slate-400 mt-1 font-medium italic">
+            Hãy bắt đầu xây dựng chương đầu tiên cho khóa học.
+          </p>
         </div>
       )}
 
@@ -208,7 +235,7 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
               <p>
                 <strong>Cập nhật:</strong>{" "}
                 {new Date(selectedLessonDetail?.updatedAt).toLocaleString(
-                  "vi-VN"
+                  "vi-VN",
                 )}
               </p>
             </div>

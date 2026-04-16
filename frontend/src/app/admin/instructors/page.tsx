@@ -210,7 +210,7 @@ export default function AdminDashboardInstructorsPage() {
                                   ? "bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
                                   : "bg-slate-800 text-slate-500 border border-slate-700 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
                               }>
-                              {ins.isVerified ? "Verified" : "Pending"}
+                              {ins.isVerified ? "Đã xác thực" : "Chưa xác thực"}
                             </Badge>
                           </td>
                         </motion.tr>

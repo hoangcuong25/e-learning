@@ -294,7 +294,7 @@ const Quizzes = () => {
                           router.push(`/instructor/quizzes/${quiz.id}`)
                         }
                       >
-                        Manage Questions <Eye size={16} />
+                        Quản lý câu hỏi <Eye size={16} />
                       </Button>
                     </div>
 
@@ -311,7 +311,7 @@ const Quizzes = () => {
                         ) : (
                           <Sparkles size={16} />
                         )}
-                        AI Gen
+                        AI tạo
                       </Button>
 
                       {/* Edit Dialog */}

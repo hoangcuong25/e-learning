@@ -263,7 +263,7 @@ const AdminCourseDetailPage = () => {
                   <Layout size={18} />
                 </div>
                 <h3 className="text-xl font-black text-white uppercase tracking-tighter">
-                  Nội dung <span className="text-indigo-500">Curriculum</span>
+                  Nội dung <span className="text-indigo-500">Bài học</span>
                 </h3>
               </div>
               <Badge className="bg-slate-900 border-slate-800 text-slate-500 text-[10px] font-black uppercase tracking-widest px-3 py-1">
@@ -486,14 +486,6 @@ const AdminCourseDetailPage = () => {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() =>
-                router.push(`/admin/instructors/${course?.instructor?.id}`)
-              }
-              className="w-full mt-6 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-[10px] font-black text-slate-400 hover:text-white hover:bg-slate-800 hover:border-slate-700 uppercase tracking-widest transition-all"
-            >
-              Xem hồ sơ giảng viên
-            </button>
           </motion.div>
 
           {/* Metadata Sidebar Card */}
@@ -534,10 +526,10 @@ const AdminCourseDetailPage = () => {
           <div className="p-8 bg-indigo-600/5 border border-indigo-500/10 rounded-[2.5rem] flex items-center justify-between group cursor-help transition-all hover:bg-indigo-600/10">
             <div className="space-y-1">
               <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                Verified Course
+                Khóa học đã được xác thực
               </p>
               <p className="text-[8px] font-medium text-indigo-300/60 uppercase">
-                System Integrity Check Passed
+                Đã kiểm tra tính toàn vẹn hệ thống
               </p>
             </div>
             <Crown

@@ -164,7 +164,8 @@ const InstructorCoursesPage = () => {
                         Rating
                       </span>
                       <span className="text-sm font-black text-amber-500 flex items-center gap-1">
-                        4.8 <Star className="w-3 h-3 fill-amber-500" />
+                        {course?.averageRating}{" "}
+                        <Star className="w-3 h-3 fill-amber-500" />
                       </span>
                     </div>
                   </div>

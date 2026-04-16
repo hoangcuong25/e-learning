@@ -4,7 +4,10 @@ import React, { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { fetchStudentDetailForAdmin, toggleBlockUserStatus } from "@/store/slice/common/userSlice";
+import {
+  fetchStudentDetailForAdmin,
+  toggleBlockUserStatus,
+} from "@/store/slice/common/userSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -71,16 +74,23 @@ const StudentDetailPage = () => {
 
   const handleToggleBlock = async () => {
     if (!student) return;
-    
+
     try {
-      const result = await dispatch(toggleBlockUserStatus({ 
-        userId: student.id, 
-        isBlocked: !student.isBlocked 
-      })).unwrap();
-      
-      toast.success(result.isBlocked ? "Đã khóa tài khoản thành công" : "Đã mở khóa tài khoản thành công", {
-        description: `Tài khoản ${student.fullname} đã được ${result.isBlocked ? 'khóa' : 'kích hoạt lại'}.`
-      });
+      const result = await dispatch(
+        toggleBlockUserStatus({
+          userId: student.id,
+          isBlocked: !student.isBlocked,
+        }),
+      ).unwrap();
+
+      toast.success(
+        result.isBlocked
+          ? "Đã khóa tài khoản thành công"
+          : "Đã mở khóa tài khoản thành công",
+        {
+          description: `Tài khoản ${student.fullname} đã được ${result.isBlocked ? "khóa" : "kích hoạt lại"}.`,
+        },
+      );
     } catch (error: any) {
       toast.error(error || "Không thể thay đổi trạng thái tài khoản");
     }
@@ -156,16 +166,23 @@ const StudentDetailPage = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <button 
+          <button
             disabled={loading}
             onClick={handleToggleBlock}
             className={`flex-1 md:flex-none px-6 py-3 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-2
-              ${student.isBlocked 
-                ? "bg-emerald-600/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white shadow-emerald-500/10" 
-                : "bg-rose-600/10 border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white shadow-rose-500/10"
+              ${
+                student.isBlocked
+                  ? "bg-emerald-600/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white shadow-emerald-500/10"
+                  : "bg-rose-600/10 border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white shadow-rose-500/10"
               }`}
           >
-            {loading ? <Loader2 size={14} className="animate-spin" /> : student.isBlocked ? <ShieldCheck size={14} /> : <Ban size={14} />}
+            {loading ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : student.isBlocked ? (
+              <ShieldCheck size={14} />
+            ) : (
+              <Ban size={14} />
+            )}
             {student.isBlocked ? "Mở khóa tài khoản" : "Khóa tài khoản"}
           </button>
         </div>
@@ -471,13 +488,6 @@ const StudentDetailPage = () => {
                 <Clock size={12} className="text-indigo-400" />
                 Cập nhật tiến độ lần cuối: {formatDate(student.updatedAt)}
               </div>
-              <button className="flex items-center gap-2 text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest transition-colors group">
-                Xem tất cả hoạt động{" "}
-                <ExternalLink
-                  size={12}
-                  className="group-hover:translate-x-0.5 transition-transform"
-                />
-              </button>
             </div>
           </div>
         </motion.div>

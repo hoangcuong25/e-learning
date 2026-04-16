@@ -29,7 +29,7 @@ const CourseDetailPage = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { currentCourse, loading } = useSelector(
-    (state: RootState) => state.courses
+    (state: RootState) => state.courses,
   );
 
   useEffect(() => {
@@ -52,8 +52,12 @@ const CourseDetailPage = () => {
           </Button>
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <Badge className="bg-indigo-50 text-indigo-600 border-none rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-tight">#{id}</Badge>
-              <div className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Course Hub</div>
+              <Badge className="bg-indigo-50 text-indigo-600 border-none rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-tight">
+                #{id}
+              </Badge>
+              <div className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                Khóa học
+              </div>
             </div>
             <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
               {currentCourse.title}
@@ -81,7 +85,9 @@ const CourseDetailPage = () => {
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-slate-50 italic gap-3">
                   <BookOpen className="w-12 h-12 opacity-20" />
-                  <p className="text-xs font-bold uppercase tracking-widest">No preview</p>
+                  <p className="text-xs font-bold uppercase tracking-widest">
+                    No preview
+                  </p>
                 </div>
               )}
             </div>
@@ -90,8 +96,12 @@ const CourseDetailPage = () => {
             <div className="flex-1 p-8 md:p-12 space-y-10">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                  <h2 className="text-2xl font-black text-slate-900 mb-2 leading-tight">Thông tin tổng quan</h2>
-                  <p className="text-slate-400 font-medium text-sm">Cập nhật và quản lý thuộc tính khóa học hiện tại</p>
+                  <h2 className="text-2xl font-black text-slate-900 mb-2 leading-tight">
+                    Thông tin tổng quan
+                  </h2>
+                  <p className="text-slate-400 font-medium text-sm">
+                    Cập nhật và quản lý thuộc tính khóa học hiện tại
+                  </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {Array.isArray(currentCourse?.specializations) &&
@@ -114,8 +124,12 @@ const CourseDetailPage = () => {
                       <DollarSign className="w-5 h-5" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pricing</span>
-                      <span className="text-lg font-black text-slate-900">{currentCourse.price.toLocaleString()} LC</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Pricing
+                      </span>
+                      <span className="text-lg font-black text-slate-900">
+                        {currentCourse.price.toLocaleString()} LC
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -126,8 +140,12 @@ const CourseDetailPage = () => {
                       <Users className="w-5 h-5" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Enrollments</span>
-                      <span className="text-lg font-black text-slate-900">{currentCourse.totalRating.toLocaleString()} students</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Học viên
+                      </span>
+                      <span className="text-lg font-black text-slate-900">
+                        {currentCourse.totalRating.toLocaleString()} Học viên
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -138,9 +156,13 @@ const CourseDetailPage = () => {
                       <Star className="w-5 h-5" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rating</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Đánh giá
+                      </span>
                       <span className="text-lg font-black text-slate-900">
-                        {currentCourse.averageRating > 0 ? currentCourse.averageRating.toFixed(1) : "N/A"}
+                        {currentCourse.averageRating > 0
+                          ? currentCourse.averageRating.toFixed(1)
+                          : "N/A"}
                       </span>
                     </div>
                   </div>
@@ -149,12 +171,18 @@ const CourseDetailPage = () => {
                 <div className="space-y-4 group">
                   <div className="flex items-center gap-3">
                     <div className="p-3 bg-slate-900 text-white rounded-2xl group-hover:scale-110 transition-transform">
-                      <CheckCircle className={`w-5 h-5 ${currentCourse.isPublished ? "text-emerald-400" : "text-amber-400"}`} />
+                      <CheckCircle
+                        className={`w-5 h-5 ${currentCourse.isPublished ? "text-emerald-400" : "text-amber-400"}`}
+                      />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</span>
-                      <span className={`text-lg font-black ${currentCourse.isPublished ? "text-emerald-600" : "text-slate-500"}`}>
-                        {currentCourse.isPublished ? "Public" : "Draft"}
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Trạng thái
+                      </span>
+                      <span
+                        className={`text-lg font-black ${currentCourse.isPublished ? "text-emerald-600" : "text-slate-500"}`}
+                      >
+                        {currentCourse.isPublished ? "Công khai" : "Bản nháp"}
                       </span>
                     </div>
                   </div>
@@ -164,10 +192,16 @@ const CourseDetailPage = () => {
               {/* Description & Additional Meta */}
               <div className="pt-8 border-t border-slate-50 grid grid-cols-1 md:grid-cols-2 gap-12">
                 <div className="space-y-4">
-                  <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">Course Description</h4>
+                  <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">
+                    Mô tả khóa học
+                  </h4>
                   <div className="text-slate-600 text-sm leading-relaxed line-clamp-4 font-medium italic">
                     {currentCourse.description ? (
-                      <div dangerouslySetInnerHTML={{ __html: currentCourse.description }} />
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: currentCourse.description,
+                        }}
+                      />
                     ) : (
                       "No detailed description provided for this course yet."
                     )}
@@ -176,20 +210,43 @@ const CourseDetailPage = () => {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2"><Clock size={12} /> Creation Date</span>
-                    <p className="text-xs font-bold text-slate-900">{new Date(currentCourse.createdAt).toLocaleDateString("vi-VN")}</p>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <Clock size={12} />
+                      Ngày tạo
+                    </span>
+                    <p className="text-xs font-bold text-slate-900">
+                      {new Date(currentCourse.createdAt).toLocaleDateString(
+                        "vi-VN",
+                      )}
+                    </p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2"><Calendar size={12} /> Last Update</span>
-                    <p className="text-xs font-bold text-slate-900">{new Date(currentCourse.updatedAt).toLocaleDateString("vi-VN")}</p>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <Calendar size={12} /> Cập nhật lần cuối
+                    </span>
+                    <p className="text-xs font-bold text-slate-900">
+                      {new Date(currentCourse.updatedAt).toLocaleDateString(
+                        "vi-VN",
+                      )}
+                    </p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2"><Eye size={12} /> Total Views</span>
-                    <p className="text-xs font-bold text-slate-900">{currentCourse.viewCount.toLocaleString()}</p>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <Eye size={12} /> Tổng lượt xem
+                    </span>
+                    <p className="text-xs font-bold text-slate-900">
+                      {currentCourse.viewCount.toLocaleString()}
+                    </p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2"><Clock size={12} /> Duration</span>
-                    <p className="text-xs font-bold text-slate-900">{currentCourse.duration > 0 ? formatDuration(currentCourse.duration) : "0s"}</p>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <Clock size={12} /> Thời lượng
+                    </span>
+                    <p className="text-xs font-bold text-slate-900">
+                      {currentCourse.duration > 0
+                        ? formatDuration(currentCourse.duration)
+                        : "0s"}
+                    </p>
                   </div>
                 </div>
               </div>

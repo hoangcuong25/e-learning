@@ -137,7 +137,7 @@ const CourseDetail = ({ initialCourse, courseId }: Props) => {
                         Giảng viên
                       </p>
                       <p className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
-                        {publicProfile?.user?.fullname || "EduSmart Instructor"}
+                        {publicProfile?.user?.fullname || "Giảng viên EduSmart"}
                       </p>
                     </div>
                   </div>

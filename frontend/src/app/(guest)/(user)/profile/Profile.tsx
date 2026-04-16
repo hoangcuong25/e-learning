@@ -98,11 +98,11 @@ export default function ProfilePage() {
                 </div>
                 {user?.isVerified ? (
                   <div className="flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-black text-emerald-600 uppercase tracking-widest">
-                    Account Verified
+                    Tài khoản đã được xác thực
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 px-4 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-[10px] font-black text-amber-600 uppercase tracking-widest">
-                    Verification Pending
+                    Chờ xác thực tài khoản
                   </div>
                 )}
               </div>

@@ -160,7 +160,7 @@ const QuizForm = () => {
                 name="chapterId"
                 render={({ field }) => (
                   <FormItem className="space-y-3">
-                    <FormLabel className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Chương mục (Chapter)</FormLabel>
+                    <FormLabel className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Chương mục</FormLabel>
                     <Select
                       disabled={!watchCourseId}
                       onValueChange={(val) => field.onChange(Number(val))}
