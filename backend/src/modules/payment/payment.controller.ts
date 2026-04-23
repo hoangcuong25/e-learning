@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import { PaymentService } from "./payment.service";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Roles, Public, ResponseMessage } from "src/core/decorator/customize";
+import { Roles, Public, ResponseMessage } from "../../core/decorator/customize";
 import { CreateDepositDto } from "./dto/create-payment.dto";
 import { TransactionType } from "@prisma/client";
 

@@ -1,11 +1,11 @@
 import { Injectable, ForbiddenException } from "@nestjs/common";
 import { CreateReportDto } from "./dto/create-report.dto";
 import { UpdateReportDto } from "./dto/update-report.dto";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../core/prisma/prisma.service";
 import {
   buildPaginationParams,
   buildPaginationResponse,
-} from "src/core/helpers/pagination.util";
+} from "../../core/helpers/pagination.util";
 
 @Injectable()
 export class ReportService {

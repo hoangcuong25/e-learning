@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { termPrompt } from "./prompts/term.prompt";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../core/prisma/prisma.service";
 import { ExplainTermDto } from "./dto/explain-term.dto";
 import { ChatLessonDto } from "./dto/chat-lesson.dto";
-import { VectorStoreService } from "src/core/lib/ai/vector-store.service";
+import { VectorStoreService } from "../../core/lib/ai/vector-store.service";
 import OpenAI from "openai";
 
 @Injectable()

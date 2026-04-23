@@ -17,7 +17,7 @@ import axios from "axios";
 import {
   comparePasswordHelper,
   hashPasswordHelper,
-} from "src/core/helpers/util";
+} from "../../core/helpers/util";
 
 @Injectable()
 export class AuthService {

@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Req } from '@nestjs/common';
 import { MissionService } from './mission.service';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
-import { ResponseMessage } from 'src/core/decorator/customize';
+import { ResponseMessage } from '../../core/decorator/customize';
 
 @ApiBearerAuth()
 @ApiTags('Mission')

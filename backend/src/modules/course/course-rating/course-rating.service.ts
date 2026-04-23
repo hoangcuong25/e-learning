@@ -3,15 +3,15 @@ import {
   BadRequestException,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../../core/prisma/prisma.service";
 import { CreateRatingDto } from "./dto/create-course-rating.dto";
 import { UpdateRatingDto } from "./dto/update-course-rating.dto";
 import {
   buildOrderBy,
   buildPaginationParams,
   buildPaginationResponse,
-} from "src/core/helpers/pagination.util";
-import { NotificationService } from "src/modules/notification/notification.service";
+} from "../../../core/helpers/pagination.util";
+import { NotificationService } from "../../notification/notification.service";
 import { NotificationType } from "@prisma/client";
 
 @Injectable()

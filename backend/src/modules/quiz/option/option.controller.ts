@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common";
 import { OptionService } from "./option.service";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { ResponseMessage, Roles } from "../../../core/decorator/customize";
 import {
   CreateManyOptionsDto,
   CreateOptionDto,

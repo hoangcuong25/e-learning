@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { CreateCourseDto } from "./dto/create-course.dto";
-import { PrismaService } from "src/core/prisma/prisma.service";
-import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
+import { PrismaService } from "../../core/prisma/prisma.service";
+import { CloudinaryService } from "../../core/cloudinary/cloudinary.service";
 import { ApplicationStatus, CourseType, Prisma } from "@prisma/client";
 import { SpecializationService } from "../specialization/specialization.service";
 import { UpdateCourseDto } from "./dto/update-course.dto";
@@ -15,9 +15,9 @@ import {
   buildPaginationParams,
   buildPaginationResponse,
   buildSearchFilter,
-} from "src/core/helpers/pagination.util";
-import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
-import { RedisService } from "src/core/redis/redis.service";
+} from "../../core/helpers/pagination.util";
+import { PaginationQueryDto } from "../../core/dto/pagination-query.dto";
+import { RedisService } from "../../core/redis/redis.service";
 import { CourseQueryDto } from "./dto/course-query.dto";
 
 @Injectable()

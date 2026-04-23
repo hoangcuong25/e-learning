@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../../core/prisma/prisma.service";
 import { CreateOptionDto, UpdateOptionDto } from "./dto/create-option.dto";
 
 @Injectable()

@@ -10,7 +10,7 @@ import {
   Req,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Public, ResponseMessage } from "src/core/decorator/customize";
+import { Public, ResponseMessage } from "../../../core/decorator/customize";
 import { CommentService } from "./comment.service";
 import { CommentQueryDto } from "./dto/comment-query.dto";
 import { CreateCommentDto } from "./dto/create-comment.dto";

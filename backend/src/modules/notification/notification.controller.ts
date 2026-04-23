@@ -11,7 +11,7 @@ import {
 import { NotificationService } from "./notification.service";
 import { FindNotificationsQueryDto } from "./dto/find-notifications-query.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ResponseMessage } from "src/core/decorator/customize";
+import { ResponseMessage } from "../../core/decorator/customize";
 
 @ApiTags("Notifications")
 @Controller("notifications")

@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import { LessonDiscussionService } from "./lesson-discussion.service";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Public, Roles, ResponseMessage } from "src/core/decorator/customize";
+import { Public, Roles, ResponseMessage } from "../../../core/decorator/customize";
 import {
   CreateAnswerDto,
   CreateQuestionDto,

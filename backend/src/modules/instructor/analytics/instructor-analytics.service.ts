@@ -5,8 +5,8 @@ import {
   buildPaginationParams,
   buildPaginationResponse,
   buildSearchFilter,
-} from "src/core/helpers/pagination.util";
-import { PrismaService } from "src/core/prisma/prisma.service";
+} from "../../../core/helpers/pagination.util";
+import { PrismaService } from "../../../core/prisma/prisma.service";
 
 @Injectable()
 export class InstructorAnalyticsService {

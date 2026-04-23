@@ -3,7 +3,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from "@nestjs/common";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../../core/prisma/prisma.service";
 import { CreateCommentDto } from "./dto/create-comment.dto";
 import { UpdateCommentDto } from "./dto/update-comment.dto";
 import { CommentQueryDto } from "./dto/comment-query.dto";
@@ -11,7 +11,7 @@ import {
   buildPaginationParams,
   buildOrderBy,
   buildPaginationResponse,
-} from "src/core/helpers/pagination.util";
+} from "../../../core/helpers/pagination.util";
 
 @Injectable()
 export class CommentService {

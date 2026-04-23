@@ -12,7 +12,7 @@ import { QuizService } from "./quiz.service";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { ResponseMessage, Roles } from "../../core/decorator/customize";
 
 @ApiTags("Quiz")
 @Controller("quiz")

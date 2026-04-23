@@ -11,8 +11,7 @@ import {
 import { InstructorService } from "./instructor-application.service";
 import { ApplyInstructorDto } from "./dto/apply-instructor.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { UserRole } from "@prisma/client";
-import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { ResponseMessage, Roles } from "../../../core/decorator/customize";
 
 @ApiTags("Instructor")
 @Controller("instructor")

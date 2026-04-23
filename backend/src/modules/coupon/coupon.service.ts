@@ -4,17 +4,17 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../core/prisma/prisma.service";
 import { CreateCouponDto } from "./dto/create-coupon.dto";
 import { UpdateCouponDto } from "./dto/update-coupon.dto";
-import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
+import { PaginationQueryDto } from "../../core/dto/pagination-query.dto";
 import { v4 as uuidv4 } from "uuid";
 import {
   buildOrderBy,
   buildPaginationParams,
   buildPaginationResponse,
   buildSearchFilter,
-} from "src/core/helpers/pagination.util";
+} from "../../core/helpers/pagination.util";
 import { Prisma } from "@prisma/client";
 
 @Injectable()

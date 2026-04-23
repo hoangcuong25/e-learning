@@ -13,8 +13,8 @@ import { CouponService } from "./coupon.service";
 import { CreateCouponDto } from "./dto/create-coupon.dto";
 import { UpdateCouponDto } from "./dto/update-coupon.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Roles, Public, ResponseMessage } from "src/core/decorator/customize";
-import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
+import { Roles, Public, ResponseMessage } from "../../core/decorator/customize";
+import { PaginationQueryDto } from "../../core/dto/pagination-query.dto";
 
 @ApiTags("Coupon")
 @Controller("coupon")

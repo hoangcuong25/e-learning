@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../prisma/prisma.service";
 import OpenAI from "openai";
 import axios from "axios";
 import * as fs from "fs";

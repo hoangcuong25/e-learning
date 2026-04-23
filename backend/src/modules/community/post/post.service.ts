@@ -3,7 +3,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from "@nestjs/common";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../../core/prisma/prisma.service";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { PostQueryDto } from "./dto/post-query.dto";
@@ -13,7 +13,7 @@ import {
   buildOrderBy,
   buildPaginationResponse,
   buildSearchFilter,
-} from "src/core/helpers/pagination.util";
+} from "../../../core/helpers/pagination.util";
 
 @Injectable()
 export class PostService {

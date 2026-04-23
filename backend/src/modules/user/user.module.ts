@@ -1,9 +1,8 @@
 import { Module } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UserController } from "./user.controller";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { CloudinaryModule } from "src/core/cloudinary/cloudinary.module";
-import { PrismaModule } from "src/core/prisma/prisma.module";
+import { CloudinaryModule } from "../../core/cloudinary/cloudinary.module";
+import { PrismaModule } from "../../core/prisma/prisma.module";
 
 @Module({
   imports: [CloudinaryModule, PrismaModule],

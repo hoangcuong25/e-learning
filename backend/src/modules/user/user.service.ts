@@ -6,20 +6,19 @@ import {
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { CreateAuthDto } from "../auth/dto/create-auth.dto";
-import { MailerService } from "@nestjs-modules/mailer";
 import * as dayjs from "dayjs";
-import { PrismaService } from "src/core/prisma/prisma.service";
-import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
+import { PrismaService } from "../../core/prisma/prisma.service";
+import { CloudinaryService } from "../../core/cloudinary/cloudinary.service";
 import {
   comparePasswordHelper,
   hashPasswordHelper,
-} from "src/core/helpers/util";
+} from "../../core/helpers/util";
 import {
   buildPaginationParams,
   buildOrderBy,
   buildSearchFilter,
   buildPaginationResponse,
-} from "src/core/helpers/pagination.util";
+} from "../../core/helpers/pagination.util";
 import { UserPaginationQueryDto } from "./dto/user-pagination.dto";
 
 @Injectable()

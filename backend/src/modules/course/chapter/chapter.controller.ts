@@ -12,7 +12,7 @@ import { ChapterService } from "./chapter.service";
 import { CreateChapterDto } from "./dto/create-chapter.dto";
 import { UpdateChapterDto } from "./dto/update-chapter.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Roles, ResponseMessage, Public } from "src/core/decorator/customize";
+import { Roles, ResponseMessage, Public } from "../../../core/decorator/customize";
 
 @ApiTags("Chapter")
 @Controller("chapter")

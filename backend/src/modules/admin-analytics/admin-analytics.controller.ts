@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { ResponseMessage, Roles } from "../../core/decorator/customize";
 import { AdminAnalyticsService } from "./admin-analytics.service";
 
 @ApiTags("Admin Analytics")

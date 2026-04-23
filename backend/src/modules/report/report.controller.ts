@@ -11,9 +11,8 @@ import {
 } from "@nestjs/common";
 import { ReportService } from "./report.service";
 import { CreateReportDto } from "./dto/create-report.dto";
-import { UpdateReportDto } from "./dto/update-report.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Roles, Public, ResponseMessage } from "src/core/decorator/customize";
+import { Roles, ResponseMessage } from "../../core/decorator/customize";
 
 @ApiTags("Report")
 @Controller("report")

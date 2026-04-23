@@ -12,7 +12,7 @@ import { SpecializationService } from "./specialization.service";
 import { CreateSpecializationDto } from "./dto/create-specialization.dto";
 import { UpdateSpecializationDto } from "./dto/update-specialization.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Public, ResponseMessage, Roles } from "src/core/decorator/customize";
+import { Public, ResponseMessage, Roles } from "../../core/decorator/customize";
 
 @ApiTags("Specializations")
 @Controller("specialization")

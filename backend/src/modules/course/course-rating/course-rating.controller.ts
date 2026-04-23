@@ -13,7 +13,7 @@ import { RatingService } from "./course-rating.service";
 import { CreateRatingDto } from "./dto/create-course-rating.dto";
 import { UpdateRatingDto } from "./dto/update-course-rating.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Public, ResponseMessage, Roles } from "src/core/decorator/customize";
+import { Public, ResponseMessage, Roles } from "../../../core/decorator/customize";
 
 @ApiTags("Rating")
 @Controller("rating")

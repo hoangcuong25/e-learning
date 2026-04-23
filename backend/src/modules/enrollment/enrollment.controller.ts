@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import { EnrollmentService } from "./enrollment.service";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Roles, Public, ResponseMessage } from "src/core/decorator/customize";
+import { Roles, Public, ResponseMessage } from "../../core/decorator/customize";
 
 @ApiTags("Enrollment")
 @Controller("enrollment")

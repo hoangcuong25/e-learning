@@ -4,7 +4,7 @@ import {
   ForbiddenException,
 } from "@nestjs/common";
 import * as crypto from "crypto";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../core/prisma/prisma.service";
 import { CreateDepositDto } from "./dto/create-payment.dto";
 import { TransactionType, NotificationType } from "@prisma/client";
 import { PaymentGateway } from "./payment.gateway";

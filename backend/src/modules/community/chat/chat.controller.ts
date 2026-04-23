@@ -14,7 +14,7 @@ import { ChatService } from "./chat.service";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { ConversationQueryDto, MessageQueryDto } from "./dto/chat-query.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ResponseMessage } from "src/core/decorator/customize";
+import { ResponseMessage } from "../../../core/decorator/customize";
 
 @ApiTags("Community - Chat")
 @ApiBearerAuth()

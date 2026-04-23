@@ -3,12 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../../core/prisma/prisma.service";
 import {
   buildPaginationParams,
   buildPaginationResponse,
-} from "src/core/helpers/pagination.util";
-import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
+} from "../../../core/helpers/pagination.util";
+import { PaginationQueryDto } from "../../../core/dto/pagination-query.dto";
 
 @Injectable()
 export class FollowService {

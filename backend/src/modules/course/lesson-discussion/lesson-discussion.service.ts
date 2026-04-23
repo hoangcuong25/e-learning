@@ -3,13 +3,13 @@ import {
   NotFoundException,
   ForbiddenException,
 } from "@nestjs/common";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../../core/prisma/prisma.service";
 import {
   CreateAnswerDto,
   CreateQuestionDto,
   CreateReplyDto,
 } from "./dto/create-lesson-discussion.dto";
-import { NotificationService } from "src/modules/notification/notification.service";
+import { NotificationService } from "../../notification/notification.service";
 import { NotificationType } from "@prisma/client";
 
 @Injectable()

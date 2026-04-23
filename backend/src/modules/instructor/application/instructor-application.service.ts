@@ -2,8 +2,8 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { ApplyInstructorDto } from "./dto/apply-instructor.dto";
 import { ApplicationStatus, UserRole, NotificationType } from "@prisma/client";
 import { MailerService } from "@nestjs-modules/mailer";
-import { PrismaService } from "src/core/prisma/prisma.service";
-import { NotificationService } from "src/modules/notification/notification.service";
+import { PrismaService } from "../../../core/prisma/prisma.service";
+import { NotificationService } from "../../../modules/notification/notification.service";
 
 @Injectable()
 export class InstructorService {

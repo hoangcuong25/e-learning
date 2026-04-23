@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Req } from "@nestjs/common";
 import { InstructorAnalyticsService } from "./instructor-analytics.service";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { ResponseMessage, Roles } from "../../../core/decorator/customize";
 import { GetDailyStatsDto } from "./dto/get-daily-stats.dto";
 import { GetEarningsDto } from "./dto/get-earnings.dto";
 

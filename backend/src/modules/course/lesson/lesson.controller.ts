@@ -20,7 +20,7 @@ import {
 } from "@nestjs/swagger";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { ResponseMessage, Roles } from "../../../core/decorator/customize";
 
 @ApiTags("Lesson")
 @Controller("lesson")

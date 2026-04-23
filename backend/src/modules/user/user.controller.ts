@@ -21,8 +21,8 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
-import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { CloudinaryService } from "../../core/cloudinary/cloudinary.service";
+import { ResponseMessage, Roles } from "../../core/decorator/customize";
 import { UserPaginationQueryDto } from "./dto/user-pagination.dto";
 import { OptionalJwtAuthGuard } from "../auth/passport/jwt-optional.guard";
 

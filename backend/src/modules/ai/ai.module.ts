@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { AiService } from "./ai.service";
 import { AiController } from "./ai.controller";
-import { RedisModule } from "src/core/redis/redis.module";
-import { RagService } from "src/core/lib/ai/rag.service";
-import { VectorStoreService } from "src/core/lib/ai/vector-store.service";
+import { RedisModule } from "../../core/redis/redis.module";
+import { RagService } from "../../core/lib/ai/rag.service";
+import { VectorStoreService } from "../../core/lib/ai/vector-store.service";
 
 @Module({
   imports: [RedisModule],

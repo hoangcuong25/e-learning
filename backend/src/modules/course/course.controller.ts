@@ -21,9 +21,9 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { Public, ResponseMessage, Roles } from "src/core/decorator/customize";
+import { Public, ResponseMessage, Roles } from "../../core/decorator/customize";
 import { UpdateCourseDto } from "./dto/update-course.dto";
-import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
+import { PaginationQueryDto } from "../../core/dto/pagination-query.dto";
 import { OptionalJwtAuthGuard } from "../auth/passport/jwt-optional.guard";
 import { CourseQueryDto } from "./dto/course-query.dto";
 

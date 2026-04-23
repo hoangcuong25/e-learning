@@ -1,10 +1,10 @@
 import { Body, Controller, Post, UseGuards } from "@nestjs/common";
 import { AiService } from "./ai.service";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ResponseMessage } from "src/core/decorator/customize";
+import { ResponseMessage } from "../../core/decorator/customize";
 import { ExplainTermDto } from "./dto/explain-term.dto";
 import { ChatLessonDto } from "./dto/chat-lesson.dto";
-import { JwtAuthGuard } from "src/modules/auth/passport/jwt-auth.guard";
+import { JwtAuthGuard } from "../../modules/auth/passport/jwt-auth.guard";
 
 @ApiTags("AI")
 @Controller("ai")

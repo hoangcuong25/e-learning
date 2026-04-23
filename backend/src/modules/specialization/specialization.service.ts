@@ -5,15 +5,15 @@ import {
 } from "@nestjs/common";
 import { CreateSpecializationDto } from "./dto/create-specialization.dto";
 import { UpdateSpecializationDto } from "./dto/update-specialization.dto";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../core/prisma/prisma.service";
 import { ApplicationStatus } from "@prisma/client";
 import {
   buildOrderBy,
   buildPaginationParams,
   buildPaginationResponse,
   buildSearchFilter,
-} from "src/core/helpers/pagination.util";
-import { RedisService } from "src/core/redis/redis.service";
+} from "../../core/helpers/pagination.util";
+import { RedisService } from "../../core/redis/redis.service";
 
 @Injectable()
 export class SpecializationService {

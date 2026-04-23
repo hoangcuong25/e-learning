@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/core/prisma/prisma.service";
 import { getEmbedding } from "./localEmbedding";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class VectorStoreService {

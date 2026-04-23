@@ -5,10 +5,10 @@ import {
   Inject,
   forwardRef,
 } from "@nestjs/common";
-import { PrismaService } from "src/core/prisma/prisma.service";
+import { PrismaService } from "../../../core/prisma/prisma.service";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { ConversationQueryDto, MessageQueryDto } from "./dto/chat-query.dto";
-import { buildPaginationParams } from "src/core/helpers/pagination.util";
+import { buildPaginationParams } from "../../../core/helpers/pagination.util";
 import { ChatGateway } from "./chat.gateway";
 import { AiService } from "../../ai/ai.service";
 

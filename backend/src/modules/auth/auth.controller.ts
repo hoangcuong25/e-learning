@@ -16,7 +16,7 @@ import { LocalAuthGuard } from "./passport/local-auth.guard";
 import { CreateAuthDto } from "./dto/create-auth.dto";
 import { Response } from "express";
 import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Public, ResponseMessage } from "src/core/decorator/customize";
+import { Public, ResponseMessage } from "../../core/decorator/customize";
 
 @ApiTags("Auth")
 @Controller("auth")

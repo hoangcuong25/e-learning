@@ -16,8 +16,8 @@ import { UpdatePostDto } from "./dto/update-post.dto";
 import { UpdateVisibilityDto } from "./dto/update-visibility.dto";
 import { PostQueryDto } from "./dto/post-query.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ResponseMessage, Public } from "src/core/decorator/customize";
-import { OptionalJwtAuthGuard } from "src/modules/auth/passport/jwt-optional.guard";
+import { ResponseMessage, Public } from "../../../core/decorator/customize";
+import { OptionalJwtAuthGuard } from "../../auth/passport/jwt-optional.guard";
 
 @ApiTags("Community - Post")
 @Controller("community/posts")

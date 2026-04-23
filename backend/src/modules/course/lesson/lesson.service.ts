@@ -8,10 +8,10 @@ import {
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import * as fs from "fs";
-import { PrismaService } from "src/core/prisma/prisma.service";
-import { CloudinaryService } from "src/core/cloudinary/cloudinary.service";
-import { EnrollmentService } from "src/modules/enrollment/enrollment.service";
-import { RagService } from "src/core/lib/ai/rag.service";
+import { PrismaService } from "../../../core/prisma/prisma.service";
+import { CloudinaryService } from "../../../core/cloudinary/cloudinary.service";
+import { EnrollmentService } from "../../../modules/enrollment/enrollment.service";
+import { RagService } from "../../../core/lib/ai/rag.service";
 
 @Injectable()
 export class LessonService {

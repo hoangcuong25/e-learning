@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { CronService } from "./cron.service";
 import { CronController } from "./cron.controller";
-import { PrismaModule } from "src/core/prisma/prisma.module";
+import { PrismaModule } from "../../core/prisma/prisma.module";
 
 @Module({
   imports: [PrismaModule],

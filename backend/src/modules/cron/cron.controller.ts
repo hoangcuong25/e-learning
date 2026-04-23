@@ -1,7 +1,7 @@
 import { Controller, Post } from "@nestjs/common";
 import { ApiTags, ApiOperation } from "@nestjs/swagger";
 import { CronService } from "./cron.service";
-import { Public, ResponseMessage } from "src/core/decorator/customize";
+import { Public, ResponseMessage } from "../../core/decorator/customize";
 
 @ApiTags("Cron")
 @Controller("cron")

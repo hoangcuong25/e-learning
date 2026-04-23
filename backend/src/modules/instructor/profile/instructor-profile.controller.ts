@@ -1,7 +1,7 @@
 import { Controller, Get, Body, Patch, Req, Param } from "@nestjs/common";
 import { InstructorProfileService } from "./instructor-profile.service";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Public, ResponseMessage, Roles } from "src/core/decorator/customize";
+import { Public, ResponseMessage, Roles } from "../../../core/decorator/customize";
 
 @ApiTags("Instructor Profile")
 @Controller("instructor/profile")

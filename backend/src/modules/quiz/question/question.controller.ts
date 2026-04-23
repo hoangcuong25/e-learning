@@ -12,7 +12,7 @@ import { QuestionService } from "./question.service";
 import { CreateQuestionDto } from "./dto/create-question.dto";
 import { UpdateQuestionDto } from "./dto/update-question.dto";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ResponseMessage, Roles } from "src/core/decorator/customize";
+import { ResponseMessage, Roles } from "../../../core/decorator/customize";
 import { SaveQuestionDto } from "./dto/save-question.dto";
 
 @ApiTags("Question")

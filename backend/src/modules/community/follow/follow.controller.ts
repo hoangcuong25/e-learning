@@ -11,9 +11,9 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { FollowService } from "./follow.service";
-import { ResponseMessage, Public } from "src/core/decorator/customize";
-import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
-import { OptionalJwtAuthGuard } from "src/modules/auth/passport/jwt-optional.guard";
+import { ResponseMessage, Public } from "../../../core/decorator/customize";
+import { PaginationQueryDto } from "../../../core/dto/pagination-query.dto";
+import { OptionalJwtAuthGuard } from "../../auth/passport/jwt-optional.guard";
 
 @ApiTags("Community - Follow")
 @Controller("community/follow")

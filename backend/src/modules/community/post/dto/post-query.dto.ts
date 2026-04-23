@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from "@nestjs/swagger";
 import { PostVisibility } from "@prisma/client";
 import { IsEnum, IsInt, IsOptional } from "class-validator";
 import { Type } from "class-transformer";
-import { PaginationQueryDto } from "src/core/dto/pagination-query.dto";
+import { PaginationQueryDto } from "../../../../core/dto/pagination-query.dto";
 
 export class PostQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
