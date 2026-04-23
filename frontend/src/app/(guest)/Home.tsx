@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { BookOpen, Clock, Users, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
@@ -9,13 +9,30 @@ import Link from "next/link";
 import banner from "@public/elearning-banner.png";
 import CourseCard from "@/components/course/CourseCard";
 import CourseSlider from "@/components/course/CourseSlider";
+import { getPopularCoursesApi } from "@/store/api/course/courses.api";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 50 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
-const Home = ({ popularCourses }: { popularCourses: CourseType[] }) => {
+const Home = () => {
+  const [popularCourses, setPopularCourses] = useState<CourseType[]>([]);
+
+  useEffect(() => {
+    const fetchPopularCourses = async () => {
+      try {
+        const res = await getPopularCoursesApi();
+        if (res) {
+          setPopularCourses(res.data || []);
+        }
+      } catch (error) {
+        console.error("Fetch popular courses error:", error);
+      }
+    };
+    fetchPopularCourses();
+  }, []);
+
   return (
     <div className="space-y-24 pb-20">
       {/* ─── HERO SECTION ──────────────────────────────── */}

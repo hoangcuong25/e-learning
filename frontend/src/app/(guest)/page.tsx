@@ -1,7 +1,8 @@
 import React from "react";
+import type { Metadata } from "next";
 import Home from "./Home";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "EduSmart - Nền tảng học trực tuyến hàng đầu",
   description:
     "EduSmart giúp bạn học tập mọi lúc, mọi nơi với hàng trăm khóa học chất lượng cao từ các giảng viên hàng đầu Việt Nam.",
@@ -16,12 +17,12 @@ export const metadata = {
   openGraph: {
     title: "EduSmart - Học tập mọi lúc, phát triển không ngừng",
     description:
-      "Truy cập hàng trăm khóa học chất lượng từ các giảng viên hàng đầu. Học online, nhận chứng chỉ uy tín và phát triển sự nghiệp cùng EduSmart.",
-    url: "https://edusmart.vn", // Thay bằng domain thực của bạn
+      "Truy cập hàng trăm khóa học chất lượng từ các giảng viên hàng đầu.",
+    url: "https://edusmart.vn",
     siteName: "EduSmart",
     images: [
       {
-        url: "/elearning-banner.png", // đường dẫn ảnh banner trong public/
+        url: "/elearning-banner.png",
         width: 1200,
         height: 630,
         alt: "EduSmart e-learning banner",
@@ -31,33 +32,9 @@ export const metadata = {
     type: "website",
   },
   authors: [{ name: "EduSmart Team" }],
-  metadataBase: new URL("https://edusmart.vn"), // Đặt domain của bạn ở đây
+  metadataBase: new URL("https://edusmart.vn"),
 };
 
-async function getPopularCourses() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}course/popular`,
-      {
-        cache: "force-cache",
-        next: { revalidate: 60 },
-      },
-    );
-
-    if (!res.ok) {
-      throw new Error("Failed to fetch courses");
-    }
-
-    const data = await res.json();
-    return data?.data || [];
-  } catch (error) {
-    console.error("Fetch error:", error);
-    return [];
-  }
-}
-
 export default async function Page() {
-  const popularCourses = await getPopularCourses();
-
-  return <Home popularCourses={popularCourses} />;
+  return <Home />;
 }
