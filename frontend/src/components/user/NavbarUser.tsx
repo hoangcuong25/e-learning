@@ -96,16 +96,16 @@ const NavbarUser = () => {
           {menuItems.map((item, index) => (
             <li key={index} className="relative group">
               <Link
-                href={item.path}
+                href={item?.path || ""}
                 className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
-                  isActive(item.path)
+                  isActive(item?.path || "")
                     ? "text-indigo-600"
                     : "text-slate-400 hover:text-slate-900"
                 }`}
               >
-                {item.label}
+                {item?.label || ""}
               </Link>
-              {isActive(item.path) && (
+              {isActive(item?.path || "") && (
                 <motion.div
                   layoutId="activeTab"
                   className="absolute -bottom-1 left-0 right-0 h-0.5 bg-indigo-600 rounded-full"
@@ -243,14 +243,14 @@ const NavbarUser = () => {
                   {menuItems.map((item, i) => (
                     <Link
                       key={i}
-                      href={item.path}
+                      href={item?.path || ""}
                       className={`text-xs font-black uppercase tracking-[0.2em] ${
-                        isActive(item.path)
+                        isActive(item?.path || "")
                           ? "text-indigo-600"
                           : "text-slate-400"
                       }`}
                     >
-                      {item.label}
+                      {item?.label || ""}
                     </Link>
                   ))}
                 </nav>
