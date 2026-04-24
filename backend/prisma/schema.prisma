@@ -148,7 +148,7 @@
     fullname  String    @db.VarChar(50)
     email     String    @unique
     password  String    @db.VarChar(100)
-    avatar    String    @default("https://res.cloudinary.com/dtaawt3ej/image/upload/v1747292486/q9lmgugyqgrm7q5voatw.jpg")
+    avatar    String    @default("https://res.cloudinary.com/dzfansbci/image/upload/v1777120766/avatar-elearning_yhpmjb.png")
     gender    Gender?
     dob       DateTime? @db.Date
     address   String?

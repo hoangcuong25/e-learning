@@ -1,10 +1,10 @@
 import { Module, OnModuleInit } from "@nestjs/common";
 import { MailerModule } from "@nestjs-modules/mailer";
-import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
+import { HandlebarsAdapter } from "@nestjs-modules/mailer/adapters/handlebars.adapter";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import * as path from "path";
 import * as Handlebars from "handlebars";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 
 @Module({
   imports: [
@@ -17,20 +17,23 @@ import * as dayjs from "dayjs";
           port: 465,
           secure: true,
           auth: {
-            user: configService.get<string>("MAIL_USER"),
-            pass: configService.get<string>("MAIL_PASSWORD"),
+            user: configService.get("MAIL_USER"),
+            pass: configService.get("MAIL_PASSWORD"),
           },
         },
+
         defaults: {
           from: `"EduConnect" <no-reply@educonnect.com>`,
         },
+
         template: {
           dir: path.join(
             process.cwd(),
+            "dist",
             "src",
             "core",
             "mailSender",
-            "templates"
+            "templates",
           ),
           adapter: new HandlebarsAdapter(),
           options: {
@@ -43,18 +46,17 @@ import * as dayjs from "dayjs";
 })
 export class MailModule implements OnModuleInit {
   onModuleInit() {
-    // ✅ Đăng ký helpers ở đây
     Handlebars.registerHelper("formatDate", (date: string | Date) => {
       if (!date) return "";
       return dayjs(date).format("DD/MM/YYYY");
     });
 
     Handlebars.registerHelper("uppercase", (str: string) =>
-      str ? str.toUpperCase() : ""
+      str ? str.toUpperCase() : "",
     );
 
     Handlebars.registerHelper("capitalize", (str: string) =>
-      str ? str.charAt(0).toUpperCase() + str.slice(1) : ""
+      str ? str.charAt(0).toUpperCase() + str.slice(1) : "",
     );
   }
 }
