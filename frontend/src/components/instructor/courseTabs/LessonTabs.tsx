@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, MessageCircle, Video } from "lucide-react";
 import CreateChapter from "@/components/instructor/courses/chapter/CreateChapter";
+import UpdateChapter from "@/components/instructor/courses/chapter/UpdateChapter";
+import DeleteChapterDialog from "@/components/instructor/courses/chapter/DeleteChapterDialog";
 import CreateLesson from "@/components/instructor/courses/lessons/CreateLesson";
 import UpdateLesson from "@/components/instructor/courses/lessons/UpdateLesson";
 import DeleteLessonDialog from "@/components/instructor/courses/lessons/DeleteLessonDialog";
@@ -83,6 +85,17 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                 </div>
 
                 <div className="flex items-center gap-3 w-full md:w-auto">
+                  <div className="flex items-center gap-1 bg-white p-1 rounded-xl shadow-sm border border-slate-50 mr-2">
+                    <UpdateChapter
+                      courseId={currentCourse.id}
+                      chapter={chapter}
+                    />
+                    <DeleteChapterDialog
+                      courseId={currentCourse.id}
+                      chapterId={chapter.id}
+                      chapterTitle={chapter.title}
+                    />
+                  </div>
                   <CreateLesson
                     courseId={currentCourse.id}
                     chapterId={chapter.id}
