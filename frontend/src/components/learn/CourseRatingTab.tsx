@@ -9,6 +9,9 @@ import { AppDispatch, RootState } from "@/store";
 import { fetchMyEnrollments } from "@/store/slice/course/enrollmentsSlice";
 import { useParams } from "next/navigation";
 import {
+  fetchCourseDetailWithAuth,
+} from "@/store/slice/course/coursesSlice";
+import {
   fetchCourseRatings,
   createRating,
 } from "@/store/slice/course/courseRatingSlice";
@@ -54,6 +57,7 @@ const CourseRatingTab: React.FC<CourseRatingTabProps> = ({
       toast.success("Đánh giá khóa học thành công!");
 
       dispatch(fetchMyEnrollments());
+      dispatch(fetchCourseDetailWithAuth(courseId));
       dispatch(
         fetchCourseRatings({ courseId, params: { page: 1, limit: 10 } })
       );

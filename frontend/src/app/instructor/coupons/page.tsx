@@ -166,7 +166,9 @@ const Coupons = () => {
                         </Badge>
                       </div>
                       <p className="text-xs sm:text-sm text-slate-500 font-bold line-clamp-1">
-                        {coupon.title || "Tết Giáp Thìn 2024"}
+                        {coupon.target === "COURSE"
+                          ? coupon.course?.title
+                          : coupon.specialization?.title || "Tất cả khóa học"}
                       </p>
                     </div>
 
@@ -282,7 +284,7 @@ const Coupons = () => {
                         </div>
                       ) : (
                         <span className="text-xs font-black text-slate-700">
-                          Vô thời hạn
+                          Còn thời hạn
                         </span>
                       )}
                     </div>

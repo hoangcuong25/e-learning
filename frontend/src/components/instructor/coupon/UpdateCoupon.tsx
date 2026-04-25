@@ -118,10 +118,9 @@ const UpdateCouponForm: React.FC<UpdateCouponFormProps> = ({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-slate-900/50 backdrop-blur-3xl border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl relative"
+      className=" backdrop-blur-3xl border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl relative"
     >
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-violet-500/10 to-transparent pointer-events-none" />
-
+      <div className="absolute top-0 left-0 w-full h-32 pointer-events-none" />
       <form onSubmit={handleUpdate} className="p-8 space-y-8 relative z-10">
         {/* Header Section */}
         <div className="flex items-center justify-between pb-2 border-b border-slate-800/50">
