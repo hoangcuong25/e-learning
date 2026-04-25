@@ -10,7 +10,7 @@ export class InstructorService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
   ) {}
 
   // 🧩 Nộp đơn đăng ký làm giảng viên
@@ -33,7 +33,7 @@ export class InstructorService {
 
     if (existingPending) {
       throw new BadRequestException(
-        "Bạn đã có một đơn đăng ký đang chờ duyệt. Vui lòng chờ phản hồi."
+        "Bạn đã có một đơn đăng ký đang chờ duyệt. Vui lòng chờ phản hồi.",
       );
     }
 
@@ -44,7 +44,7 @@ export class InstructorService {
 
     if (validSpecs.length !== specializationIds.length) {
       throw new BadRequestException(
-        "Một hoặc nhiều chuyên ngành không tồn tại."
+        "Một hoặc nhiều chuyên ngành không tồn tại.",
       );
     }
 
@@ -76,7 +76,7 @@ export class InstructorService {
         user,
         application,
         specializations: application.applicationSpecializations.map(
-          (item) => item.specialization.name
+          (item) => item.specialization.name,
         ),
         platformName: "EduConnect",
       },
@@ -152,7 +152,7 @@ export class InstructorService {
         user,
         application,
         specializations: application.applicationSpecializations.map(
-          (item) => item.specialization.name
+          (item) => item.specialization.name,
         ),
         platformName: "EduConnect",
         loginUrl: "https://educonnect.com/login",
@@ -220,7 +220,7 @@ export class InstructorService {
         user,
         application,
         specializations: application.applicationSpecializations.map(
-          (item) => item.specialization.name
+          (item) => item.specialization.name,
         ),
         platformName: "EduConnect",
       },
@@ -242,7 +242,7 @@ export class InstructorService {
       where: { status: ApplicationStatus.PENDING },
       include: {
         user: {
-          select: { id: true, email: true },
+          select: { id: true, email: true, avatar: true, fullname: true },
         },
         applicationSpecializations: {
           include: { specialization: true },

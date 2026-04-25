@@ -73,6 +73,7 @@ declare global {
       id: number;
       fullname: string;
       email: string;
+      avatar: string;
     };
   };
 

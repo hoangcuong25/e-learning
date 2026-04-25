@@ -4,7 +4,7 @@ import { HandlebarsAdapter } from "@nestjs-modules/mailer/adapters/handlebars.ad
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import * as path from "path";
 import * as Handlebars from "handlebars";
-import dayjs from "dayjs";
+import * as dayjs from "dayjs";
 
 @Module({
   imports: [
@@ -27,14 +27,10 @@ import dayjs from "dayjs";
         },
 
         template: {
-          dir: path.join(
-            process.cwd(),
-            "dist",
-            "src",
-            "core",
-            "mailSender",
-            "templates",
-          ),
+          dir:
+            process.env.NODE_ENV === "production"
+              ? path.join(__dirname, "templates")
+              : path.join(process.cwd(), "src/core/mailSender/templates"),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
