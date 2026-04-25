@@ -125,10 +125,12 @@ const CourseDetailPage = () => {
                     </div>
                     <div className="flex flex-col">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Pricing
+                        Giá
                       </span>
                       <span className="text-lg font-black text-slate-900">
-                        {currentCourse.price.toLocaleString()} LC
+                        {currentCourse.price === 0
+                          ? "Miễn phí"
+                          : currentCourse.price.toLocaleString() + " LC"}
                       </span>
                     </div>
                   </div>
@@ -162,7 +164,7 @@ const CourseDetailPage = () => {
                       <span className="text-lg font-black text-slate-900">
                         {currentCourse.averageRating > 0
                           ? currentCourse.averageRating.toFixed(1)
-                          : "N/A"}
+                          : "0"}
                       </span>
                     </div>
                   </div>

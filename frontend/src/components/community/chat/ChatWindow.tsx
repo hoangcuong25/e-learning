@@ -281,13 +281,11 @@ export default function ChatWindow({ onBack }: ChatWindowProps) {
               className={`text-lg font-black tracking-tight ${currentConversation.type === "AI" ? "text-indigo-600" : "text-slate-900"}`}
             >
               {currentConversation.type === "AI"
-                ? "AI Assistant"
+                ? "Trợ lý AI"
                 : otherParticipant?.fullname || "Teammate"}
             </h3>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-              {currentConversation.type === "AI"
-                ? "AI Powered Search"
-                : "Active Session"}
+              {currentConversation.type === "AI" ? "AI hỗ trợ" : "Trực tuyến"}
             </p>
           </div>
         </div>
@@ -476,11 +474,7 @@ export default function ChatWindow({ onBack }: ChatWindowProps) {
             <textarea
               value={content}
               onChange={handleTyping}
-              placeholder={
-                isUploading
-                  ? "Processing files..."
-                  : "Start typing your session..."
-              }
+              placeholder={isUploading ? "Đang xử lý files..." : "Nhắn tin..."}
               rows={1}
               disabled={isUploading}
               className="px-2 w-full bg-transparent border-none focus:ring-0 text-slate-900 font-medium placeholder:text-slate-300 py-3 scrollbar-hide resize-none min-h-[48px] max-h-40"

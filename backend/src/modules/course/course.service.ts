@@ -527,7 +527,7 @@ export class CourseService {
     });
   }
 
-  async getPopularCourses(limit: number = 6) {
+  async getPopularCourses(limit: number = 3) {
     const cacheKey = `course:popular:${limit}`;
 
     return this.redisService.getOrSet(

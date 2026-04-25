@@ -110,7 +110,9 @@ const InstructorCoursesPage = () => {
                   {/* Floating Price Tag */}
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-xl border border-white/20">
                     <span className="text-sm font-black text-indigo-600">
-                      {course.price.toLocaleString()} LC
+                      {course.price === 0
+                        ? "Miễn phí"
+                        : course.price.toLocaleString() + " LC"}
                     </span>
                   </div>
 
@@ -161,7 +163,7 @@ const InstructorCoursesPage = () => {
 
                     <div className="flex flex-col items-center gap-1 flex-1">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
-                        Rating
+                        Đánh giá
                       </span>
                       <span className="text-sm font-black text-amber-500 flex items-center gap-1">
                         {course?.averageRating}{" "}

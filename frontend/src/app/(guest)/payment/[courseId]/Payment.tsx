@@ -252,7 +252,7 @@ const Payment = () => {
                     <Loader2 className="animate-spin" size={20} />
                   ) : (
                     <>
-                      Confirm Payment <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                      Xác nhận thanh toán <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </button>

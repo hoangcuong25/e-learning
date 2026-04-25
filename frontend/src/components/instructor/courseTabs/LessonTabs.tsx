@@ -182,7 +182,7 @@ const LessonTabs = ({ currentCourse }: LessonTabsProps) => {
                                   router.push(`/instructor/quizzes/${quiz.id}`)
                                 }
                               >
-                                Edit Quiz
+                                Sửa Quiz
                               </Button>
                             </div>
                           ))}
