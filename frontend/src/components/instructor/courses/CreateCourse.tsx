@@ -139,7 +139,7 @@ export default function CourseCreate() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="md:max-w-[850px] max-h-[90vh] overflow-auto rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
+      <DialogContent className="md:max-w-[850px] max-h-[90vh] overflow-y-auto rounded-[2.5rem] border-none shadow-2xl p-0">
         <DialogHeader className="p-8 bg-slate-50/50 border-b border-slate-100">
           <DialogTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
              <div className="p-2.5 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200">

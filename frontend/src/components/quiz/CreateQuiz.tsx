@@ -108,7 +108,7 @@ const QuizForm = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-12 py-8 px-4">
+    <div className="w-full max-w-7xl mx-auto space-y-10 py-6 px-4">
       <div className="space-y-4 text-center md:text-left">
         <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">
           Thiết lập <span className="text-indigo-600">Bài kiểm tra</span>
@@ -118,13 +118,13 @@ const QuizForm = () => {
         </p>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border-2 border-slate-50 p-8 md:p-12 shadow-2xl shadow-indigo-100/20 shadow-slate-200/20">
+      <div className="bg-white rounded-[2.5rem] border-2 border-slate-50 p-6 md:p-10 shadow-2xl shadow-indigo-100/20 shadow-slate-200/20">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-10"
+            className="space-y-8"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Chọn khóa học */}
               <FormField
                 control={form.control}
@@ -137,7 +137,7 @@ const QuizForm = () => {
                       value={field.value ? String(field.value) : ""}
                     >
                       <FormControl>
-                        <SelectTrigger className="h-16 bg-slate-50/50 border-transparent focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none">
+                        <SelectTrigger className="h-14 bg-slate-50/50 border-transparent focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none">
                           <SelectValue placeholder="Chọn khóa học của bạn" />
                         </SelectTrigger>
                       </FormControl>
@@ -167,7 +167,7 @@ const QuizForm = () => {
                       value={field.value ? String(field.value) : ""}
                     >
                       <FormControl>
-                        <SelectTrigger className="h-16 bg-slate-50/50 border-transparent hover:border-slate-100 focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none disabled:opacity-50">
+                        <SelectTrigger className="h-14 bg-slate-50/50 border-transparent hover:border-slate-100 focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none disabled:opacity-50">
                           <SelectValue placeholder="Chọn chương bối cảnh" />
                         </SelectTrigger>
                       </FormControl>
@@ -197,7 +197,7 @@ const QuizForm = () => {
                       value={field.value ? String(field.value) : ""}
                     >
                       <FormControl>
-                        <SelectTrigger className="h-16 bg-slate-50/50 border-transparent hover:border-slate-100 focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none disabled:opacity-50">
+                        <SelectTrigger className="h-14 bg-slate-50/50 border-transparent hover:border-slate-100 focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none disabled:opacity-50">
                           <SelectValue placeholder="Gắn vào bài học cụ thể" />
                         </SelectTrigger>
                       </FormControl>
@@ -225,7 +225,7 @@ const QuizForm = () => {
                       <Input
                         placeholder="Ví dụ: Kiểm tra kiến thức Flexbox"
                         {...field}
-                        className="h-16 bg-slate-50/50 border-transparent focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none"
+                        className="h-14 bg-slate-50/50 border-transparent focus:bg-white focus:border-indigo-200 rounded-[1.5rem] transition-all font-bold px-6 text-slate-900 shadow-sm outline-none"
                       />
                     </FormControl>
                     <FormMessage className="text-[10px] uppercase font-black tracking-widest text-rose-500 ml-4" />
@@ -238,7 +238,7 @@ const QuizForm = () => {
               <Button
                 type="submit"
                 disabled={quizLoading || courseLoading}
-                className="h-20 px-16 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black uppercase tracking-widest rounded-[2rem] shadow-2xl shadow-indigo-200 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                className="h-14 px-12 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black uppercase tracking-widest rounded-[2rem] shadow-2xl shadow-indigo-200 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
               >
                 {quizLoading ? "Đang xử lý hồ sơ..." : "Khởi tạo Bài kiểm tra"}
               </Button>

@@ -154,7 +154,7 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl rounded-[3rem] border-none p-0 overflow-hidden bg-white shadow-2xl">
+      <DialogContent className="sm:max-w-[1200px] w-[95vw] max-h-[90vh] flex flex-col rounded-[3rem] border-none p-0 overflow-hidden bg-white shadow-2xl">
         <DialogHeader className="p-10 pb-0 flex flex-col items-center text-center">
           <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-[2rem] flex items-center justify-center mb-6">
             <HelpCircle className="w-10 h-10" />
@@ -167,7 +167,7 @@ const CreateQuestion: React.FC<CreateQuestionProps> = ({ quizId }) => {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="p-10 space-y-12">
+        <div className="p-10 space-y-12 flex-1 overflow-y-auto custom-scrollbar">
           {/* STEP 1: QUESTION CONTENT */}
           <section className={`space-y-6 transition-all duration-500 ${createdQuestionId ? "opacity-40 grayscale-[0.6] pointer-events-none" : ""}`}>
             <div className="flex items-center justify-between">

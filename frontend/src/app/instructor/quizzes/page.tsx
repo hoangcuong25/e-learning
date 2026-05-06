@@ -162,7 +162,7 @@ const Quizzes = () => {
                 <PlusCircle className="w-5 h-5" /> Tạo Quiz Mới
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl w-full rounded-[2.5rem] border-none p-0 overflow-hidden bg-white">
+            <DialogContent className="sm:max-w-[1200px] w-[95vw] rounded-[2.5rem] border-none p-0 overflow-hidden bg-white">
               <div className="p-8 bg-slate-50 border-b border-slate-100">
                 <DialogTitle className="text-2xl font-black text-slate-900">
                   Thiết lập Quiz

@@ -220,7 +220,7 @@ const AdminCoupons = () => {
                         </Button>
                       </DialogTrigger>
 
-                      <DialogContent className="max-w-3xl">
+                      <DialogContent className="max-w-3xl max-h-[calc(100vh-10rem)] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle className="text-xl font-semibold text-gray-800">
                             ✏️ Cập nhật Coupon

@@ -118,7 +118,7 @@ const UpdateCouponForm: React.FC<UpdateCouponFormProps> = ({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className=" backdrop-blur-3xl border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl relative"
+      className=" backdrop-blur-3xl border border-slate-800 rounded-[2.5rem] overflow-y-auto max-h-[calc(100vh-12rem)] shadow-2xl relative custom-scrollbar p-3"
     >
       <div className="absolute top-0 left-0 w-full h-32 pointer-events-none" />
       <form onSubmit={handleUpdate} className="p-8 space-y-8 relative z-10">

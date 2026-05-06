@@ -156,7 +156,7 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="max-w-3xl h-[90vh] overflow-hidden rounded-[3rem] border-none p-0 bg-white shadow-2xl">
+        <DialogContent className="sm:max-w-[1200px] w-[95vw] max-h-[90vh] flex flex-col overflow-hidden rounded-[3rem] border-none p-0 bg-white shadow-2xl">
           <DialogHeader className="p-10 pb-0 flex flex-col items-center text-center">
             <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-[2rem] flex items-center justify-center mb-6">
               <Pencil className="w-10 h-10" />
@@ -170,7 +170,7 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
           </DialogHeader>
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="p-10 space-y-12 overflow-y-auto h-full"
+            className="p-10 space-y-12 flex-1 overflow-y-auto custom-scrollbar"
           >
             {/* 🧩 Câu hỏi */}
             <section className="space-y-6">

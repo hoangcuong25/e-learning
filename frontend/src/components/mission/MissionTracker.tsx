@@ -36,7 +36,7 @@ export default function MissionTracker() {
             );
           }
         })
-        .catch((error) => console.error("Lỗi cập nhật nhiệm vụ:", error));
+        .catch(() => console.log("Lỗi cập nhật nhiệm vụ"));
     }, 60000);
 
     return () => {

@@ -186,7 +186,7 @@ const InstructorCoursesPage = () => {
                       variant="outline"
                       className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-none font-extrabold rounded-2xl
                                  px-6 py-6 hover:scale-105 hover:shadow-xl hover:shadow-indigo-200
-                                 transition-all duration-300 flex items-center gap-2"
+                                 transition-all duration-300 flex items-center mx-auto"
                       onClick={() =>
                         router.push(`/instructor/courses/${course.id}`)
                       }
